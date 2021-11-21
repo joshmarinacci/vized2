@@ -5,13 +5,12 @@ import {
     MovableName,
     PickingSystem,
     Point, Powerup,
-    PropRenderingSystem,
+    // PropRenderingSystem,
     Rect,
     Resizable,
     ResizableName,
     TreeNode
 } from "./common";
-// import {GlobalState} from "./state.js";
 
 export const BoundedShapeName = "BoundedShapeName";
 export interface BoundedShape extends Component {
@@ -93,44 +92,47 @@ export class ResizableRectObject implements Resizable {
     }
 }
 
-export class BoundedShapePropRenderingSystem implements PropRenderingSystem {
-    name: string;
-    private state: GlobalState;
-
-    constructor(state: GlobalState) {
-        this.state = state
-        this.name = "BoundedShapePropRenderingSystem"
-    }
-
-    // render_view(comp: Component): HTMLElement {
-        // let bounds = (comp as BoundedShape).get_bounds()
-        // let x = LABEL("x")
-        // let xbox = NUMBER_INPUT(bounds.x, (v) => {
-        //     bounds.x = v
-        //     this.state.dispatch("prop-change", {})
-        // })
-        // let y = LABEL("y")
-        // let ybox = NUMBER_INPUT(bounds.y, (v) => {
-        //     bounds.y = v
-        //     this.state.dispatch("prop-change", {})
-        // })
-        // let w = LABEL("w")
-        // let wbox = NUMBER_INPUT(bounds.w, (v) => {
-        //     bounds.w = v
-        //     this.state.dispatch("prop-change", {})
-        // })
-        // let h = LABEL("h")
-        // let hbox = NUMBER_INPUT(bounds.h, (v) => {
-        //     bounds.h = v
-        //     this.state.dispatch("prop-change", {})
-        // })
-        // return DIV(["prop-group"], [x, xbox, y, ybox, w, wbox, h, hbox])
-    // }
-
-    supports(name: string): any {
-        return (name === BoundedShapeName)
-    }
-}
+// export class BoundedShapePropRenderingSystem implements PropRenderingSystem {
+//     name: string;
+//     private state: GlobalState;
+//
+//     constructor(state: GlobalState) {
+//         this.state = state
+//         this.name = "BoundedShapePropRenderingSystem"
+//     }
+//     render_view(comp:Component) {
+//
+//     }
+//
+//     // render_view(comp: Component): HTMLElement {
+//         // let bounds = (comp as BoundedShape).get_bounds()
+//         // let x = LABEL("x")
+//         // let xbox = NUMBER_INPUT(bounds.x, (v) => {
+//         //     bounds.x = v
+//         //     this.state.dispatch("prop-change", {})
+//         // })
+//         // let y = LABEL("y")
+//         // let ybox = NUMBER_INPUT(bounds.y, (v) => {
+//         //     bounds.y = v
+//         //     this.state.dispatch("prop-change", {})
+//         // })
+//         // let w = LABEL("w")
+//         // let wbox = NUMBER_INPUT(bounds.w, (v) => {
+//         //     bounds.w = v
+//         //     this.state.dispatch("prop-change", {})
+//         // })
+//         // let h = LABEL("h")
+//         // let hbox = NUMBER_INPUT(bounds.h, (v) => {
+//         //     bounds.h = v
+//         //     this.state.dispatch("prop-change", {})
+//         // })
+//         // return DIV(["prop-group"], [x, xbox, y, ybox, w, wbox, h, hbox])
+//     // }
+//
+//     supports(name: string): any {
+//         return (name === BoundedShapeName)
+//     }
+// }
 
 const BoundedShapePickSystemName = 'BoundedShapePickSystem';
 export class BoundedShapePickSystem implements PickingSystem {

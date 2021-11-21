@@ -8,7 +8,7 @@ import {
     PickingSystem,
     Point,
     Powerup,
-    PropRenderingSystem,
+    // PropRenderingSystem,
     RenderingSystem, SVGExporter,
     // SVGExporter,
     TreeNode
@@ -121,40 +121,40 @@ export class MovableCircleObject implements Movable {
 }
 
 
-export class CirclePropRendererSystem implements PropRenderingSystem {
-    name: string;
-    private state: GlobalState;
-    constructor(state:GlobalState) {
-        this.name = ""
-        this.state = state
-    }
-
-    // render_view(comp: Component): HTMLElement {
-        // let circle = (comp as CircleShape)
-        // let x = LABEL("x")
-        // let xbox = NUMBER_INPUT(circle.get_position().x,(v)=>{
-        //     circle.get_position().x = v
-        //     this.state.dispatch("refresh", {})
-        // })
-        // let y = LABEL("y")
-        // let ybox = NUMBER_INPUT(circle.get_position().y,(v)=>{
-        //     circle.get_position().y = v
-        //     this.state.dispatch("refresh", {})
-        // })
-        // let r = LABEL("radius")
-        // let rbox = NUMBER_INPUT(circle.get_radius(),(v)=>{
-        //     circle.set_radius(v)
-        //     this.state.dispatch("refresh", {})
-        // })
-        // return DIV(["prop-group"],[x,xbox,y,ybox,r,rbox])
-    // }
-
-    supports(name: string): any {
-        if(name === CircleShapeName) return true
-        return false
-    }
-
-}
+// export class CirclePropRendererSystem implements PropRenderingSystem {
+//     name: string;
+//     private state: GlobalState;
+//     constructor(state:GlobalState) {
+//         this.name = ""
+//         this.state = state
+//     }
+//
+//     // render_view(comp: Component): HTMLElement {
+//         // let circle = (comp as CircleShape)
+//         // let x = LABEL("x")
+//         // let xbox = NUMBER_INPUT(circle.get_position().x,(v)=>{
+//         //     circle.get_position().x = v
+//         //     this.state.dispatch("refresh", {})
+//         // })
+//         // let y = LABEL("y")
+//         // let ybox = NUMBER_INPUT(circle.get_position().y,(v)=>{
+//         //     circle.get_position().y = v
+//         //     this.state.dispatch("refresh", {})
+//         // })
+//         // let r = LABEL("radius")
+//         // let rbox = NUMBER_INPUT(circle.get_radius(),(v)=>{
+//         //     circle.set_radius(v)
+//         //     this.state.dispatch("refresh", {})
+//         // })
+//         // return DIV(["prop-group"],[x,xbox,y,ybox,r,rbox])
+//     // }
+//
+//     supports(name: string): any {
+//         if(name === CircleShapeName) return true
+//         return false
+//     }
+//
+// }
 
 
 export class CircleSVGExporter implements SVGExporter {

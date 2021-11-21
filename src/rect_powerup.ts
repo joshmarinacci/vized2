@@ -11,7 +11,6 @@ import {
     // SVGExporter,
     TreeNode
 } from "./common";
-// import {GlobalState} from "./state.js";
 // import {JSONExporter} from "./exporters/json.js";
 // import {cssToPdfColor} from "./exporters/pdf.js";
 import {

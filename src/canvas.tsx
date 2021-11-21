@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {ReactNode, useEffect, useRef, useState} from "react";
 import {
     GlobalState,
     Handle,
@@ -103,6 +103,10 @@ class HandleMoveDelegate implements MouseGestureDelegate {
     }
 }
 
+function Toolbar(props: { children: ReactNode[] }) {
+    return <div className={'toolbar'}>{props.children}</div>
+}
+
 export function CanvasView(props:{root:TreeNode, state:GlobalState}) {
     const [pan_offset, set_pan_offset] = useState(new Point(0,0))
     const [zoom_level, set_zoom_level] = useState(0)
@@ -149,10 +153,12 @@ export function CanvasView(props:{root:TreeNode, state:GlobalState}) {
             refresh(ctx,zoom_level, can.width, can.height)
         }
         props.state.on("selection-change", op)
+        props.state.on("prop-change", op)
         props.state.on("refresh", op)
         return () => {
             props.state.off("selection-change",op)
             props.state.off("refresh",op)
+            props.state.on("prop-change", op)
         }
     })
 
@@ -188,8 +194,10 @@ export function CanvasView(props:{root:TreeNode, state:GlobalState}) {
     }
 
     return <div className={'panel center'}>
-        <button onClick={()=>set_zoom_level(zoom_level+1)}>zoom in</button>
-        <button onClick={()=>{set_zoom_level(zoom_level-1)}}>zoom out</button>
+        <Toolbar>
+            <button onClick={()=>set_zoom_level(zoom_level+1)}>zoom in</button>
+            <button onClick={()=>{set_zoom_level(zoom_level-1)}}>zoom out</button>
+        </Toolbar>
         <canvas ref={canvas} width={400} height={400}
                 onMouseDown={mousedown}
                 onMouseMove={mousemove}
@@ -199,9 +207,6 @@ export function CanvasView(props:{root:TreeNode, state:GlobalState}) {
     </div>
 }
 
-//         state.on("refresh", () => this.refresh())
-//         state.on("selection-change", ()=>this.refresh())
-//         state.on("prop-change",()=>this.refresh())
 //         draw_handles(ctx: CanvasRenderingContext2D) {
 //             this.state.active_handles.forEach(hand => {
 //                 ctx.fillStyle = 'yellow'

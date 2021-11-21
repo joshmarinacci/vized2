@@ -9,6 +9,7 @@ export class GlobalState {
     selection: SelectionSystem
     private listeners: Map<string, Callback[]>
     private root: TreeNode
+    // props_renderers:PropRenderingSystem[]
 
     constructor() {
         this.renderers = []
@@ -19,6 +20,7 @@ export class GlobalState {
         this.listeners = new Map<string, Callback[]>()
         // @ts-ignore
         this.root = null
+        // this.props_renderers = []
     }
     set_root(tree: TreeNode) {
         this.root = tree
@@ -143,10 +145,10 @@ export interface RenderingSystem extends System {
 export interface PickingSystem extends System {
     pick(pt:Point, state:GlobalState): TreeNode[]
 }
-export interface PropRenderingSystem extends System {
-    supports(name: string): any;
+// export interface PropRenderingSystem extends System {
+//     supports(name: string): any;
     // render_view(comp: Component): HTMLElement;
-}
+// }
 
 export interface SVGExporter extends System {
     canExport(node:TreeNode):boolean

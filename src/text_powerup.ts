@@ -6,7 +6,7 @@ import {
     PDFExporter,
     Point,
     Powerup,
-    PropRenderingSystem,
+    // PropRenderingSystem,
     Rect,
     RenderingSystem,
     ResizableName,
@@ -140,45 +140,45 @@ export class MovableTextObject implements Movable {
     }
 }
 
-export class TextPropRendererSystem implements PropRenderingSystem {
-    name: string;
-    private state: GlobalState;
-    constructor(state:GlobalState) {
-        this.name = 'TextPropRendererSystem'
-        this.state = state
-    }
-
-    // render_view(comp: Component): HTMLElement {
-    //     let tn = (comp as TextShape)
-    //     let content_label = LABEL("content")
-    //     let content_input = STRING_INPUT(tn.get_content(),(v)=>{
-    //         tn.set_content(v)
-    //         this.state.dispatch("prop-change", {})
-    //     })
-    //     let font_size_label = LABEL("fontsize")
-    //     let font_size_input = NUMBER_INPUT(tn.get_fontsize(),(v)=>{
-    //         tn.set_fontsize(v)
-    //         this.state.dispatch("prop-change", {})
-    //     })
-    //     let halign_label = LABEL("halign")
-    //     let halign_input = CHOICE_INPUT(tn.get_halign(),['left','center','right'],(v)=>{
-    //         tn.set_halign(v)
-    //         this.state.dispatch("prop-change", {})
-    //     })
-    //     let valign_label = LABEL("valign")
-    //     let valign_input = CHOICE_INPUT(tn.get_valign(),['top','center','bottom'],(v)=>{
-    //         tn.set_valign(v)
-    //         this.state.dispatch("prop-change", {})
-    //     })
-    //     return DIV(["prop-group"],[content_label,content_input,font_size_label,font_size_input,halign_label,halign_input,valign_label,valign_input])
-    // }
-
-    supports(name: string): any {
-        if(name === TextShapeName) return true
-        return false
-    }
-
-}
+// export class TextPropRendererSystem implements PropRenderingSystem {
+//     name: string;
+//     private state: GlobalState;
+//     constructor(state:GlobalState) {
+//         this.name = 'TextPropRendererSystem'
+//         this.state = state
+//     }
+//
+//     // render_view(comp: Component): HTMLElement {
+//     //     let tn = (comp as TextShape)
+//     //     let content_label = LABEL("content")
+//     //     let content_input = STRING_INPUT(tn.get_content(),(v)=>{
+//     //         tn.set_content(v)
+//     //         this.state.dispatch("prop-change", {})
+//     //     })
+//     //     let font_size_label = LABEL("fontsize")
+//     //     let font_size_input = NUMBER_INPUT(tn.get_fontsize(),(v)=>{
+//     //         tn.set_fontsize(v)
+//     //         this.state.dispatch("prop-change", {})
+//     //     })
+//     //     let halign_label = LABEL("halign")
+//     //     let halign_input = CHOICE_INPUT(tn.get_halign(),['left','center','right'],(v)=>{
+//     //         tn.set_halign(v)
+//     //         this.state.dispatch("prop-change", {})
+//     //     })
+//     //     let valign_label = LABEL("valign")
+//     //     let valign_input = CHOICE_INPUT(tn.get_valign(),['top','center','bottom'],(v)=>{
+//     //         tn.set_valign(v)
+//     //         this.state.dispatch("prop-change", {})
+//     //     })
+//     //     return DIV(["prop-group"],[content_label,content_input,font_size_label,font_size_input,halign_label,halign_input,valign_label,valign_input])
+//     // }
+//
+//     supports(name: string): any {
+//         if(name === TextShapeName) return true
+//         return false
+//     }
+//
+// }
 
 
 // class TextJSONExporter implements JSONExporter {

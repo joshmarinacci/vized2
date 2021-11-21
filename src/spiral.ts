@@ -4,7 +4,8 @@ import {
     FilledShapeName, GlobalState,
     Movable, MovableName,
     PDFExporter, PickingSystem, Point,
-    Powerup, PropRenderingSystem,
+    Powerup,
+    // PropRenderingSystem,
     RenderingSystem, SVGExporter,
     TreeNode
 } from "./common";
