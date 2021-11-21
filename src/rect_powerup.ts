@@ -39,21 +39,21 @@ export class RectRendererSystem implements RenderingSystem {
 
     render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void {
         if (node.has_component(BoundedShapeName) && node.has_component(RectShapeName)) {
-            let bd: BoundedShape = <BoundedShape>node.get_component(BoundedShapeName)
+            let bd: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
             let rect = bd.get_bounds()
 
             if (node.has_component(FilledShapeName)) {
-                let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
+                let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
                 ctx.fillStyle = color.get_color()
             } else {
                 ctx.fillStyle = 'magenta'
             }
             ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
-            // if (state.selection.has(node)) {
-            //     ctx.strokeStyle = 'magenta'
-            //     ctx.lineWidth = 3.5
-            //     ctx.strokeRect(rect.x, rect.y, rect.w, rect.h)
-            // }
+            if (state.selection.has(node)) {
+                ctx.strokeStyle = 'magenta'
+                ctx.lineWidth = 3.5
+                ctx.strokeRect(rect.x, rect.y, rect.w, rect.h)
+            }
         }
     }
 

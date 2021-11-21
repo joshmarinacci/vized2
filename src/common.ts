@@ -1,9 +1,53 @@
+export type Callback = (arg:any) => void
+export type EVENT_TYPES = "refresh" | "selection-change" | "prop-change" | "object-changed"
+
 export class GlobalState {
     renderers: RenderingSystem[]
     powerups: Powerup[]
+    pickers: PickingSystem[]
+    active_handles: Handle[]
+    selection: SelectionSystem
+    private listeners: Map<string, Callback[]>
+    private root: TreeNode
+
     constructor() {
         this.renderers = []
         this.powerups = []
+        this.pickers = []
+        this.active_handles = []
+        this.selection = new SelectionSystem()
+        this.listeners = new Map<string, Callback[]>()
+        // @ts-ignore
+        this.root = null
+    }
+    set_root(tree: TreeNode) {
+        this.root = tree
+    }
+    get_root(): TreeNode {
+        return this.root
+    }
+    on(type: EVENT_TYPES, cb: Callback) {
+        this._get_listeners(type).push(cb)
+    }
+    off(type: EVENT_TYPES, cb:Callback) {
+        let list = this._get_listeners(type)
+        let n = list.indexOf(cb)
+        if(n > 0) list.splice(n,1)
+    }
+
+    private _get_listeners(type: string):Callback[] {
+        if (!this.listeners.has(type)) this.listeners.set(type, [])
+        // @ts-ignore
+        return this.listeners.get(type)
+    }
+
+    dispatch(type: EVENT_TYPES, payload: any) {
+        // this.log("dispatching",type,payload)
+        this._get_listeners(type).forEach(cb => cb(payload))
+    }
+
+    private log(...args:any[]) {
+        console.log("GLOBAL:", ...args)
     }
 }
 
@@ -59,7 +103,6 @@ export class Rect {
         return true
     }
 }
-
 
 export interface Component {
     name: string,
@@ -204,9 +247,9 @@ export abstract class Handle extends Rect {
 }
 
 export interface MouseGestureDelegate {
-    press(e: MouseEvent):void
-    move(e: MouseEvent):void
-    release(e: MouseEvent):void
+    press(e: MouseEvent, pt:Point):void
+    move(e: MouseEvent, pt:Point):void
+    release(e: MouseEvent, pt:Point):void
 }
 
 // export class FilledShapePropRenderer implements PropRenderingSystem {

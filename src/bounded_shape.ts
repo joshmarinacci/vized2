@@ -141,10 +141,9 @@ export class BoundedShapePickSystem implements PickingSystem {
     }
 
     pick(pt: Point, state: GlobalState): TreeNode[] {
-        return []
-        // let picked = []
-        // this._test_node(pt, state.get_root(), picked)
-        // return picked
+        let picked:TreeNode[] = []
+        this._test_node(pt, state.get_root(), picked)
+        return picked
     }
 
     private _test_node(pt: Point, node: TreeNode, collect: TreeNode[]) {
@@ -162,7 +161,7 @@ export class BoundedShapePickSystem implements PickingSystem {
 export class BoundedShapePowerup implements Powerup {
     init(state: GlobalState) {
         // state.props_renderers.push(new BoundedShapePropRenderingSystem(state))
-        // state.pickers.push(new BoundedShapePickSystem())
+        state.pickers.push(new BoundedShapePickSystem())
     }
 }
 

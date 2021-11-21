@@ -66,11 +66,11 @@ export class CircleRendererSystem implements RenderingSystem {
             ctx.beginPath()
             ctx.arc(shape.get_position().x, shape.get_position().y,shape.get_radius(),0,Math.PI*2)
             ctx.fill()
-            // if(state.selection.has(node)) {
-            //     ctx.strokeStyle = 'magenta'
-            //     ctx.lineWidth = 3.5
-            //     ctx.stroke()
-            // }
+            if(state.selection.has(node)) {
+                ctx.strokeStyle = 'magenta'
+                ctx.lineWidth = 3.5
+                ctx.stroke()
+            }
 
         }
     }
@@ -86,10 +86,9 @@ export class CirclePickSystem implements PickingSystem {
     }
 
     pick(pt: Point, state: GlobalState): TreeNode[] {
-        // let picked = []
-        // this._test_node(pt,state.get_root(),picked)
-        // return picked
-        return []
+        let picked:TreeNode[] = []
+        this._test_node(pt,state.get_root(),picked)
+        return picked
     }
 
     private _test_node(pt:Point, node: TreeNode, collect:TreeNode[]) {
@@ -212,7 +211,7 @@ export class CirclePDFExporter implements PDFExporter {
 export class CirclePowerup implements Powerup {
     init(state: GlobalState) {
         // state.props_renderers.push(new CirclePropRendererSystem(state))
-        // state.pickers.push(new CirclePickSystem())
+        state.pickers.push(new CirclePickSystem())
         state.renderers.push(new CircleRendererSystem())
         // state.svgexporters.push(new CircleSVGExporter())
         // state.pdfexporters.push(new CirclePDFExporter())

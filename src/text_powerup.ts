@@ -114,14 +114,13 @@ class TextRenderingSystem implements RenderingSystem {
             }
             ctx.fillText(tn.get_content(),h_offset,v_offset )
             ctx.restore()
-            // if (state.selection.has(node)) {
-            //     ctx.save()
-            //     ctx.strokeStyle = 'magenta'
-            //     ctx.lineWidth = 3.5
-            //     ctx.strokeRect(bounds.x,bounds.y,bounds.w,bounds.h)//h_offset, v_offset, rect.w, rect.h)
-            //     ctx.restore()
-            // }
-
+            if (state.selection.has(node)) {
+                ctx.save()
+                ctx.strokeStyle = 'magenta'
+                ctx.lineWidth = 3.5
+                ctx.strokeRect(bounds.x,bounds.y,bounds.w,bounds.h)//h_offset, v_offset, rect.w, rect.h)
+                ctx.restore()
+            }
         }
     }
 

@@ -97,13 +97,13 @@ class SpiralRendererSystem implements RenderingSystem {
             }
             ctx.stroke()
 
-            // if(state.selection.has(node)) {
-            //     ctx.strokeStyle = 'magenta'
-            //     ctx.lineWidth = 3.5
-            //     ctx.beginPath()
-            //     ctx.arc(0,0,spiral.get_radius(),0,Math.PI*2)
-            //     ctx.stroke()
-            // }
+            if(state.selection.has(node)) {
+                ctx.strokeStyle = 'magenta'
+                ctx.lineWidth = 3.5
+                ctx.beginPath()
+                ctx.arc(0,0,spiral.get_radius(),0,Math.PI*2)
+                ctx.stroke()
+            }
 
             ctx.restore()
         }
@@ -118,10 +118,9 @@ export class SpiralPickSystem implements PickingSystem {
     }
 
     pick(pt: Point, state: GlobalState): TreeNode[] {
-        // let picked = []
-        // this._test_node(pt,state.get_root(),picked)
-        // return picked
-        return []
+        let picked:TreeNode[] = []
+        this._test_node(pt,state.get_root(),picked)
+        return picked
     }
 
     private _test_node(pt:Point, node: TreeNode, collect:TreeNode[]) {
@@ -248,7 +247,7 @@ export class MovableSpiralObject implements Movable {
 export class SpiralPowerup implements Powerup {
     init(state: GlobalState) {
         // state.props_renderers.push(new SpiralPropRendererSystem(state))
-        // state.pickers.push(new SpiralPickSystem())
+        state.pickers.push(new SpiralPickSystem())
         state.renderers.push(new SpiralRendererSystem())
         // state.svgexporters.push(new SpiralSVGExporter())
         // state.pdfexporters.push(new SpiralPDFExporter())

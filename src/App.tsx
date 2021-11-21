@@ -30,6 +30,14 @@ export function make_default_tree() {
     root.components.push(new FilledShapeObject('white'))
 
     {
+        let rect3 = new TreeNodeImpl()
+        rect3.components.push(new RectShapeObject())
+        rect3.components.push(new BoundedShapeObject(new Rect(10, 250, 100, 100)))
+        rect3.components.push(new FilledShapeObject("#ff8855"))
+        rect3.components.push(new MovableBoundedShape(rect3))
+        add_child_to_parent(rect3, root)
+    }
+    {
         let rect1 = new TreeNodeImpl()
         rect1.components.push(new RectShapeObject())
         rect1.components.push(new BoundedShapeObject(new Rect(10, 10, 10, 10)))
@@ -92,8 +100,9 @@ function TreeView(props:{root:TreeNode}) {
     </div>
 }
 
-export function setup_state():GlobalState {
+export function setup_state(root:TreeNode):GlobalState {
     let state:GlobalState = new GlobalState()
+    state.set_root(root)
     // state.props_renderers.push(new FilledShapePropRenderer(state))
     // state.jsonexporters.push(new FilledShapeJSONExporter())
     state.powerups.push(new BoundedShapePowerup())
@@ -108,7 +117,7 @@ export function setup_state():GlobalState {
 
 function App() {
     let root = make_default_tree()
-    let state = setup_state()
+    let state = setup_state(root)
     return (
         <div className="App">
             <IDEGrid title={"foo"}>
