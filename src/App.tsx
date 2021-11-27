@@ -23,7 +23,10 @@ import {
 import {CirclePowerup, CircleShape, CircleShapeObject, MovableCircleObject} from "./circle_powerup";
 import {MovableTextObject, TextPowerup, TextShapeObject} from "./text_powerup";
 import {MovableSpiralObject, SpiralPowerup, SpiralShapeObject} from "./spiral";
-import {export_JSON} from "./exporters/json";
+import {export_JSON, FilledShapeJSONExporter} from "./exporters/json";
+import {export_PDF} from "./exporters/pdf";
+import {export_SVG} from "./exporters/svg";
+import {export_PNG} from "./exporters/png";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -126,7 +129,7 @@ function TreeView(props:{root:TreeNode}) {
 export function setup_state(root:TreeNode):GlobalState {
     let state:GlobalState = new GlobalState()
     state.set_root(root)
-    // state.jsonexporters.push(new FilledShapeJSONExporter())
+    state.jsonexporters.push(new FilledShapeJSONExporter())
     state.powerups.push(new BoundedShapePowerup())
     state.powerups.push(new CirclePowerup())
     state.powerups.push(new RectPowerup())
@@ -253,12 +256,18 @@ function App() {
     let state = setup_state(root)
     let new_greeting_card = () => set_root(make_greeting_card_tree())
     let export_json = () => export_JSON(root,state);
+    let export_pdf = () => export_PDF(root,state);
+    let export_png = () => export_PNG(root,state);
+    let export_svg = () => export_SVG(root,state);
     return (
         <div className="App">
             <IDEGrid title={"foo"}>
                 <Toolbar>
                     <button onClick={new_greeting_card}>new card</button>
                     <button onClick={export_json}>JSON</button>
+                    <button onClick={export_pdf}>PDF</button>
+                    <button onClick={export_png}>PNG</button>
+                    <button onClick={export_svg}>SVG</button>
                 </Toolbar>
                 <Toolbar>
                     <label>canvas</label>

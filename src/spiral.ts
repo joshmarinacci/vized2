@@ -3,14 +3,15 @@ import {
     FilledShape,
     FilledShapeName, GlobalState,
     Movable, MovableName,
-    PDFExporter, PickingSystem, Point,
+    PDFExporter,
+    PickingSystem, Point,
     Powerup,
-    // PropRenderingSystem,
-    RenderingSystem, SVGExporter,
+    RenderingSystem,
+    SVGExporter,
     TreeNode
 } from "./common";
-// import {JSONExporter} from "./exporters/json.js";
-// import {cssToPdfColor} from "./exporters/pdf.js";
+import {JSONExporter} from "./exporters/json";
+import {cssToPdfColor} from "./exporters/pdf";
 
 const SpiralShapeName = "SpiralShape"
 export class SpiralShapeObject implements Component {
@@ -153,105 +154,110 @@ export class MovableSpiralObject implements Movable {
 }
 
 
-// class SpiralJSONExporter implements JSONExporter {
-//     name: string;
-//     private powerup: string;
-//     constructor() {
-//         this.powerup = 'spiral'
-//     }
-//
-//     canHandleFromJSON(obj: any, node: TreeNode): boolean {
-//         if(obj.name === SpiralShapeName) return true
-//         if(obj.name === MovableName) return true
-//         return false
-//     }
-//
-//     canHandleToJSON(comp: any, node: TreeNode): boolean {
-//         if(comp.name === SpiralShapeName) return true
-//         if(comp.name === MovableName && node.has_component(SpiralShapeName)) return true
-//         return false;
-//     }
-//
-//     fromJSON(obj: any, node: TreeNode): Component {
-//         if(obj.name === MovableName) return new MovableSpiralObject(node)
-//         if(obj.name === SpiralShapeName) return new SpiralShapeObject((new Point(0,0)).from_object(obj.position),obj.radius)
-//     }
-//
-//     toJSON(component: Component, node: TreeNode): any {
-//         if(component.name === MovableName) return {name:component.name, empty:true, powerup:this.powerup}
-//         if(component.name === SpiralShapeName) {
-//             let shape = component as SpiralShapeObject
-//             return {
-//                 name: shape.name,
-//                 position: shape.get_position(),
-//                 radius: shape.get_radius(),
-//             }
-//         }
-//     }
-// }
+class SpiralJSONExporter implements JSONExporter {
+    name: string;
+    private powerup: string;
+    constructor() {
+        this.powerup = 'spiral'
+        this.name = 'SpiralJSONExporter'
+    }
 
-// export class SpiralPDFExporter implements PDFExporter {
-//     name: string;
-//     constructor() {
-//         this.name = 'SpiralPDFExporter'
-//     }
-//
-//     canExport(node: TreeNode): boolean {
-//         return node.has_component(SpiralShapeName)
-//     }
-//
-//     toPDF(node: TreeNode, doc: any): void {
-//         let spiral:SpiralShapeObject = node.get_component(SpiralShapeName) as SpiralShapeObject
-//         let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
-//         let pdf_color = cssToPdfColor(color.get_color())
-//         doc.setFillColor(...pdf_color)
-//         let times = 5*Math.PI*2
-//         let radius = spiral.get_radius() / times
-//         let ox = spiral.get_position().x
-//         let oy = spiral.get_position().y
-//         for(let th=1; th<times; th+=0.1) {
-//             let x1 = Math.sin(th-0.1)*radius*th
-//             let y1 = Math.cos(th-0.1)*radius*th
-//             let x2 = Math.sin(th)*radius*th
-//             let y2 = Math.cos(th)*radius*th
-//             doc.line(x1+ox,y1+oy,x2+ox,y2+oy,"S")
-//         }
-//     }
-// }
+    canHandleFromJSON(obj: any, node: TreeNode): boolean {
+        if(obj.name === SpiralShapeName) return true
+        if(obj.name === MovableName) return true
+        return false
+    }
+
+    canHandleToJSON(comp: any, node: TreeNode): boolean {
+        if(comp.name === SpiralShapeName) return true
+        if(comp.name === MovableName && node.has_component(SpiralShapeName)) return true
+        return false;
+    }
+
+    fromJSON(obj: any, node: TreeNode): Component {
+        if(obj.name === MovableName) return new MovableSpiralObject(node)
+        if(obj.name === SpiralShapeName) return new SpiralShapeObject((new Point(0,0)).from_object(obj.position),obj.radius)
+        throw new Error(`cannot export json for ${obj.name}`)
+    }
+
+    toJSON(component: Component, node: TreeNode): any {
+        if(component.name === MovableName) return {name:component.name, empty:true, powerup:this.powerup}
+        if(component.name === SpiralShapeName) {
+            let shape = component as SpiralShapeObject
+            return {
+                name: shape.name,
+                position: shape.get_position(),
+                radius: shape.get_radius(),
+            }
+        }
+    }
+}
+
+export class SpiralPDFExporter implements PDFExporter {
+    name: string;
+    constructor() {
+        this.name = 'SpiralPDFExporter'
+    }
+
+    canExport(node: TreeNode): boolean {
+        return node.has_component(SpiralShapeName)
+    }
+
+    toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
+        let spiral:SpiralShapeObject = node.get_component(SpiralShapeName) as SpiralShapeObject
+        let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
+        let pdf_color = cssToPdfColor(color.get_color())
+        doc.setFillColor(...pdf_color)
+        let times = 5*Math.PI*2
+        let radius = spiral.get_radius() / times
+        let ox = spiral.get_position().x
+        let oy = spiral.get_position().y
+        for(let th=1; th<times; th+=0.1) {
+            let x1 = Math.sin(th-0.1)*radius*th
+            let y1 = Math.cos(th-0.1)*radius*th
+            let x2 = Math.sin(th)*radius*th
+            let y2 = Math.cos(th)*radius*th
+            doc.line(x1+ox,y1+oy,x2+ox,y2+oy,"S")
+        }
+    }
+}
 
 
-// class SpiralSVGExporter implements SVGExporter {
-//     name: string;
-//
-//     canExport(node: TreeNode): boolean {
-//         return node.has_component(SpiralShapeName)
-//     }
-//
-//     toSVG(node: TreeNode): string {
-//         let spiral:SpiralShapeObject = node.get_component(SpiralShapeName) as SpiralShapeObject
-//         let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
-//         let times = 5*Math.PI*2
-//         let radius = spiral.get_radius() / times
-//         let ox = spiral.get_position().x
-//         let oy = spiral.get_position().y
-//         let points = []
-//         for(let th=0; th<times; th+=0.1) {
-//             let x2 = Math.sin(th)*radius*th
-//             let y2 = Math.cos(th)*radius*th
-//             points.push((x2+ox).toFixed(1))
-//             points.push((y2+oy).toFixed(1))
-//         }
-//         return `<polyline fill="none" points="${points.join(",")}" stroke-width="1" stroke="${color.get_color()}"/>`
-//     }
-// }
+class SpiralSVGExporter implements SVGExporter {
+    name: string;
+    constructor() {
+        this.name = 'SpiralSVGExporter'
+    }
+
+    canExport(node: TreeNode): boolean {
+        return node.has_component(SpiralShapeName)
+    }
+
+    toSVG(node: TreeNode): string {
+        let spiral:SpiralShapeObject = node.get_component(SpiralShapeName) as SpiralShapeObject
+        let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
+        let times = 5*Math.PI*2
+        let radius = spiral.get_radius() / times
+        let ox = spiral.get_position().x
+        let oy = spiral.get_position().y
+        let points = []
+        for(let th=0; th<times; th+=0.1) {
+            let x2 = Math.sin(th)*radius*th
+            let y2 = Math.cos(th)*radius*th
+            points.push((x2+ox).toFixed(1))
+            points.push((y2+oy).toFixed(1))
+        }
+        return `<polyline fill="none" points="${points.join(",")}" stroke-width="1" stroke="${color.get_color()}"/>`
+    }
+}
 
 export class SpiralPowerup implements Powerup {
     init(state: GlobalState) {
         // state.props_renderers.push(new SpiralPropRendererSystem(state))
         state.pickers.push(new SpiralPickSystem())
         state.renderers.push(new SpiralRendererSystem())
-        // state.svgexporters.push(new SpiralSVGExporter())
-        // state.pdfexporters.push(new SpiralPDFExporter())
-        // state.jsonexporters.push(new SpiralJSONExporter())
+        state.svgexporters.push(new SpiralSVGExporter())
+        state.pdfexporters.push(new SpiralPDFExporter())
+        state.jsonexporters.push(new SpiralJSONExporter())
     }
 }

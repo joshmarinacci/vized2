@@ -6,17 +6,20 @@ export type EVENT_TYPES = "refresh" | "selection-change" | "prop-change" | "obje
 export class GlobalState {
     renderers: RenderingSystem[]
     jsonexporters:JSONExporter[]
+    pdfexporters: PDFExporter[]
+    svgexporters: SVGExporter[]
     powerups: Powerup[]
     pickers: PickingSystem[]
     active_handles: Handle[]
     selection: SelectionSystem
     private listeners: Map<string, Callback[]>
     private root: TreeNode
-    // props_renderers:PropRenderingSystem[]
 
     constructor() {
         this.renderers = []
         this.jsonexporters = []
+        this.pdfexporters = []
+        this.svgexporters = []
         this.powerups = []
         this.pickers = []
         this.active_handles = []
@@ -139,6 +142,11 @@ export interface Resizable extends Component {
     get_handle(): Handle,
 }
 
+export const ParentTranslateName = "ParentTranslateName"
+export interface ParentTranslate extends Component {
+    get_translation_point(): Point;
+}
+
 export interface System {
     name: string
 }
@@ -155,8 +163,8 @@ export interface PickingSystem extends System {
 // }
 
 export interface SVGExporter extends System {
-    canExport(node:TreeNode):boolean
-    toSVG(node:TreeNode):string
+    canExport(node:TreeNode, state:GlobalState):boolean
+    toSVG(node:TreeNode, state:GlobalState):string
 }
 
 
@@ -340,5 +348,5 @@ export function forceDownloadBlob(title:string, blob:Blob) {
 
 export interface PDFExporter extends System {
     canExport(node:TreeNode):boolean
-    toPDF(node:TreeNode,doc:any):void
+    toPDF(node:TreeNode,state:GlobalState,doc:any,scale:number):void
 }

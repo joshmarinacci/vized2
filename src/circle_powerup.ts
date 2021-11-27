@@ -3,8 +3,8 @@ import {
     FilledShape,
     FilledShapeName, GlobalState,
     Movable,
-    MovableName, PDFExporter,
-    // PDFExporter,
+    MovableName,
+    PDFExporter,
     PickingSystem,
     Point,
     Powerup,
@@ -14,7 +14,7 @@ import {
     TreeNode
 } from "./common";
 import {JSONExporter} from "./exporters/json";
-// import {cssToPdfColor} from "./exporters/pdf.js";
+import {cssToPdfColor} from "./exporters/pdf.js";
 
 const CircleShapeName = "CircleShapeName"
 export interface CircleShape extends Component {
@@ -192,7 +192,7 @@ export class CirclePDFExporter implements PDFExporter {
         return node.has_component(CircleShapeName)
     }
 
-    toPDF(node: TreeNode, doc:any): void {
+    toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
         let circle: CircleShape = <CircleShape>node.get_component(CircleShapeName)
         let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
 
@@ -213,8 +213,8 @@ export class CirclePowerup implements Powerup {
         // state.props_renderers.push(new CirclePropRendererSystem(state))
         state.pickers.push(new CirclePickSystem())
         state.renderers.push(new CircleRendererSystem())
-        // state.svgexporters.push(new CircleSVGExporter())
-        // state.pdfexporters.push(new CirclePDFExporter())
+        state.svgexporters.push(new CircleSVGExporter())
+        state.pdfexporters.push(new CirclePDFExporter())
         state.jsonexporters.push(new CircleShapeJSONExporter())
     }
 

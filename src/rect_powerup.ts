@@ -1,18 +1,18 @@
 import {
     Component,
     FilledShape,
-    FilledShapeName, GlobalState,
+    FilledShapeName,
+    GlobalState,
     MovableName,
-    // PDFExporter,
+    PDFExporter,
     Powerup,
     Rect,
     RenderingSystem,
     ResizableName,
-    // SVGExporter,
+    SVGExporter,
     TreeNode
 } from "./common";
-// import {JSONExporter} from "./exporters/json.js";
-// import {cssToPdfColor} from "./exporters/pdf.js";
+import {cssToPdfColor} from "./exporters/pdf";
 import {
     BoundedShape,
     BoundedShapeName,
@@ -60,55 +60,64 @@ export class RectRendererSystem implements RenderingSystem {
     name: string;
 }
 
-// export class RectSVGExporter implements SVGExporter {
-//     name: string;
-//
-//     canExport(node: TreeNode): boolean {
-//         return node.has_component(BoundedShapeName) && node.has_component(RectShapeName)
-//     }
-//
-//     toSVG(node: TreeNode): string {
-//         let bd: BoundedShape = <BoundedShape>node.get_component(BoundedShapeName)
-//         let rect = bd.get_bounds()
-//         let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
-//         let obj = {
-//             x:rect.x,
-//             y:rect.y,
-//             width:rect.w,
-//             height:rect.w,
-//             fill:color.get_color()
-//         }
-//         let pairs = Object.keys(obj).map(k => `${k}='${obj[k]}'`)
-//         return '<rect ' + pairs.join(" ") + "/>"
-//     }
-//
-// }
+export class RectSVGExporter implements SVGExporter {
+    name: string;
+    constructor() {
+        this.name = 'RectSVGExporter'
+    }
 
-// export class RectPDFExporter implements PDFExporter {
-//     name: string;
-//
-//     canExport(node: TreeNode): boolean {
-//         return node.has_component(BoundedShapeName) && node.has_component(RectShapeName)
-//     }
-//
-//     toPDF(node: TreeNode, doc: any): void {
-//         let bd: BoundedShape = <BoundedShape>node.get_component(BoundedShapeName)
-//         let rect = bd.get_bounds()
-//         let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
-//         let obj = {
-//             x:rect.x,
-//             y:rect.y,
-//             width:rect.w,
-//             height:rect.w,
-//             fill:color.get_color()
-//         }
-//         let pdf_color = cssToPdfColor(obj.fill)
-//         doc.setFillColor(...pdf_color)
-//         doc.rect(obj.x,obj.y,obj.width,obj.height,"FD")
-//
-//     }
-//
-// }
+
+
+    canExport(node: TreeNode): boolean {
+        return node.has_component(BoundedShapeName) && node.has_component(RectShapeName)
+    }
+
+    toSVG(node: TreeNode): string {
+        let bd: BoundedShape = <BoundedShape>node.get_component(BoundedShapeName)
+        let rect = bd.get_bounds()
+        let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
+        let obj = {
+            x:rect.x,
+            y:rect.y,
+            width:rect.w,
+            height:rect.w,
+            fill:color.get_color()
+        }
+        // @ts-ignore
+        let pairs = Object.keys(obj).map(k => `${k}='${obj[k]}'`)
+        return '<rect ' + pairs.join(" ") + "/>"
+    }
+
+}
+
+export class RectPDFExporter implements PDFExporter {
+    name: string;
+    constructor() {
+        this.name = 'RectPDFExporter'
+    }
+
+    canExport(node: TreeNode): boolean {
+        return node.has_component(BoundedShapeName) && node.has_component(RectShapeName)
+    }
+
+    toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
+        let bd: BoundedShape = <BoundedShape>node.get_component(BoundedShapeName)
+        let rect = bd.get_bounds()
+        let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
+        let obj = {
+            x:rect.x,
+            y:rect.y,
+            width:rect.w,
+            height:rect.w,
+            fill:color.get_color()
+        }
+        let pdf_color = cssToPdfColor(obj.fill)
+        doc.setFillColor(...pdf_color)
+        doc.rect(obj.x,obj.y,obj.width,obj.height,"FD")
+
+    }
+
+}
 
 export class RectJsonExporter implements JSONExporter {
     name: string;
@@ -163,8 +172,8 @@ export class RectJsonExporter implements JSONExporter {
 export class RectPowerup implements Powerup {
     init(state: GlobalState) {
         state.renderers.push(new RectRendererSystem())
-        // state.svgexporters.push(new RectSVGExporter())
-        // state.pdfexporters.push(new RectPDFExporter())
+        state.svgexporters.push(new RectSVGExporter())
+        state.pdfexporters.push(new RectPDFExporter())
         state.jsonexporters.push(new RectJsonExporter())
     }
 }

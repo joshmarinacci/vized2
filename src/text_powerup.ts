@@ -16,6 +16,8 @@ import {
 // import {JSONExporter} from "./exporters/json.js";
 // import {cssToPdfColor} from "./exporters/pdf.js";
 import {BoundedShape, BoundedShapeName, BoundedShapeObject} from "./bounded_shape";
+import {cssToPdfColor} from "./exporters/pdf";
+import {JSONExporter} from "./exporters/json";
 
 const TextShapeName = "TextShapeName"
 interface TextShape extends Component {
@@ -181,99 +183,109 @@ export class MovableTextObject implements Movable {
 // }
 
 
-// class TextJSONExporter implements JSONExporter {
-//     name: string;
-//
-//     canHandleFromJSON(obj: any, node: TreeNode): boolean {
-//         if(obj.name === TextShapeName) return true
-//         if(obj.name === MovableName && obj.powerup==='text') return true
-//         return false;
-//     }
-//
-//     canHandleToJSON(comp: any, node: TreeNode): boolean {
-//         if(comp.name === TextShapeName) return true
-//         if(comp.name === MovableName && node.has_component(BoundedShapeName)) return true
-//         return false;
-//     }
-//
-//     fromJSON(obj: any, node: TreeNode): Component {
-//         if(obj.name === MovableName) return new MovableTextObject(node)
-//         if(obj.name === BoundedShapeName) return new BoundedShapeObject(new Rect(obj.x,obj.y,obj.width,obj.height))
-//         if(obj.name === TextShapeName) return new TextShapeObject(obj.content,obj.fontsize, obj.halign, obj.valign)
-//     }
-//
-//     toJSON(component: Component, node: TreeNode): any {
-//         if(component.name === ResizableName) return {name:component.name, empty:true, powerup:'text'}
-//         if(component.name === MovableName) return {name:component.name, empty:true, powerup:'text'}
-//         if(component.name === TextShapeName) {
-//             let ts:TextShapeObject = <TextShapeObject>component
-//             return {
-//                 name:TextShapeName,
-//                 content:ts.get_content(),
-//                 fontsize:ts.get_fontsize(),
-//                 halign:ts.get_halign(),
-//                 valign:ts.get_valign()
-//             }
-//         }
-//         if(component.name === BoundedShapeName) {
-//             let bd: BoundedShape = <BoundedShape>component
-//             let rect = bd.get_bounds()
-//             return {
-//                 name: BoundedShapeName,
-//                 x: rect.x,
-//                 y: rect.y,
-//                 width: rect.w,
-//                 height: rect.w,
-//                 powerup: 'text',
-//             }
-//         }
-//     }
-// }
+class TextJSONExporter implements JSONExporter {
+    name: string;
+    constructor() {
+        this.name = 'TestJSONExporter'
+    }
 
-// class TextPDFExporter implements PDFExporter {
-//     name: string;
-//
-//     canExport(node: TreeNode): boolean {
-//         return node.has_component(TextShapeName)
-//     }
-//
-//     toPDF(node: TreeNode, doc: any): void {
-//         console.log("rendering text to pdf right here",node,doc)
-//         // console.log("list of fonts", doc.getFontList())
-//         let ts: TextShape = node.get_component(TextShapeName) as TextShape
-//         let bd: BoundedShape = <BoundedShape>node.get_component(BoundedShapeName)
-//         let rect = bd.get_bounds()
-//         let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
-//         let pdf_color = cssToPdfColor('#00ff00')
-//         doc.setFontSize(ts.get_fontsize())
-//         doc.setFillColor(...pdf_color)
-//         doc.text(ts.get_content(), rect.x, rect.y)
-//     }
-// }
+    canHandleFromJSON(obj: any, node: TreeNode): boolean {
+        if(obj.name === TextShapeName) return true
+        if(obj.name === MovableName && obj.powerup==='text') return true
+        return false;
+    }
 
-// class TextSVGExporter implements SVGExporter {
-//     name: string;
-//
-//     canExport(node: TreeNode): boolean {
-//         return node.has_component(TextShapeName)
-//     }
-//
-//     toSVG(node: TreeNode): string {
-//         let ts:TextShape = node.get_component(TextShapeName) as TextShape
-//         let bs = node.get_component(BoundedShapeName) as BoundedShape
-//         let bounds = bs.get_bounds()
-//         return `<text x="${bounds.x}" y="${bounds.y}" font-size="${ts.get_fontsize()}">${ts.get_content()}</text>`;
-//     }
-//
-// }
+    canHandleToJSON(comp: any, node: TreeNode): boolean {
+        if(comp.name === TextShapeName) return true
+        if(comp.name === MovableName && node.has_component(BoundedShapeName)) return true
+        return false;
+    }
+
+    fromJSON(obj: any, node: TreeNode): Component {
+        if(obj.name === MovableName) return new MovableTextObject(node)
+        if(obj.name === BoundedShapeName) return new BoundedShapeObject(new Rect(obj.x,obj.y,obj.width,obj.height))
+        if(obj.name === TextShapeName) return new TextShapeObject(obj.content,obj.fontsize, obj.halign, obj.valign)
+        throw new Error(`cannot export json for ${obj.name}`)
+    }
+
+    toJSON(component: Component, node: TreeNode): any {
+        if(component.name === ResizableName) return {name:component.name, empty:true, powerup:'text'}
+        if(component.name === MovableName) return {name:component.name, empty:true, powerup:'text'}
+        if(component.name === TextShapeName) {
+            let ts:TextShapeObject = <TextShapeObject>component
+            return {
+                name:TextShapeName,
+                content:ts.get_content(),
+                fontsize:ts.get_fontsize(),
+                halign:ts.get_halign(),
+                valign:ts.get_valign()
+            }
+        }
+        if(component.name === BoundedShapeName) {
+            let bd: BoundedShape = <BoundedShape>component
+            let rect = bd.get_bounds()
+            return {
+                name: BoundedShapeName,
+                x: rect.x,
+                y: rect.y,
+                width: rect.w,
+                height: rect.w,
+                powerup: 'text',
+            }
+        }
+    }
+}
+
+class TextPDFExporter implements PDFExporter {
+    name: string;
+    constructor() {
+        this.name = 'TextPDFExporter'
+    }
+
+    canExport(node: TreeNode): boolean {
+        return node.has_component(TextShapeName)
+    }
+
+    toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
+        console.log("rendering text to pdf right here",node,doc)
+        // console.log("list of fonts", doc.getFontList())
+        let ts: TextShape = node.get_component(TextShapeName) as TextShape
+        let bd: BoundedShape = <BoundedShape>node.get_component(BoundedShapeName)
+        let rect = bd.get_bounds()
+        let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
+        let pdf_color = cssToPdfColor('#00ff00')
+        doc.setFontSize(ts.get_fontsize())
+        doc.setFillColor(...pdf_color)
+        doc.text(ts.get_content(), rect.x, rect.y)
+    }
+}
+
+class TextSVGExporter implements SVGExporter {
+    name: string;
+    constructor() {
+        this.name = 'TextSVGExporter'
+    }
+
+    canExport(node: TreeNode): boolean {
+        return node.has_component(TextShapeName)
+    }
+
+    toSVG(node: TreeNode): string {
+        let ts:TextShape = node.get_component(TextShapeName) as TextShape
+        let bs = node.get_component(BoundedShapeName) as BoundedShape
+        let bounds = bs.get_bounds()
+        return `<text x="${bounds.x}" y="${bounds.y}" font-size="${ts.get_fontsize()}">${ts.get_content()}</text>`;
+    }
+
+}
 
 export class TextPowerup implements Powerup {
     init(state: GlobalState) {
         // state.props_renderers.push(new TextPropRendererSystem(state))
         state.renderers.push(new TextRenderingSystem())
-        // state.svgexporters.push(new TextSVGExporter())
-        // state.pdfexporters.push(new TextPDFExporter())
-        // state.jsonexporters.push(new TextJSONExporter())
+        state.svgexporters.push(new TextSVGExporter())
+        state.pdfexporters.push(new TextPDFExporter())
+        state.jsonexporters.push(new TextJSONExporter())
     }
 
 }
