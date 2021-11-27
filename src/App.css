@@ -3,6 +3,9 @@
     grid-template-columns: 1fr 2fr 1fr;
 }
 
+.toolbar {
+    grid-row: 1;
+}
 .panel {
     border: 1px solid black;
     border-radius: 0rem;

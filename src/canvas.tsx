@@ -144,7 +144,7 @@ export function CanvasView(props:{root:TreeNode, state:GlobalState}) {
             let ctx = can.getContext('2d') as CanvasRenderingContext2D
             refresh(ctx,zoom_level, can.width, can.height)
         }
-    },[canvas,pan_offset, zoom_level])
+    },[canvas,pan_offset, zoom_level, props.root])
 
     useEffect(()=>{
         let op = () => {

@@ -23,6 +23,7 @@ import {
 import {CirclePowerup, CircleShape, CircleShapeObject, MovableCircleObject} from "./circle_powerup";
 import {MovableTextObject, TextPowerup, TextShapeObject} from "./text_powerup";
 import {MovableSpiralObject, SpiralPowerup, SpiralShapeObject} from "./spiral";
+import {export_JSON} from "./exporters/json";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -90,6 +91,16 @@ export function make_default_tree() {
         spiral.components.push(new MovableSpiralObject(spiral))
         add_child_to_parent(spiral,root)
     }
+
+    return root
+}
+
+function make_greeting_card_tree():TreeNode {
+    let root:TreeNode = new TreeNodeImpl()
+    root.components.push(new BoundedShapeObject(new Rect(0,0,300,300)))
+    root.components.push(new RectShapeObject())
+    root.components.push(new FilledShapeObject('white'))
+
 
     return root
 }
@@ -232,12 +243,29 @@ function PropSheet(props: { root: TreeNode, state: GlobalState }) {
     </div>
 }
 
+function Toolbar(props:{children:any}) {
+    return <div className={'toolbar'}>{props.children}</div>
+}
+
+
 function App() {
-    let root = make_default_tree()
+    const [root, set_root] = useState(()=> make_default_tree())
     let state = setup_state(root)
+    let new_greeting_card = () => set_root(make_greeting_card_tree())
+    let export_json = () => export_JSON(root,state);
     return (
         <div className="App">
             <IDEGrid title={"foo"}>
+                <Toolbar>
+                    <button onClick={new_greeting_card}>new card</button>
+                    <button onClick={export_json}>JSON</button>
+                </Toolbar>
+                <Toolbar>
+                    <label>canvas</label>
+                </Toolbar>
+                <Toolbar>
+                    <label>props</label>
+                </Toolbar>
                 <TreeView root={root}/>
                 <CanvasView root={root} state={state}/>
                 <PropSheet root={root} state={state}/>

@@ -1,8 +1,11 @@
+import {JSONExporter} from "./exporters/json";
+
 export type Callback = (arg:any) => void
 export type EVENT_TYPES = "refresh" | "selection-change" | "prop-change" | "object-changed"
 
 export class GlobalState {
     renderers: RenderingSystem[]
+    jsonexporters:JSONExporter[]
     powerups: Powerup[]
     pickers: PickingSystem[]
     active_handles: Handle[]
@@ -13,6 +16,7 @@ export class GlobalState {
 
     constructor() {
         this.renderers = []
+        this.jsonexporters = []
         this.powerups = []
         this.pickers = []
         this.active_handles = []
@@ -324,15 +328,15 @@ export interface MouseGestureDelegate {
 //
 // }
 //
-// export function forceDownloadBlob(title, blob) {
-//     // console.log("forcing download of",title)
-//     const a = document.createElement('a')
-//     a.href = URL.createObjectURL(blob)
-//     a.download = title
-//     document.body.appendChild(a)
-//     a.click()
-//     document.body.removeChild(a)
-// }
+export function forceDownloadBlob(title:string, blob:Blob) {
+    console.log("forcing download of",title)
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = title
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+}
 
 export interface PDFExporter extends System {
     canExport(node:TreeNode):boolean

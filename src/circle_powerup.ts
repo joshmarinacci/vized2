@@ -13,7 +13,7 @@ import {
     // SVGExporter,
     TreeNode
 } from "./common";
-// import {JSONExporter} from "./exporters/json.js";
+import {JSONExporter} from "./exporters/json";
 // import {cssToPdfColor} from "./exporters/pdf.js";
 
 const CircleShapeName = "CircleShapeName"
@@ -215,37 +215,41 @@ export class CirclePowerup implements Powerup {
         state.renderers.push(new CircleRendererSystem())
         // state.svgexporters.push(new CircleSVGExporter())
         // state.pdfexporters.push(new CirclePDFExporter())
-        // state.jsonexporters.push(new CircleShapeJSONExporter())
+        state.jsonexporters.push(new CircleShapeJSONExporter())
     }
 
 }
 
-// export class CircleShapeJSONExporter implements JSONExporter {
-//     name: string;
-//
-//     toJSON(component: Component, node:TreeNode): any {
-//         if(component.name === MovableName) return {name:component.name, empty:true, powerup:'circle'}
-//         let circle = component as CircleShape
-//         return {
-//             name:circle.name,
-//             position:circle.get_position(),
-//             radius:circle.get_radius(),
-//         }
-//     }
-//
-//     fromJSON(obj: any, node:TreeNode): Component {
-//         if(obj.name === MovableName) return new MovableCircleObject(node)
-//         if(obj.name === CircleShapeName) return new CircleShapeObject((new Point(0,0)).from_object(obj.position),obj.radius)
-//     }
-//
-//     canHandleFromJSON(obj: any, node: TreeNode): boolean {
-//         if(obj.name === MovableName && obj.powerup === 'circle') return true
-//         return obj.name === CircleShapeName
-//     }
-//
-//     canHandleToJSON(comp: any, node: TreeNode): boolean {
-//         if(comp.name === MovableName && node.has_component(CircleShapeName)) return true
-//         return comp.name === CircleShapeName
-//     }
-//
-// }
+export class CircleShapeJSONExporter implements JSONExporter {
+    name: string;
+    constructor() {
+        this.name = "CircleShapeJSONExporter"
+    }
+
+    toJSON(component: Component, node:TreeNode): any {
+        if(component.name === MovableName) return {name:component.name, empty:true, powerup:'circle'}
+        let circle = component as CircleShape
+        return {
+            name:circle.name,
+            position:circle.get_position(),
+            radius:circle.get_radius(),
+        }
+    }
+
+    fromJSON(obj: any, node:TreeNode): Component {
+        if(obj.name === MovableName) return new MovableCircleObject(node)
+        if(obj.name === CircleShapeName) return new CircleShapeObject((new Point(0,0)).from_object(obj.position),obj.radius)
+        throw new Error(`cannot export json for ${obj.name}`)
+    }
+
+    canHandleFromJSON(obj: any, node: TreeNode): boolean {
+        if(obj.name === MovableName && obj.powerup === 'circle') return true
+        return obj.name === CircleShapeName
+    }
+
+    canHandleToJSON(comp: any, node: TreeNode): boolean {
+        if(comp.name === MovableName && node.has_component(CircleShapeName)) return true
+        return comp.name === CircleShapeName
+    }
+
+}

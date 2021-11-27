@@ -20,6 +20,7 @@ import {
     MovableBoundedShape,
     ResizableRectObject
 } from "./bounded_shape";
+import {JSONExporter} from "./exporters/json";
 
 const RectShapeName = "RectShape"
 interface RectShape extends Component {
@@ -109,56 +110,61 @@ export class RectRendererSystem implements RenderingSystem {
 //
 // }
 
-// export class RectJsonExporter implements JSONExporter {
-//     name: string;
-//
-//     toJSON(component: Component, node:TreeNode): any {
-//         if(component.name === ResizableName) return {name:component.name, empty:true, powerup:'rect'}
-//         if(component.name === MovableName) return {name:component.name, empty:true, powerup:'rect'}
-//         if(component.name === RectShapeName) return {name:component.name, empty:true, powerup:'rect'}
-//         if(component.name === BoundedShapeName) {
-//             let bd: BoundedShape = <BoundedShape>component
-//             let rect = bd.get_bounds()
-//             return {
-//                 name: BoundedShapeName,
-//                 x: rect.x,
-//                 y: rect.y,
-//                 width: rect.w,
-//                 height: rect.h,
-//                 powerup: 'rect',
-//             }
-//         }
-//     }
-//
-//     fromJSON(obj: any, node:TreeNode): Component {
-//         if(obj.name === RectShapeName) return new RectShapeObject()
-//         if(obj.name === ResizableName) return new ResizableRectObject(node)
-//         if(obj.name === MovableName) return new MovableBoundedShape(node)
-//         if(obj.name === BoundedShapeName) return new BoundedShapeObject(new Rect(obj.x,obj.y,obj.width,obj.height))
-//     }
-//
-//     canHandleFromJSON(obj: any, node: TreeNode): boolean {
-//         if(obj.name === RectShapeName && obj.powerup === 'rect') return true
-//         if(obj.name === ResizableName && obj.powerup==='rect') return true
-//         if(obj.name === MovableName && obj.powerup==='rect') return true
-//         if(obj.name === BoundedShapeName && obj.powerup === 'rect') return true
-//     }
-//
-//     canHandleToJSON(comp: any, node: TreeNode): boolean {
-//         if(comp.name === BoundedShapeName) return true
-//         if(comp.name === RectShapeName) return true
-//         if(comp.name === ResizableName && node.has_component(RectShapeName)) return true
-//         if(comp.name === MovableName && node.has_component(RectShapeName)) return true
-//         return false;
-//     }
-//
-// }
+export class RectJsonExporter implements JSONExporter {
+    name: string;
+    constructor() {
+        this.name = 'RectJSONExporter'
+    }
+
+    toJSON(component: Component, node:TreeNode): any {
+        if(component.name === ResizableName) return {name:component.name, empty:true, powerup:'rect'}
+        if(component.name === MovableName) return {name:component.name, empty:true, powerup:'rect'}
+        if(component.name === RectShapeName) return {name:component.name, empty:true, powerup:'rect'}
+        if(component.name === BoundedShapeName) {
+            let bd: BoundedShape = <BoundedShape>component
+            let rect = bd.get_bounds()
+            return {
+                name: BoundedShapeName,
+                x: rect.x,
+                y: rect.y,
+                width: rect.w,
+                height: rect.h,
+                powerup: 'rect',
+            }
+        }
+    }
+
+    fromJSON(obj: any, node:TreeNode): Component {
+        if(obj.name === RectShapeName) return new RectShapeObject()
+        if(obj.name === ResizableName) return new ResizableRectObject(node)
+        if(obj.name === MovableName) return new MovableBoundedShape(node)
+        if(obj.name === BoundedShapeName) return new BoundedShapeObject(new Rect(obj.x,obj.y,obj.width,obj.height))
+        throw new Error(`cannot export json for ${obj.name}`)
+    }
+
+    canHandleFromJSON(obj: any, node: TreeNode): boolean {
+        if(obj.name === RectShapeName && obj.powerup === 'rect') return true
+        if(obj.name === ResizableName && obj.powerup==='rect') return true
+        if(obj.name === MovableName && obj.powerup==='rect') return true
+        if(obj.name === BoundedShapeName && obj.powerup === 'rect') return true
+        return false
+    }
+
+    canHandleToJSON(comp: any, node: TreeNode): boolean {
+        if(comp.name === BoundedShapeName) return true
+        if(comp.name === RectShapeName) return true
+        if(comp.name === ResizableName && node.has_component(RectShapeName)) return true
+        if(comp.name === MovableName && node.has_component(RectShapeName)) return true
+        return false;
+    }
+
+}
 
 export class RectPowerup implements Powerup {
     init(state: GlobalState) {
         state.renderers.push(new RectRendererSystem())
         // state.svgexporters.push(new RectSVGExporter())
         // state.pdfexporters.push(new RectPDFExporter())
-        // state.jsonexporters.push(new RectJsonExporter())
+        state.jsonexporters.push(new RectJsonExporter())
     }
 }
