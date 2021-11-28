@@ -5,7 +5,8 @@ import {
     FilledShape,
     FilledShapeName,
     FilledShapeObject,
-    GlobalState, PageMarker,
+    GlobalState,
+    PageMarker,
     Point,
     Rect,
     TreeNode,
@@ -42,6 +43,7 @@ import {
 import {ImagePowerup, ImageShapeObject, ResizableImageObject} from "./powerups/image_powerup";
 import {Toolbar} from "./comps";
 import {TreeView} from "./treeview";
+import {PopupContainer, PopupContext, PopupContextImpl} from "./popup";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -313,6 +315,7 @@ function PropSheet(props: { root: TreeNode, state: GlobalState }) {
 
 
 function App() {
+    const pc = new PopupContextImpl()
     const [root, set_root] = useState(()=> make_default_tree())
     let state = setup_state(root)
     let new_greeting_card = () => set_root(make_greeting_card_tree())
@@ -321,6 +324,7 @@ function App() {
     let export_png = () => export_PNG(root,state);
     let export_svg = () => export_SVG(root,state);
     return (
+        <PopupContext.Provider value={pc}>
         <div className="App">
             <IDEGrid title={"foo"}>
                 <Toolbar>
@@ -340,7 +344,9 @@ function App() {
                 <CanvasView docroot={root} state={state}/>
                 <PropSheet root={root} state={state}/>
             </IDEGrid>
+            <PopupContainer/>
         </div>
+        </PopupContext.Provider>
     );
 }
 
