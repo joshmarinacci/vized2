@@ -119,23 +119,15 @@ export class SpiralPickSystem implements PickingSystem {
         this.name = SpiralPickSystemName
     }
 
-    pick(pt: Point, state: GlobalState): TreeNode[] {
-        let picked:TreeNode[] = []
-        this._test_node(pt,state.get_root(),picked)
-        return picked
-    }
-
-    private _test_node(pt:Point, node: TreeNode, collect:TreeNode[]) {
+    pick_node(pt: Point, node: TreeNode): boolean {
         if(node.has_component(SpiralShapeName)) {
-            let circle = (<SpiralShapeObject> node.get_component(SpiralShapeName))
+            let circle = (<SpiralShapeObject>node.get_component(SpiralShapeName))
             let dist = circle.get_position().subtract(pt)
-            if(dist.magnitude() < circle.get_radius()) {
-                collect.push(node)
+            if (dist.magnitude() < circle.get_radius()) {
+                return true
             }
         }
-        node.children.forEach((ch:TreeNode) => {
-            this._test_node(pt,ch,collect)
-        })
+        return false
     }
 }
 

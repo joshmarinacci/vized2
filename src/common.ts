@@ -104,12 +104,51 @@ export class Rect {
     w: number
     h: number
 
+    get x2():number {
+        return this.x + this.w
+    }
+    set x2(v:number) {
+        this.w = v - this.x
+    }
+    get y2(): number {
+        return this.y + this.h
+    }
+    set y2(v:number) {
+        this.h = v-this.y
+    }
+
     contains(pt: Point):boolean {
         if(pt.x < this.x) return false
         if(pt.y < this.y) return false
         if(pt.x > this.x+this.w) return false
         if(pt.y > this.y+this.h) return false
         return true
+    }
+
+    scale(scale: number) {
+        return new Rect(this.x*scale,this.y*scale,this.w*scale,this.h*scale)
+    }
+
+    add(bounds: Rect) {
+        let r2 = new Rect(this.x,this.y,this.w,this.h)
+        if(bounds.x < this.x) r2.x = bounds.x
+        if(bounds.y < this.y) r2.y = bounds.y
+        if(bounds.x2 > this.x2) r2.x2 = bounds.x2
+        if(bounds.y2 > this.y2) r2.y2 = bounds.y2
+        return r2
+    }
+
+    makeEmpty() {
+        return new Rect(
+            Number.MAX_VALUE,
+            Number.MAX_VALUE,
+            Number.MIN_VALUE,
+            Number.MIN_VALUE
+        )
+    }
+
+    translate(position: Point) {
+        return new Rect(this.x+position.x,this.y+position.y,this.w,this.h)
     }
 }
 
@@ -155,7 +194,7 @@ export interface RenderingSystem extends System {
     render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void
 }
 export interface PickingSystem extends System {
-    pick(pt:Point, state:GlobalState): TreeNode[]
+    pick_node(pt:Point, node:TreeNode): boolean
 }
 // export interface PropRenderingSystem extends System {
 //     supports(name: string): any;
@@ -260,11 +299,6 @@ export abstract class Handle extends Rect {
     }
 }
 
-export interface MouseGestureDelegate {
-    press(e: MouseEvent, pt:Point):void
-    move(e: MouseEvent, pt:Point):void
-    release(e: MouseEvent, pt:Point):void
-}
 
 // export class FilledShapePropRenderer implements PropRenderingSystem {
 //     name: string;

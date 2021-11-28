@@ -142,20 +142,12 @@ export class BoundedShapePickSystem implements PickingSystem {
         this.name = BoundedShapePickSystemName
     }
 
-    pick(pt: Point, state: GlobalState): TreeNode[] {
-        let picked:TreeNode[] = []
-        this._test_node(pt, state.get_root(), picked)
-        return picked
-    }
-
-    private _test_node(pt: Point, node: TreeNode, collect: TreeNode[]) {
+    pick_node(pt: Point, node: TreeNode): boolean {
         if (node.has_component(BoundedShapeName)) {
             let rect = (<BoundedShape>node.get_component(BoundedShapeName)).get_bounds()
-            if (rect.contains(pt)) collect.push(node)
+            if (rect.contains(pt)) return true
         }
-        node.children.forEach((ch: TreeNode) => {
-            this._test_node(pt, ch, collect)
-        })
+        return false;
     }
 }
 
