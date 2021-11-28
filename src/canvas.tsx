@@ -1,9 +1,10 @@
 import React, {ReactNode, useEffect, useRef, useState} from "react";
 import {
+    DocName,
     GlobalState,
     Handle,
     Movable,
-    MovableName, ParentTranslate, ParentTranslateName,
+    MovableName, PageName, ParentTranslate, ParentTranslateName,
     Point, Resizable, ResizableName,
     TreeNode
 } from "./common";
@@ -140,6 +141,17 @@ class HandleMoveDelegate implements MouseGestureDelegate {
 }
 
 
+function find_first_page(root: TreeNode):TreeNode {
+    if(root.has_component(DocName)) {
+        if(root.has_component(PageName)) return root
+        let pg = root.children.find(ch => ch.has_component(PageName))
+        if(!pg) throw new Error("couldn't find a page child")
+        return pg
+    } else {
+        throw new Error("root isn't a doc!")
+    }
+}
+
 export function CanvasView(props:{root:TreeNode, state:GlobalState}) {
     const [pan_offset, set_pan_offset] = useState(new Point(0,0))
     const [zoom_level, set_zoom_level] = useState(0)
@@ -208,7 +220,8 @@ export function CanvasView(props:{root:TreeNode, state:GlobalState}) {
     },[canvas,pan_offset, zoom_level, props.root, current_root])
 
     useEffect(() => {
-        set_current_root(props.root)
+        let page = find_first_page(props.root)
+        set_current_root(page)
     },[props.root])
 
     useEffect(()=>{

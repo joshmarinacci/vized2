@@ -49,7 +49,7 @@ import {SVGExporter, treenode_to_SVG} from "../exporters/svg";
 import {cssToPdfColor, PDFExporter, treenode_to_PDF} from "../exporters/pdf";
 
 
-const GroupShapeName = "GroupShapeName"
+export const GroupShapeName = "GroupShapeName"
 export interface GroupShape extends Component {
     get_position():Point
     get_child_bounds(): Rect;

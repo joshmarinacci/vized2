@@ -171,6 +171,23 @@ export interface FilledShape extends Component {
     set_color(color:string):void
 }
 
+export const DocName = "DocName"
+export interface Doc extends Component {}
+export class DocMarker implements Doc {
+    name: string;
+    constructor() {
+        this.name = DocName
+    }
+}
+export const PageName = 'PageName'
+export interface Page extends Component {}
+export class PageMarker implements Page {
+    name: string;
+    constructor() {
+        this.name = PageName
+    }
+
+}
 //indicates shape can be moved
 export const MovableName = "MovableName"
 export interface Movable extends Component {
@@ -256,10 +273,12 @@ export class FilledShapeObject implements FilledShape {
 
 const SelectionSystemName = 'SelectionSystemName'
 
-export class SelectionSystem {
+export class SelectionSystem implements System{
     private selection: Set<TreeNode>;
+    name: string;
 
     constructor() {
+        this.name = SelectionSystemName
         this.selection = new Set<TreeNode>()
     }
 
@@ -302,77 +321,6 @@ export abstract class Handle extends Rect {
     }
 }
 
-
-// export class FilledShapePropRenderer implements PropRenderingSystem {
-//     name: string;
-//     private state:GlobalState
-//     private colors: string[];
-//
-//     constructor(state:GlobalState) {
-//         this.name = "FilledShapePropRenderer"
-//         this.state = state
-//         this.colors = [
-//             '#ff00ff','#ff0000',
-//             '#ffff00','#00ff00',
-//             '#00ffff','#0000ff',
-//             '#ffffff','#000000']
-//     }
-//
-//     render_view(comp: Component): HTMLElement {
-//         let size = 20
-//         let w = 100
-//         let wrap = Math.floor(w/size)
-//         const n2xy = (n) => ({
-//             x:n%wrap * size,
-//             y:Math.floor(n/wrap) * 20
-//         })
-//         const xy2n = (xy) => {
-//             let x = Math.floor(xy.x/size)
-//             let y = Math.floor(xy.y/size)
-//             return x + y*wrap
-//         }
-//         let fill:FilledShape = comp as FilledShape
-//         let canvas = document.createElement('canvas')
-//         canvas.width = w
-//         canvas.height = w
-//
-//         const redraw = () => {
-//             let ctx = canvas.getContext('2d')
-//             ctx.fillStyle = 'white'
-//             ctx.fillRect(0,0,canvas.width,canvas.height)
-//             this.colors.forEach((color,i)=>{
-//                 ctx.fillStyle = color
-//                 let pt = n2xy(i)
-//                 ctx.fillRect(pt.x,pt.y,20,20)
-//                 if(color === fill.get_color()) {
-//                     ctx.strokeStyle = 'black'
-//                     ctx.strokeRect(pt.x,pt.y,20,20)
-//                 }
-//             })
-//         }
-//         canvas.addEventListener('click',(e)=>{
-//             let target: HTMLElement = <HTMLElement>e.target
-//             let bounds = target.getBoundingClientRect()
-//             let pt = new Point(e.clientX - bounds.x, e.clientY - bounds.y)
-//             let n = xy2n(pt)
-//             if(n >= 0 && n < this.colors.length) {
-//                 let color = this.colors[n]
-//                 fill.set_color(color)
-//                 this.state.dispatch("prop-change", {})
-//                 redraw()
-//             }
-//         })
-//         redraw()
-//         return canvas
-//     }
-//
-//     supports(name: string): any { return name === FilledShapeName }
-// }
-
-// export function COLOR_PICKER(colors:string[],cb:(v)=>void) {
-//
-// }
-//
 export function forceDownloadBlob(title:string, blob:Blob) {
     console.log("forcing download of",title)
     const a = document.createElement('a')

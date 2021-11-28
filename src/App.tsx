@@ -1,10 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
 import './App.css';
 import {
+    DocMarker,
     FilledShape,
     FilledShapeName,
     FilledShapeObject,
-    GlobalState,
+    GlobalState, PageMarker,
     Point,
     Rect,
     TreeNode,
@@ -55,6 +56,8 @@ function add_child_to_parent(child:TreeNode, parent:TreeNode):void {
 export function make_default_tree() {
     let root:TreeNode = new TreeNodeImpl()
     root.title = 'root'
+    root.components.push(new DocMarker())
+    root.components.push(new PageMarker())
     root.components.push(new BoundedShapeObject(new Rect(0,0,8.5*100,11*100)))
     root.components.push(new PDFExportBounds("in",1/100))
     root.components.push(new RectShapeObject())
@@ -141,10 +144,16 @@ export function make_default_tree() {
 function make_greeting_card_tree():TreeNode {
     let root:TreeNode = new TreeNodeImpl()
     root.title = 'root'
-    root.components.push(new BoundedShapeObject(new Rect(0,0,8.5*100/2,11*100/2)))
-    root.components.push(new PDFExportBounds("in",1/100))
-    root.components.push(new RectShapeObject())
-    root.components.push(new FilledShapeObject('white'))
+    root.components.push(new DocMarker())
+
+    let page:TreeNode = new TreeNodeImpl()
+    page.title = 'front page'
+    page.components.push(new PageMarker())
+    page.components.push(new BoundedShapeObject(new Rect(0,0,8.5*100/2,11*100/2)))
+    page.components.push(new PDFExportBounds("in",1/100))
+    page.components.push(new RectShapeObject())
+    page.components.push(new FilledShapeObject('white'))
+    add_child_to_parent(page,root)
 
     let text1 = new TreeNodeImpl() as TreeNode
     text1.title = "Text: merry christmas"
@@ -153,7 +162,7 @@ function make_greeting_card_tree():TreeNode {
     text1.components.push(new MovableBoundedShape(text1))
     text1.components.push(new ResizableRectObject(text1))
     text1.components.push(new FilledShapeObject('#00CC00'))
-    add_child_to_parent(text1,root)
+    add_child_to_parent(text1,page)
 
     return root
 }

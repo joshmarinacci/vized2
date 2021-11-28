@@ -52,7 +52,18 @@
     padding-left: 1rem;
     margin:0;
 }
-
+.tree-children {
+    list-style: none;
+    border: 0px solid red;
+    padding-left: 1rem;
+    margin:0;
+}
+.tree-item-info {
+    padding: 0.25em 0.5em;
+}
+.tree-parent.selected > .tree-item-info {
+    background-color: aquamarine;
+}
 .tree-item {
     border:0px solid blue;
     margin:0;
