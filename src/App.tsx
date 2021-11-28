@@ -146,23 +146,45 @@ function make_greeting_card_tree():TreeNode {
     root.title = 'root'
     root.components.push(new DocMarker())
 
-    let page:TreeNode = new TreeNodeImpl()
-    page.title = 'front page'
-    page.components.push(new PageMarker())
-    page.components.push(new BoundedShapeObject(new Rect(0,0,8.5*100/2,11*100/2)))
-    page.components.push(new PDFExportBounds("in",1/100))
-    page.components.push(new RectShapeObject())
-    page.components.push(new FilledShapeObject('white'))
-    add_child_to_parent(page,root)
+    {
+        let page1: TreeNode = new TreeNodeImpl()
+        page1.title = 'front page'
+        page1.components.push(new PageMarker())
+        page1.components.push(new BoundedShapeObject(new Rect(0, 0, 8.5 * 100 / 2, 11 * 100 / 2)))
+        page1.components.push(new PDFExportBounds("in", 1 / 100))
+        page1.components.push(new RectShapeObject())
+        page1.components.push(new FilledShapeObject('white'))
+        add_child_to_parent(page1, root)
 
-    let text1 = new TreeNodeImpl() as TreeNode
-    text1.title = "Text: merry christmas"
-    text1.components.push(new TextShapeObject("Merry Christmas", 30, "center",'center'))
-    text1.components.push(new BoundedShapeObject(new Rect(0,100,8.5*100/2,200)))
-    text1.components.push(new MovableBoundedShape(text1))
-    text1.components.push(new ResizableRectObject(text1))
-    text1.components.push(new FilledShapeObject('#00CC00'))
-    add_child_to_parent(text1,page)
+        let text1 = new TreeNodeImpl() as TreeNode
+        text1.title = "Text: merry christmas"
+        text1.components.push(new TextShapeObject("Merry Christmas", 30, "center", 'center'))
+        text1.components.push(new BoundedShapeObject(new Rect(0, 100, 8.5 * 100 / 2, 200)))
+        text1.components.push(new MovableBoundedShape(text1))
+        text1.components.push(new ResizableRectObject(text1))
+        text1.components.push(new FilledShapeObject('#00CC00'))
+        add_child_to_parent(text1, page1)
+    }
+
+    {
+        let page2: TreeNode = new TreeNodeImpl()
+        page2.title = 'front page'
+        page2.components.push(new PageMarker())
+        page2.components.push(new BoundedShapeObject(new Rect(0, 0, 8.5 * 100 / 2, 11 * 100 / 2)))
+        page2.components.push(new PDFExportBounds("in", 1 / 100))
+        page2.components.push(new RectShapeObject())
+        page2.components.push(new FilledShapeObject('white'))
+        add_child_to_parent(page2, root)
+
+        let text2 = new TreeNodeImpl() as TreeNode
+        text2.title = "Text: Happy NY"
+        text2.components.push(new TextShapeObject("Happy NY", 30, "center", 'center'))
+        text2.components.push(new BoundedShapeObject(new Rect(0, 250, 8.5 * 100 / 2, 200)))
+        text2.components.push(new MovableBoundedShape(text2))
+        text2.components.push(new ResizableRectObject(text2))
+        text2.components.push(new FilledShapeObject('#00CC00'))
+        add_child_to_parent(text2, page2)
+    }
 
     return root
 }
@@ -315,7 +337,7 @@ function App() {
                     <label>props</label>
                 </Toolbar>
                 <TreeView root={root} state={state}/>
-                <CanvasView root={root} state={state}/>
+                <CanvasView docroot={root} state={state}/>
                 <PropSheet root={root} state={state}/>
             </IDEGrid>
         </div>
