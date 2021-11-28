@@ -175,17 +175,13 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
     const [current_root, set_current_root] = useState(()=>find_first_page(props.docroot))
     let canvas = useRef<HTMLCanvasElement>(null)
 
-    function toCanvasPoint(e: MouseEvent) {
+    function toRootPoint(e: MouseEvent) {
         let target: HTMLElement = e.target as HTMLElement
         let bounds = target.getBoundingClientRect()
         let cp = new Point(e.clientX - bounds.x, e.clientY - bounds.y)
         let pt = cp.subtract(pan_offset)
         let scale = Math.pow(2,zoom_level)
-        return pt.multiply(1/scale)
-    }
-
-    function toRootPoint(e: MouseEvent) {
-        let pt = toCanvasPoint(e)
+        pt = pt.multiply(1/scale)
         let root = current_root
         if(root.has_component(ParentTranslateName)) {
             let off = (root.get_component(ParentTranslateName) as ParentTranslate).get_translation_point()
