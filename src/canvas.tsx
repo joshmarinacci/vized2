@@ -207,6 +207,10 @@ export function CanvasView(props:{root:TreeNode, state:GlobalState}) {
         }
     },[canvas,pan_offset, zoom_level, props.root, current_root])
 
+    useEffect(() => {
+        set_current_root(props.root)
+    },[props.root])
+
     useEffect(()=>{
         let op = () => {
             let can = canvas.current as HTMLCanvasElement

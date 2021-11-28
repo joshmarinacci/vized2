@@ -158,6 +158,7 @@ export interface Component {
 
 export type TreeNode = {
     id: string,
+    title:string,
     parent: TreeNode,
     children: TreeNode[],
     components: Component[],
@@ -213,8 +214,10 @@ export class TreeNodeImpl implements TreeNode {
     parent: TreeNode
     children: TreeNode[]
     components: Component[]
+    title: string
     constructor() {
         this.id = "tree_node_" + Math.floor(Math.random() * 1000000)
+        this.title = "unnamed"
         this.children = []
         this.components = []
     }

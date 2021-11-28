@@ -20,7 +20,12 @@ import {
     MovableBoundedShape,
     ResizableRectObject
 } from "./bounded_shape";
-import {CirclePowerup, CircleShape, CircleShapeObject, MovableCircleObject} from "./powerups/circle_powerup";
+import {
+    CirclePowerup,
+    CircleShape,
+    CircleShapeObject,
+    MovableCircleObject
+} from "./powerups/circle_powerup";
 import {TextPowerup, TextShapeObject} from "./powerups/text_powerup";
 import {MovableSpiralObject, SpiralPowerup, SpiralShapeObject} from "./powerups/spiral";
 import {export_JSON, FilledShapeJSONExporter} from "./exporters/json";
@@ -35,6 +40,7 @@ import {
 } from "./powerups/group_powerup";
 import {ImagePowerup, ImageShapeObject, ResizableImageObject} from "./powerups/image_powerup";
 import {Toolbar} from "./comps";
+import {TreeView} from "./treeview";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -48,12 +54,14 @@ function add_child_to_parent(child:TreeNode, parent:TreeNode):void {
 
 export function make_default_tree() {
     let root:TreeNode = new TreeNodeImpl()
+    root.title = 'root'
     root.components.push(new BoundedShapeObject(new Rect(0,0,8.5*100,11*100)))
     root.components.push(new PDFExportBounds("in",1/100))
     root.components.push(new RectShapeObject())
     root.components.push(new FilledShapeObject('white'))
 
     let group1 = new TreeNodeImpl()
+    group1.title = 'group'
     group1.components.push(new GroupShapeObject(group1, new Point(100,50)))
     group1.components.push(new GroupParentTranslate(group1))
     group1.components.push(new MovableGroupShape(group1))
@@ -61,6 +69,7 @@ export function make_default_tree() {
 
     {
         let rect1 = new TreeNodeImpl()
+        rect1.title = 'rect'
         rect1.components.push(new RectShapeObject())
         rect1.components.push(new BoundedShapeObject(new Rect(10, 10, 10, 10)))
         rect1.components.push(new FilledShapeObject("#ff0000"))
@@ -69,6 +78,7 @@ export function make_default_tree() {
     }
     {
         let rect2: TreeNode = new TreeNodeImpl()
+        rect2.title = 'rect'
         rect2.components.push(new RectShapeObject())
         rect2.components.push(new BoundedShapeObject(new Rect(200, 30, 50, 50)))
         rect2.components.push(new FilledShapeObject('#0000FF'))
@@ -78,6 +88,7 @@ export function make_default_tree() {
     }
     {
         let rect3: TreeNode = new TreeNodeImpl()
+        rect3.title = 'rect'
         rect3.components.push(new RectShapeObject())
         rect3.components.push(new BoundedShapeObject(new Rect(50, 200, 50, 50)))
         rect3.components.push(new FilledShapeObject('#00FF00'))
@@ -87,6 +98,7 @@ export function make_default_tree() {
     }
     {
         let circ1: TreeNode = new TreeNodeImpl()
+        circ1.title = 'circle'
         circ1.components.push(new FilledShapeObject('#00FF00'))
         let circle_shape:CircleShape = new CircleShapeObject(new Point(100,100),20)
         circ1.components.push(circle_shape)
@@ -95,6 +107,7 @@ export function make_default_tree() {
     }
     {
         let spiral:TreeNode = new TreeNodeImpl()
+        spiral.title = 'spiral'
         spiral.components.push(new FilledShapeObject('#000000'))
         spiral.components.push(new SpiralShapeObject(new Point(100,200),15))
         spiral.components.push(new MovableSpiralObject(spiral))
@@ -103,6 +116,7 @@ export function make_default_tree() {
 
     {
         let image:TreeNode = new TreeNodeImpl()
+        image.title = 'image'
         let url = "https://vr.josh.earth/assets/2dimages/saturnv.jpg"
         image.components.push(new ImageShapeObject(url,1000,1000))
         image.components.push(new BoundedShapeObject(new Rect(100,100,200,200)))
@@ -113,6 +127,7 @@ export function make_default_tree() {
 
     {
         let text1 = new TreeNodeImpl() as TreeNode
+        text1.title = 'text1'
         text1.components.push(new TextShapeObject("Jesse", 16, "center",'center'))
         text1.components.push(new BoundedShapeObject(new Rect(50,150,200,200)))
         text1.components.push(new MovableBoundedShape(text1))
@@ -125,30 +140,22 @@ export function make_default_tree() {
 
 function make_greeting_card_tree():TreeNode {
     let root:TreeNode = new TreeNodeImpl()
-    root.components.push(new BoundedShapeObject(new Rect(0,0,300,300)))
+    root.title = 'root'
+    root.components.push(new BoundedShapeObject(new Rect(0,0,8.5*100/2,11*100/2)))
+    root.components.push(new PDFExportBounds("in",1/100))
     root.components.push(new RectShapeObject())
     root.components.push(new FilledShapeObject('white'))
 
+    let text1 = new TreeNodeImpl() as TreeNode
+    text1.title = "Text: merry christmas"
+    text1.components.push(new TextShapeObject("Merry Christmas", 30, "center",'center'))
+    text1.components.push(new BoundedShapeObject(new Rect(0,100,8.5*100/2,200)))
+    text1.components.push(new MovableBoundedShape(text1))
+    text1.components.push(new ResizableRectObject(text1))
+    text1.components.push(new FilledShapeObject('#00CC00'))
+    add_child_to_parent(text1,root)
 
     return root
-}
-
-function TreeItem(props:{node:TreeNode}) {
-    return <li onClick={()=>{
-        console.log("selected an item")
-    }}>
-        {props.node.id}
-    </li>
-}
-function TreeView(props:{root:TreeNode}) {
-    return <div className={'panel left'}>
-        {props.root.id}
-        <ul>
-            {props.root.children.map((ch,i) => {
-                return <TreeItem key={i} node={ch}/>
-            })}
-        </ul>
-    </div>
 }
 
 export function setup_state(root:TreeNode):GlobalState {
@@ -298,7 +305,7 @@ function App() {
                 <Toolbar>
                     <label>props</label>
                 </Toolbar>
-                <TreeView root={root}/>
+                <TreeView root={root} state={state}/>
                 <CanvasView root={root} state={state}/>
                 <PropSheet root={root} state={state}/>
             </IDEGrid>

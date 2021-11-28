@@ -1,6 +1,8 @@
 .ide-grid {
     display: grid;
+    min-height: 80vh;
     grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: 2rem auto;
 }
 
 .toolbar {
@@ -20,15 +22,46 @@
     grid-template-columns: 1fr 2fr;
     border: 1px solid black;
     margin: 0.5rem;
+    background-color: #f0f0f0;
+    padding: 0.5rem;
+    border-radius: 0.25em;
 }
 .prop-grid h3 {
-    grid-column: 2/2;
+    grid-column-start: 1;
+    grid-column-end: 3;
 }
 
 .prop-grid canvas {
     border: 1px solid black;
+    grid-column-start: 1;
+    grid-column-end: 3;
 }
 
 .toolbar {
-    border: 1px solid red;
+    border: 0px solid red;
+    background-color: #ccc;
+    padding: 0.25em;
 }
+
+
+
+.tree-view {
+    list-style: none;
+    border: 0px solid red;
+    padding:0;
+    padding-left: 1rem;
+    margin:0;
+}
+
+.tree-item {
+    border:0px solid blue;
+    margin:0;
+    padding: 0.25em 0.5em;
+}
+.tree-item.selected {
+    background-color: aquamarine;
+}
+
+
+
+
