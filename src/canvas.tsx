@@ -54,8 +54,7 @@ class MouseMoveDelegate implements MouseGestureDelegate {
     }
 
     press(e: MouseEvent, pt:Point, root:TreeNode) {
-        this.press_point = pt//this.canvas.toRootPoint(e)
-        // let root = this.canvas.get_current_root()
+        this.press_point = pt
         //skip root
         let picked:TreeNode|null = null
         root.children.forEach((ch:TreeNode) => {
@@ -201,7 +200,7 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
     }
 
     const over_group = (e:MouseEvent):TreeNode|null => {
-        let pt = toCanvasPoint(e)
+        let pt = toRootPoint(e)
         for(let ch of current_root.children) {
             if(ch.has_component(ParentTranslateName)) {
                 for(let pk of props.state.pickers) {
@@ -214,7 +213,12 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
         return null
     }
 
-    function refresh(ctx: CanvasRenderingContext2D, zoom_level: number, width:number,height:number) {
+    function refresh() {
+        if(!canvas.current) return
+        let can = canvas.current as HTMLCanvasElement
+        let width = can.width
+        let height = can.height
+        let ctx = can.getContext('2d') as CanvasRenderingContext2D
         let scale = Math.pow(2,zoom_level)
         ctx.fillStyle = 'black'
         ctx.fillRect(0, 0, width,height)
@@ -228,24 +232,17 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
         ctx.restore()
     }
     //redraw when current root changes, or transforms, or the docroot
-    useEffect(()=>{
-        if(canvas.current) {
-            let can = canvas.current as HTMLCanvasElement
-            let ctx = can.getContext('2d') as CanvasRenderingContext2D
-            refresh(ctx,zoom_level, can.width, can.height)
-        }
-    },[canvas,pan_offset, zoom_level, current_root])
+    useEffect(()=> refresh(),[canvas,pan_offset, zoom_level, current_root])
 
     //change first page when docroot changes
-    useEffect(() => set_current_page(find_first_page(props.docroot)),[props.docroot])
+    useEffect(() => {
+        set_current_page(find_first_page(props.docroot))
+        set_current_root(props.docroot)
+    },[props.docroot])
 
     //redraw on refresh or prop change
     useEffect(()=>{
-        let op = () => {
-            let can = canvas.current as HTMLCanvasElement
-            let ctx = can.getContext('2d') as CanvasRenderingContext2D
-            refresh(ctx,zoom_level, can.width, can.height)
-        }
+        let op = () => refresh()
         props.state.on("prop-change", op)
         props.state.on("refresh", op)
         return () => {
@@ -258,15 +255,11 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
     useEffect(()=>{
         let op = () => {
             let page = find_page_for_selection(props.state.selection)
-            if(page) {
-                if(page !== current_page) {
-                    set_current_page(page)
-                    set_current_root(page)
-                }
+            if(page && page !== current_page) {
+                set_current_page(page)
+                set_current_root(page)
             }
-            let can = canvas.current as HTMLCanvasElement
-            let ctx = can.getContext('2d') as CanvasRenderingContext2D
-            refresh(ctx,zoom_level, can.width, can.height)
+            refresh()
         }
         props.state.on("selection-change", op)
         return () => {
@@ -310,7 +303,6 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
     }
 
     const exit_inset = () => {
-        console.log("exit inset")
         set_current_root(props.state.get_root())
         set_is_inset(false)
     }
