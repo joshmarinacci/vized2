@@ -11,7 +11,7 @@ import {
     TreeNodeImpl
 } from "./common";
 import {CanvasView} from "./canvas";
-import {RectPowerup, RectShapeObject} from "./rect_powerup";
+import {RectPowerup, RectShapeObject} from "./powerups/rect_powerup";
 import {
     BoundedShape,
     BoundedShapeName,
@@ -20,9 +20,9 @@ import {
     MovableBoundedShape,
     ResizableRectObject
 } from "./bounded_shape";
-import {CirclePowerup, CircleShape, CircleShapeObject, MovableCircleObject} from "./circle_powerup";
-import {TextPowerup, TextShapeObject} from "./text_powerup";
-import {MovableSpiralObject, SpiralPowerup, SpiralShapeObject} from "./spiral";
+import {CirclePowerup, CircleShape, CircleShapeObject, MovableCircleObject} from "./powerups/circle_powerup";
+import {TextPowerup, TextShapeObject} from "./powerups/text_powerup";
+import {MovableSpiralObject, SpiralPowerup, SpiralShapeObject} from "./powerups/spiral";
 import {export_JSON, FilledShapeJSONExporter} from "./exporters/json";
 import {export_PDF, PDFExportBounds} from "./exporters/pdf";
 import {export_SVG} from "./exporters/svg";
@@ -32,8 +32,8 @@ import {
     GroupPowerup,
     GroupShapeObject,
     MovableGroupShape
-} from "./group_powerup";
-import {ImagePowerup, ImageShapeObject, ResizableImageObject} from "./image_powerup";
+} from "./powerups/group_powerup";
+import {ImagePowerup, ImageShapeObject, ResizableImageObject} from "./powerups/image_powerup";
 import {Toolbar} from "./comps";
 
 function IDEGrid(props:{title:string, children:any[]}) {

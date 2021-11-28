@@ -9,9 +9,9 @@ import {
     RenderingSystem,
     SVGExporter,
     TreeNode
-} from "./common";
-import {JSONExporter} from "./exporters/json";
-import {cssToPdfColor} from "./exporters/pdf";
+} from "../common";
+import {JSONExporter} from "../exporters/json";
+import {cssToPdfColor} from "../exporters/pdf";
 
 const SpiralShapeName = "SpiralShape"
 export class SpiralShapeObject implements Component {

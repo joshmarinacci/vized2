@@ -2,10 +2,10 @@ import {
     Component, GlobalState, Handle,
     Point, Powerup,
     RenderingSystem, Resizable, ResizableName, TreeNode
-} from "./common"
-import {BoundedShape, BoundedShapeName} from "./bounded_shape";
-import {cssToPdfColor, PDFExporter} from "./exporters/pdf";
-import {SVGExporter} from "./exporters/svg";
+} from "../common"
+import {BoundedShape, BoundedShapeName} from "../bounded_shape";
+import {cssToPdfColor, PDFExporter} from "../exporters/pdf";
+import {SVGExporter} from "../exporters/svg";
 
 const ImageShapeName = "ImageShapeName"
 export interface ImageShape extends Component {

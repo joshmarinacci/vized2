@@ -11,16 +11,16 @@ import {
     ResizableName,
     SVGExporter,
     TreeNode
-} from "./common";
-import {cssToPdfColor} from "./exporters/pdf";
+} from "../common";
+import {cssToPdfColor} from "../exporters/pdf";
 import {
     BoundedShape,
     BoundedShapeName,
     BoundedShapeObject,
     MovableBoundedShape,
     ResizableRectObject
-} from "./bounded_shape";
-import {JSONExporter} from "./exporters/json";
+} from "../bounded_shape";
+import {JSONExporter} from "../exporters/json";
 
 const RectShapeName = "RectShape"
 interface RectShape extends Component {

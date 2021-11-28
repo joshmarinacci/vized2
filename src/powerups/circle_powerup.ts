@@ -12,9 +12,9 @@ import {
     RenderingSystem, SVGExporter,
     // SVGExporter,
     TreeNode
-} from "./common";
-import {JSONExporter} from "./exporters/json";
-import {cssToPdfColor} from "./exporters/pdf.js";
+} from "../common";
+import {JSONExporter} from "../exporters/json";
+import {cssToPdfColor} from "../exporters/pdf.js";
 
 const CircleShapeName = "CircleShapeName"
 export interface CircleShape extends Component {

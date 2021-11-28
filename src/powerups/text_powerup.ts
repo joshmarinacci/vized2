@@ -11,10 +11,10 @@ import {
     ResizableName,
     SVGExporter,
     TreeNode
-} from "./common";
-import {BoundedShape, BoundedShapeName, BoundedShapeObject} from "./bounded_shape";
-import {cssToPdfColor} from "./exporters/pdf";
-import {JSONExporter} from "./exporters/json";
+} from "../common";
+import {BoundedShape, BoundedShapeName, BoundedShapeObject} from "../bounded_shape";
+import {cssToPdfColor} from "../exporters/pdf";
+import {JSONExporter} from "../exporters/json";
 
 const TextShapeName = "TextShapeName"
 interface TextShape extends Component {
