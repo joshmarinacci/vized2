@@ -43,8 +43,7 @@ export class RectRendererSystem implements RenderingSystem {
             let rect = bd.get_bounds()
 
             if (node.has_component(FilledShapeName)) {
-                let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
-                ctx.fillStyle = color.get_color()
+                ctx.fillStyle = (node.get_component(FilledShapeName) as FilledShape).get_color()
             } else {
                 ctx.fillStyle = 'magenta'
             }
@@ -73,9 +72,8 @@ export class RectSVGExporter implements SVGExporter {
     }
 
     toSVG(node: TreeNode): string {
-        let bd: BoundedShape = <BoundedShape>node.get_component(BoundedShapeName)
-        let rect = bd.get_bounds()
-        let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
+        let rect = (node.get_component(BoundedShapeName) as BoundedShape).get_bounds()
+        let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
         let obj = {
             x:rect.x,
             y:rect.y,
@@ -101,9 +99,8 @@ export class RectPDFExporter implements PDFExporter {
     }
 
     toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
-        let bd: BoundedShape = <BoundedShape>node.get_component(BoundedShapeName)
-        let rect = bd.get_bounds()
-        let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
+        let rect = (node.get_component(BoundedShapeName) as BoundedShape).get_bounds()
+        let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
         let obj = {
             x:rect.x,
             y:rect.y,
@@ -114,7 +111,6 @@ export class RectPDFExporter implements PDFExporter {
         let pdf_color = cssToPdfColor(obj.fill)
         doc.setFillColor(...pdf_color)
         doc.rect(obj.x,obj.y,obj.width,obj.height,"FD")
-
     }
 
 }
@@ -130,7 +126,7 @@ export class RectJsonExporter implements JSONExporter {
         if(component.name === MovableName) return {name:component.name, empty:true, powerup:'rect'}
         if(component.name === RectShapeName) return {name:component.name, empty:true, powerup:'rect'}
         if(component.name === BoundedShapeName) {
-            let bd: BoundedShape = <BoundedShape>component
+            let bd: BoundedShape = component as BoundedShape
             let rect = bd.get_bounds()
             return {
                 name: BoundedShapeName,

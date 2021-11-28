@@ -15,8 +15,8 @@ export interface ImageShape extends Component {
 export class ImageShapeObject implements ImageShape {
     name: string;
     private url: any;
-    private ow: any;
-    private oh: any;
+    private ow: number;
+    private oh: number;
     dom_image: HTMLImageElement;
     aspect_ratio: number;
     constructor(url:string,w:number,h:number) {
@@ -91,28 +91,6 @@ export class ResizableImageObject implements Resizable {
 
 }
 
-// export class ImagePropRendererSystem implements PropRenderingSystem {
-//     name: string;
-//     private state: GlobalState;
-//     constructor(state:GlobalState) {
-//         this.state = state
-//     }
-//
-//     render_view(comp: Component): HTMLElement {
-//         let image = (comp as ImageShapeObject)
-//         let x = LABEL("w")
-//         let xbox = NUMBER_INPUT(image.get_size().x)
-//         let y = LABEL("h")
-//         let ybox = NUMBER_INPUT(image.get_size().y)
-//         let url_lable = LABEL("url")
-//         let url_box = STRING_INPUT(image.get_url())
-//         return DIV(["prop-group"],[x,xbox,y,ybox,url_lable,url_box])
-//     }
-//
-//     supports(name: string): any { return (name === ImageShapeName)  }
-//
-// }
-
 const ImageRendererSystemName = 'ImageRendererSystemName'
 export class ImageRendererSystem implements RenderingSystem {
     constructor() {
@@ -121,7 +99,7 @@ export class ImageRendererSystem implements RenderingSystem {
 
     render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void {
         if (node.has_component(BoundedShapeName) && node.has_component(ImageShapeName)) {
-            let bd: BoundedShape = <BoundedShape>node.get_component(BoundedShapeName)
+            let bd: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
             let rect = bd.get_bounds()
 
             let img:ImageShapeObject = node.get_component(ImageShapeName) as ImageShapeObject
@@ -151,7 +129,7 @@ export class ImagePDFExporter implements PDFExporter {
     }
 
     toPDF(node: TreeNode, state:GlobalState, doc: any,scale:number): void {
-        let bd: BoundedShape = <BoundedShape>node.get_component(BoundedShapeName)
+        let bd: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
         let img:ImageShapeObject = node.get_component(ImageShapeName) as ImageShapeObject
         let rect = bd.get_bounds().scale(scale)
         let obj = {
@@ -164,7 +142,6 @@ export class ImagePDFExporter implements PDFExporter {
         doc.setFillColor(...pdf_color)
         doc.rect(obj.x,obj.y,obj.width,obj.height,"FD")
         doc.addImage(img.dom_image,'JPEG',obj.x,obj.y,obj.width,obj.height,'NONE',0)
-
     }
 
 }
@@ -182,7 +159,7 @@ class ImageSVGExporter implements SVGExporter {
 
     toSVG(node: TreeNode): string {
         let img:ImageShapeObject = node.get_component(ImageShapeName) as ImageShapeObject
-        let bd: BoundedShape = <BoundedShape>node.get_component(BoundedShapeName)
+        let bd: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
         let rect = bd.get_bounds()
 
         return `<image x="${rect.x}" y="${rect.y}" width="${rect.w}" height="${rect.h}" href="${img.get_url()}"/>`
@@ -192,9 +169,7 @@ class ImageSVGExporter implements SVGExporter {
 export class ImagePowerup implements Powerup {
     init(state: GlobalState) {
         state.renderers.push(new ImageRendererSystem())
-        // state.props_renderers.push(new ImagePropRendererSystem(state))
         state.svgexporters.push(new ImageSVGExporter())
         state.pdfexporters.push(new ImagePDFExporter())
-        // state.jsonexporters.push(new RectJsonExporter())
     }
 }

@@ -6,15 +6,12 @@ import {
     PDFExporter,
     Point,
     Powerup,
-    // PropRenderingSystem,
     Rect,
     RenderingSystem,
     ResizableName,
     SVGExporter,
     TreeNode
 } from "./common";
-// import {JSONExporter} from "./exporters/json.js";
-// import {cssToPdfColor} from "./exporters/pdf.js";
 import {BoundedShape, BoundedShapeName, BoundedShapeObject} from "./bounded_shape";
 import {cssToPdfColor} from "./exporters/pdf";
 import {JSONExporter} from "./exporters/json";
@@ -77,7 +74,6 @@ export class TextShapeObject implements TextShape {
     }
 }
 
-
 class TextRenderingSystem implements RenderingSystem {
     name: string;
     constructor() {
@@ -136,52 +132,11 @@ export class MovableTextObject implements Movable {
         this.name = MovableName
     }
     moveBy(pt: Point): void {
-        let bd:BoundedShape = <BoundedShape>this.node.get_component(BoundedShapeName)
+        let bd:BoundedShape = this.node.get_component(BoundedShapeName) as BoundedShape
         bd.get_bounds().x += pt.x
         bd.get_bounds().y += pt.y
     }
 }
-
-// export class TextPropRendererSystem implements PropRenderingSystem {
-//     name: string;
-//     private state: GlobalState;
-//     constructor(state:GlobalState) {
-//         this.name = 'TextPropRendererSystem'
-//         this.state = state
-//     }
-//
-//     // render_view(comp: Component): HTMLElement {
-//     //     let tn = (comp as TextShape)
-//     //     let content_label = LABEL("content")
-//     //     let content_input = STRING_INPUT(tn.get_content(),(v)=>{
-//     //         tn.set_content(v)
-//     //         this.state.dispatch("prop-change", {})
-//     //     })
-//     //     let font_size_label = LABEL("fontsize")
-//     //     let font_size_input = NUMBER_INPUT(tn.get_fontsize(),(v)=>{
-//     //         tn.set_fontsize(v)
-//     //         this.state.dispatch("prop-change", {})
-//     //     })
-//     //     let halign_label = LABEL("halign")
-//     //     let halign_input = CHOICE_INPUT(tn.get_halign(),['left','center','right'],(v)=>{
-//     //         tn.set_halign(v)
-//     //         this.state.dispatch("prop-change", {})
-//     //     })
-//     //     let valign_label = LABEL("valign")
-//     //     let valign_input = CHOICE_INPUT(tn.get_valign(),['top','center','bottom'],(v)=>{
-//     //         tn.set_valign(v)
-//     //         this.state.dispatch("prop-change", {})
-//     //     })
-//     //     return DIV(["prop-group"],[content_label,content_input,font_size_label,font_size_input,halign_label,halign_input,valign_label,valign_input])
-//     // }
-//
-//     supports(name: string): any {
-//         if(name === TextShapeName) return true
-//         return false
-//     }
-//
-// }
-
 
 class TextJSONExporter implements JSONExporter {
     name: string;
@@ -212,7 +167,7 @@ class TextJSONExporter implements JSONExporter {
         if(component.name === ResizableName) return {name:component.name, empty:true, powerup:'text'}
         if(component.name === MovableName) return {name:component.name, empty:true, powerup:'text'}
         if(component.name === TextShapeName) {
-            let ts:TextShapeObject = <TextShapeObject>component
+            let ts:TextShape = component as TextShape
             return {
                 name:TextShapeName,
                 content:ts.get_content(),
@@ -222,7 +177,7 @@ class TextJSONExporter implements JSONExporter {
             }
         }
         if(component.name === BoundedShapeName) {
-            let bd: BoundedShape = <BoundedShape>component
+            let bd: BoundedShape = component as BoundedShape
             let rect = bd.get_bounds()
             return {
                 name: BoundedShapeName,
@@ -250,9 +205,9 @@ class TextPDFExporter implements PDFExporter {
         console.log("rendering text to pdf right here",node,doc)
         // console.log("list of fonts", doc.getFontList())
         let ts: TextShape = node.get_component(TextShapeName) as TextShape
-        let bd: BoundedShape = <BoundedShape>node.get_component(BoundedShapeName)
+        let bd: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
         let rect = bd.get_bounds()
-        let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
+        let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
         let pdf_color = cssToPdfColor('#00ff00')
         doc.setFontSize(ts.get_fontsize())
         doc.setFillColor(...pdf_color)
@@ -281,7 +236,6 @@ class TextSVGExporter implements SVGExporter {
 
 export class TextPowerup implements Powerup {
     init(state: GlobalState) {
-        // state.props_renderers.push(new TextPropRendererSystem(state))
         state.renderers.push(new TextRenderingSystem())
         state.svgexporters.push(new TextSVGExporter())
         state.pdfexporters.push(new TextPDFExporter())

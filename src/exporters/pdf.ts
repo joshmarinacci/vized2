@@ -1,8 +1,6 @@
 import {Component, System, TreeNode, GlobalState} from "../common.js";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {jsPDF} from "jspdf"
-// @ts-ignore
-// const { jsPDF } = window.jspdf;
 
 
 export interface PDFExporter extends System {
