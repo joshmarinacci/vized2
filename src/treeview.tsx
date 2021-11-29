@@ -1,5 +1,5 @@
 import {
-    add_child_to_parent,
+    add_child_to_parent, DocName,
     FilledShapeObject,
     GlobalState,
     PageName, Point,
@@ -11,8 +11,10 @@ import React, {MouseEventHandler, useContext, useEffect, useState} from "react";
 import {GroupShapeName} from "./powerups/group_powerup";
 import {PopupContext, PopupContextImpl} from "./popup";
 import {RectShapeObject} from "./powerups/rect_powerup";
-import {BoundedShapeObject, MovableBoundedShape} from "./bounded_shape";
+import {BoundedShapeObject, MovableBoundedShape, ResizableRectObject} from "./bounded_shape";
 import {CircleShapeObject, MovableCircleObject} from "./powerups/circle_powerup";
+import {ImageShapeObject, ResizableImageObject} from "./powerups/image_powerup";
+import {TextShapeObject} from "./powerups/text_powerup";
 
 interface Action {
     title:string
@@ -46,6 +48,46 @@ const make_circle:Action = {
     }
 }
 
+const make_text:Action = {
+    title: "add text",
+    fun(node: TreeNode, state: GlobalState): void {
+        let text = new TreeNodeImpl() as TreeNode
+        text.title = 'text1'
+        text.components.push(new TextShapeObject("text", 16, "center",'center'))
+        text.components.push(new BoundedShapeObject(new Rect(50,50,50,30)))
+        text.components.push(new MovableBoundedShape(text))
+        text.components.push(new ResizableRectObject(text))
+        text.components.push(new FilledShapeObject('#000000'))
+        add_child_to_parent(text,node)
+        state.dispatch('object-changed',{})
+    }
+}
+
+const make_image:Action = {
+    title: "add image",
+    fun(node: TreeNode, state: GlobalState): void {
+        let image:TreeNode = new TreeNodeImpl()
+        image.title = 'image'
+        let url = "https://vr.josh.earth/assets/2dimages/saturnv.jpg"
+        image.components.push(new ImageShapeObject(url,1000,1000))
+        image.components.push(new BoundedShapeObject(new Rect(100,100,200,200)))
+        image.components.push(new MovableBoundedShape(image))
+        image.components.push(new ResizableImageObject(image))
+        add_child_to_parent(image,node)
+        state.dispatch('object-changed',{})
+    }
+}
+
+const delete_node:Action = {
+    title:'delete',
+    fun(node: TreeNode, state: GlobalState): void {
+        node.parent.children = node.parent.children.filter(ch => ch !== node)
+        // @ts-ignore
+        node.parent = null
+        state.dispatch('object-changed',{})
+    }
+}
+
 const nothing:Action = {
     title: "nothing",
     fun(node: TreeNode, state: GlobalState): void {
@@ -58,6 +100,11 @@ function AddChildMenu(props: { node: TreeNode, state:GlobalState }) {
     if(props.node.has_component(PageName) || props.node.has_component(GroupShapeName)) {
         actions.push(make_rectangle)
         actions.push(make_circle)
+        actions.push(make_text)
+        actions.push(make_image)
+    }
+    if(!props.node.has_component(DocName)) {
+        actions.push(delete_node)
     }
     if(actions.length === 0) actions.push(nothing)
     return <ul className={'menu'}>
