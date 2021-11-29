@@ -1,8 +1,29 @@
-import {GlobalState, TreeNode} from "./common";
+import {GlobalState, PageName, TreeNode} from "./common";
 import React, {MouseEventHandler, useContext, useEffect, useState} from "react";
-import {GroupShapeName, GroupShapeObject} from "./powerups/group_powerup";
-import {PopupContext} from "./popup";
+import {GroupShapeName} from "./powerups/group_powerup";
+import {PopupContext, PopupContextImpl} from "./popup";
 
+
+function AddChildMenu(props: { node: TreeNode }) {
+    let pc = useContext(PopupContext) as PopupContextImpl
+    let actions = []
+    if(props.node.has_component(PageName) || props.node.has_component(GroupShapeName)) {
+        actions.push({title:'rectangle'})
+        actions.push({title:'rectangle'})
+    }
+    if(actions.length === 0) {
+        actions.push({title:'nothing'})
+    }
+    return <ul className={'menu'}>
+        {actions.map((act,i)=>{
+            return <li className={'menu-item'} key={i} onClick={()=>{
+                console.log("doing action",act.title)
+                pc.hide()
+            }
+            }>{act.title}</li>
+        })}
+    </ul>
+}
 
 function TreeParentItem(props: { node: TreeNode, state:GlobalState }) {
     let klass = "tree-parent"
@@ -15,7 +36,7 @@ function TreeParentItem(props: { node: TreeNode, state:GlobalState }) {
         props.state.dispatch('selection-change', {})
     }
     const show_menu:MouseEventHandler<HTMLDivElement> = (e) => {
-        let container:JSX.Element = <div>cool menu here</div>
+        let container:JSX.Element = <AddChildMenu node={props.node}/>
         pc?.show(container,e)
     }
     return <div className={klass}>

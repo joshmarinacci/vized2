@@ -3,6 +3,7 @@ import {Point} from "./common";
 
 export interface PopupContextInterface {
     show(content:JSX.Element, e:any):void
+    hide():void
     on(cb:any):void
     off(cb:any):void
 }
@@ -18,7 +19,10 @@ export class PopupContextImpl implements PopupContextInterface {
 
     show(content: JSX.Element, e: any): void {
         (e as MouseEvent).preventDefault()
-        this.listeners.forEach(cb => cb(content, e))
+        this.listeners.forEach(cb => cb("show",content, e))
+    }
+    hide():void {
+        this.listeners.forEach(cb => cb("hide"))
     }
 
     off(cb: any): void {
@@ -35,10 +39,15 @@ export function PopupContainer() {
     const [content, set_content] = useState(null)
     const [pos, set_pos] = useState(new Point(0, 0))
     useEffect(() => {
-        const op = (v: any, e: any) => {
-            let evt: MouseEvent = e as MouseEvent
-            set_content(v)
-            set_pos(new Point(evt.clientX, evt.clientY))
+        const op = (type:string, v: any, e: any) => {
+            if(type === 'show') {
+                let evt: MouseEvent = e as MouseEvent
+                set_content(v)
+                set_pos(new Point(evt.clientX, evt.clientY))
+            }
+            if(type === 'hide') {
+                set_content(null)
+            }
         }
         pc?.on(op)
         return () => {
