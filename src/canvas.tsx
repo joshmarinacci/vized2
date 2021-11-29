@@ -240,10 +240,12 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
     useEffect(()=>{
         let op = () => refresh()
         props.state.on("prop-change", op)
+        props.state.on("object-changed", op)
         props.state.on("refresh", op)
         return () => {
             props.state.off("refresh",op)
             props.state.off("prop-change", op)
+            props.state.off("object-changed", op)
         }
     })
 

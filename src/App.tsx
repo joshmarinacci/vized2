@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import './App.css';
 import {
+    add_child_to_parent,
     DocMarker,
     FilledShape,
     FilledShapeName,
@@ -49,10 +50,6 @@ function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
     {props.children}
   </div>
-}
-function add_child_to_parent(child:TreeNode, parent:TreeNode):void {
-    parent.children.push(child)
-    child.parent = parent
 }
 
 export function make_default_tree() {

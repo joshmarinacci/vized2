@@ -335,3 +335,8 @@ export interface PDFExporter extends System {
     canExport(node:TreeNode):boolean
     toPDF(node:TreeNode,state:GlobalState,doc:any,scale:number):void
 }
+
+export function add_child_to_parent(child: TreeNode, parent: TreeNode): void {
+    parent.children.push(child)
+    child.parent = parent
+}
