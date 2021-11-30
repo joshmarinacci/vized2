@@ -14,7 +14,7 @@ import {
     TreeNode
 } from "../common";
 import {JSONExporter} from "../exporters/json";
-import {cssToPdfColor} from "../exporters/pdf.js";
+import {cssToPdfColor} from "../exporters/pdf";
 
 const CircleShapeName = "CircleShapeName"
 export interface CircleShape extends Component {
@@ -151,14 +151,14 @@ export class CirclePDFExporter implements PDFExporter {
         let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
 
         let obj = {
-            cx:circle.get_position().x,
-            cy:circle.get_position().y,
-            r:circle.get_radius(),
+            cx:circle.get_position().x * scale,
+            cy:circle.get_position().y * scale,
+            r:circle.get_radius() * scale,
             fill:color.get_color()
         }
-        // let pdf_color = cssToPdfColor(obj.fill)
-        // doc.setFillColor(...pdf_color)
-        doc.circle(obj.cx,obj.cy, obj.r, "FD");
+        let pdf_color = cssToPdfColor(obj.fill)
+        doc.setFillColor(...pdf_color)
+        doc.circle(obj.cx,obj.cy, obj.r, "F");
     }
 }
 

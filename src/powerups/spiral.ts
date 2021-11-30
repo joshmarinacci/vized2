@@ -197,20 +197,27 @@ export class SpiralPDFExporter implements PDFExporter {
 
     toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
         let spiral:SpiralShapeObject = node.get_component(SpiralShapeName) as SpiralShapeObject
-        let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
+        let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
         let pdf_color = cssToPdfColor(color.get_color())
         doc.setFillColor(...pdf_color)
         let times = 5*Math.PI*2
         let radius = spiral.get_radius() / times
         let ox = spiral.get_position().x
         let oy = spiral.get_position().y
-        for(let th=1; th<times; th+=0.1) {
-            let x1 = Math.sin(th-0.1)*radius*th
-            let y1 = Math.cos(th-0.1)*radius*th
-            let x2 = Math.sin(th)*radius*th
-            let y2 = Math.cos(th)*radius*th
-            doc.line(x1+ox,y1+oy,x2+ox,y2+oy,"S")
+        const path = [];
+        for(let th=0; th<times; th+=0.1) {
+            let x = (Math.sin(th)*radius*th + ox) * scale
+            let y = (Math.cos(th)*radius*th + oy) * scale
+            if(th === 0) {
+                path.push({op:'m',c:[x,y]})
+            } else {
+                path.push({op:'l',c:[x,y]})
+            }
         }
+        path.push({op: "h", c: []})
+        doc.setLineWidth(1*scale)
+        doc.path(path);
+        doc.stroke()
     }
 }
 
