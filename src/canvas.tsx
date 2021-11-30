@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {MouseEventHandler, useContext, useEffect, useRef, useState} from "react";
 import {
     DocName,
     GlobalState,
@@ -15,7 +15,8 @@ import {
     TreeNode
 } from "./common";
 import {Toolbar} from "./comps";
-import {delete_selection} from "./actions";
+import {Action, delete_node, delete_selection, delete_selection_action, nothing} from "./actions";
+import {PopupContext, PopupContextImpl} from "./popup";
 
 function draw_node(state:GlobalState, ctx: CanvasRenderingContext2D, node: TreeNode) {
     //draw the current node
@@ -172,6 +173,25 @@ function find_page_for_selection(selection: SelectionSystem):TreeNode|null {
     return find_page_for_node(selection.get()[0])
 }
 
+function ContextMenu(props: { state: GlobalState }) {
+    let pc = useContext(PopupContext) as PopupContextImpl
+    let actions:Action[] = []
+    if(!props.state.selection.isEmpty()) {
+        actions.push(delete_selection_action)
+    }
+    if(actions.length === 0) actions.push(nothing)
+    return <ul className={'menu'}>
+        {actions.map((act,i)=>{
+            return <li className={'menu-item'} key={i} onClick={()=>{
+                // @ts-ignore
+                act.fun(null,props.state)
+                pc.hide()
+            }
+            }>{act.title}</li>
+        })}
+    </ul>
+}
+
 export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
     const [pan_offset, set_pan_offset] = useState(new Point(0,0))
     const [zoom_level, set_zoom_level] = useState(0)
@@ -180,6 +200,7 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
     const [current_page, set_current_page] = useState(()=>find_first_page(props.docroot))
     const [current_root, set_current_root] = useState(()=>find_first_page(props.docroot))
     let canvas = useRef<HTMLCanvasElement>(null)
+    let pc = useContext(PopupContext)
 
     function toRootPoint(e: MouseEvent) {
         let target: HTMLElement = e.target as HTMLElement
@@ -326,6 +347,13 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
         }
     }
 
+    // @ts-ignore
+    const show_menu = (e:MouseEvent<HTMLCanvasElement>) => {
+        let container:JSX.Element = <ContextMenu state={props.state}/>
+        pc?.show(container,e)
+    }
+
+
     return <div className={'panel center'}>
         <Toolbar>
             <button onClick={()=>set_zoom_level(zoom_level+1)}>zoom in</button>
@@ -340,6 +368,7 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
                 onMouseUp={mouseup}
                 onWheel={wheel}
                 onKeyUp={keypress}
+                onContextMenu={show_menu}
         />
     </div>
 }

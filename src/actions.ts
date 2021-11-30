@@ -102,3 +102,10 @@ export function delete_selection(state: GlobalState) {
     state.dispatch('object-changed', {})
     state.dispatch('selection-change', {})
 }
+export const delete_selection_action:Action = {
+    title: "delete selection",
+    fun(node: TreeNode, state: GlobalState): void {
+        delete_selection(state)
+    }
+
+}
