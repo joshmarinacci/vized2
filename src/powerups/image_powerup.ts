@@ -138,10 +138,10 @@ export class ImagePDFExporter implements PDFExporter {
             width:rect.w,
             height:rect.h,
         }
-        let pdf_color = cssToPdfColor('#ff00ff')
-        doc.setFillColor(...pdf_color)
-        doc.rect(obj.x,obj.y,obj.width,obj.height,"FD")
-        doc.addImage(img.dom_image,'JPEG',obj.x,obj.y,obj.width,obj.height,'NONE',0)
+        // let pdf_color = cssToPdfColor('#ff00ff')
+        // doc.setFillColor(...pdf_color)
+        // doc.rect(obj.x,obj.y,obj.width,obj.height,"FD")
+        doc.addImage(img.dom_image,'JPEG',obj.x,obj.y,obj.width,obj.height,null,0)
     }
 
 }
