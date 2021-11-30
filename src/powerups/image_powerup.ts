@@ -28,7 +28,10 @@ export class ImageShapeObject implements ImageShape {
         this.dom_image = new Image()
         this.dom_image.crossOrigin = "anonymous"
         this.dom_image.addEventListener('load',()=>{
-            console.log("image loaded",this.dom_image)
+            console.log("image loaded",this.dom_image.width,this.dom_image.height)
+            this.ow = this.dom_image.width
+            this.oh = this.dom_image.height
+            this.aspect_ratio = this.ow/this.oh
         })
         this.dom_image.src = this.url
     }
@@ -70,7 +73,7 @@ export class ImageShapeHandle extends Handle {
         bdd.h = this.y - bdd.y + this.h / 2
         let img = this.node.get_component(ImageShapeName) as ImageShape
         let rat = img.get_aspect_ratio()
-        bdd.h = bdd.w*rat
+        bdd.w = bdd.h*rat
     }
 }
 
