@@ -202,16 +202,16 @@ class TextPDFExporter implements PDFExporter {
     }
 
     toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
-        console.log("rendering text to pdf right here",node,doc)
+        // console.log("rendering text to pdf right here",node,doc)
         // console.log("list of fonts", doc.getFontList())
         let ts: TextShape = node.get_component(TextShapeName) as TextShape
         let bd: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
-        let rect = bd.get_bounds()
+        let rect = bd.get_bounds().scale(scale)
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
-        let pdf_color = cssToPdfColor('#00ff00')
+        let pdf_color = cssToPdfColor(color.get_color())
         doc.setFontSize(ts.get_fontsize())
         doc.setFillColor(...pdf_color)
-        doc.text(ts.get_content(), rect.x, rect.y)
+        doc.text(ts.get_content(), rect.x, rect.y+rect.h)
     }
 }
 

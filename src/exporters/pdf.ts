@@ -1,4 +1,4 @@
-import {Component, System, TreeNode, GlobalState} from "../common.js";
+import {Component, System, TreeNode, GlobalState, PageMarker, PageName} from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {jsPDF} from "jspdf"
 
@@ -40,14 +40,26 @@ export function treenode_to_PDF(node: TreeNode, state: GlobalState,doc:any, scal
     return exp ? exp.toPDF(node,state,doc,scale) : ""
 }
 
+function find_pages(root: TreeNode):TreeNode[] {
+    if(root.has_component(PageName)) return [root]
+    return root.children.map(ch => find_pages(ch)).flat()
+}
+
+function render_pdf_page(pageNumber:number, pg: TreeNode, state: GlobalState, doc: jsPDF, scale: number) {
+    if(pageNumber > 0) doc.addPage();
+    pg.children.forEach(ch => treenode_to_PDF(ch, state,doc,scale))
+}
+
 export function export_PDF(root:TreeNode, state:GlobalState) {
     let bds = {
         w:500,
         h:500,
     }
     let scale = 1
-    if(root.has_component(BoundedShapeName)) {
-        let bounds = root.get_component(BoundedShapeName) as BoundedShape
+    let pages:TreeNode[] = find_pages(root)
+    let firstpage = pages[0]
+    if(firstpage.has_component(BoundedShapeName)) {
+        let bounds = firstpage.get_component(BoundedShapeName) as BoundedShape
         let rect = bounds.get_bounds()
         bds.w = rect.w
         bds.h = rect.h
@@ -56,8 +68,8 @@ export function export_PDF(root:TreeNode, state:GlobalState) {
         unit:'pt',
         format:[bds.w,bds.h],
     }
-    if(root.has_component(PDFExportBoundsName)) {
-        let pdb = root.get_component(PDFExportBoundsName) as PDFExportBounds
+    if(firstpage.has_component(PDFExportBoundsName)) {
+        let pdb = firstpage.get_component(PDFExportBoundsName) as PDFExportBounds
         console.log('pdb',pdb)
         settings.unit = pdb.unit
         settings.format = [bds.w*pdb.scale,bds.h*pdb.scale]
@@ -66,6 +78,6 @@ export function export_PDF(root:TreeNode, state:GlobalState) {
     console.log("using the settings",settings)
     // @ts-ignore
     let doc = new jsPDF(settings)
-    root.children.forEach(ch => treenode_to_PDF(ch, state,doc,scale))
+    pages.forEach((pg,i) => render_pdf_page(i,pg, state, doc, scale))
     doc.save("output.pdf");
 }
