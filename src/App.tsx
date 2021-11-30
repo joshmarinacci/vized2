@@ -43,7 +43,7 @@ import {
 } from "./powerups/group_powerup";
 import {ImagePowerup, ImageShapeObject, ResizableImageObject} from "./powerups/image_powerup";
 import {Toolbar} from "./comps";
-import {TreeView} from "./treeview";
+import {make_image_node, TreeView} from "./treeview";
 import {PopupContainer, PopupContext, PopupContextImpl} from "./popup";
 
 function IDEGrid(props:{title:string, children:any[]}) {
@@ -163,6 +163,10 @@ function make_greeting_card_tree():TreeNode {
         text1.components.push(new ResizableRectObject(text1))
         text1.components.push(new FilledShapeObject('#00CC00'))
         add_child_to_parent(text1, page1)
+
+        let img = make_image_node("https://vr.josh.earth/assets/2dimages/santa.png")
+        add_child_to_parent(img,page1)
+
     }
 
     {
@@ -183,6 +187,9 @@ function make_greeting_card_tree():TreeNode {
         text2.components.push(new ResizableRectObject(text2))
         text2.components.push(new FilledShapeObject('#00CC00'))
         add_child_to_parent(text2, page2)
+
+        let img = make_image_node("https://vr.josh.earth/assets/2dimages/holly-leaves.png")
+        add_child_to_parent(img,page2)
     }
 
     return root

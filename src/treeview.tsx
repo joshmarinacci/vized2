@@ -63,16 +63,20 @@ const make_text:Action = {
     }
 }
 
+export function make_image_node(url:string):TreeNode {
+    let image:TreeNode = new TreeNodeImpl()
+    image.title = 'image'
+    image.components.push(new ImageShapeObject(url,1000,1000))
+    image.components.push(new BoundedShapeObject(new Rect(100,100,200,200)))
+    image.components.push(new MovableBoundedShape(image))
+    image.components.push(new ResizableImageObject(image))
+    return image
+}
+
 const make_image:Action = {
     title: "add image",
     fun(node: TreeNode, state: GlobalState): void {
-        let image:TreeNode = new TreeNodeImpl()
-        image.title = 'image'
-        let url = "https://vr.josh.earth/assets/2dimages/saturnv.jpg"
-        image.components.push(new ImageShapeObject(url,1000,1000))
-        image.components.push(new BoundedShapeObject(new Rect(100,100,200,200)))
-        image.components.push(new MovableBoundedShape(image))
-        image.components.push(new ResizableImageObject(image))
+        let image = make_image_node("https://vr.josh.earth/assets/2dimages/saturnv.jpg")
         add_child_to_parent(image,node)
         state.dispatch('object-changed',{})
     }
