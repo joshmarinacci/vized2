@@ -43,8 +43,9 @@ import {
 } from "./powerups/group_powerup";
 import {ImagePowerup, ImageShapeObject, ResizableImageObject} from "./powerups/image_powerup";
 import {Toolbar} from "./comps";
-import {make_image_node, TreeView} from "./treeview";
+import {TreeView} from "./treeview";
 import {PopupContainer, PopupContext, PopupContextImpl} from "./popup";
+import {make_image_node} from "./actions";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>

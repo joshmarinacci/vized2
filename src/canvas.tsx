@@ -1,14 +1,21 @@
-import React, {ReactNode, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {
     DocName,
     GlobalState,
     Handle,
     Movable,
-    MovableName, PageName, ParentTranslate, ParentTranslateName,
-    Point, Resizable, ResizableName, SelectionSystem,
+    MovableName,
+    PageName,
+    ParentTranslate,
+    ParentTranslateName,
+    Point,
+    Resizable,
+    ResizableName,
+    SelectionSystem,
     TreeNode
 } from "./common";
 import {Toolbar} from "./comps";
+import {delete_selection} from "./actions";
 
 function draw_node(state:GlobalState, ctx: CanvasRenderingContext2D, node: TreeNode) {
     //draw the current node
@@ -163,17 +170,6 @@ function find_page_for_node(node:TreeNode):TreeNode|null {
 function find_page_for_selection(selection: SelectionSystem):TreeNode|null {
     if(selection.isEmpty()) return null
     return find_page_for_node(selection.get()[0])
-}
-
-function delete_selection(state:GlobalState) {
-    state.selection.get().forEach(node => {
-        node.parent.children = node.parent.children.filter(ch => ch !== node)
-        // @ts-ignore
-        node.parent = null
-    })
-    state.selection.clear()
-    state.dispatch('object-changed',{})
-    state.dispatch('selection-change',{})
 }
 
 export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
