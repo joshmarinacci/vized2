@@ -152,7 +152,6 @@ function find_first_page(root: TreeNode):TreeNode {
 }
 
 function find_page_for_node(node:TreeNode):TreeNode|null {
-    console.log("selected",node)
     if(node.has_component(PageName)) {
         return node
     }
@@ -164,6 +163,17 @@ function find_page_for_node(node:TreeNode):TreeNode|null {
 function find_page_for_selection(selection: SelectionSystem):TreeNode|null {
     if(selection.isEmpty()) return null
     return find_page_for_node(selection.get()[0])
+}
+
+function delete_selection(state:GlobalState) {
+    state.selection.get().forEach(node => {
+        node.parent.children = node.parent.children.filter(ch => ch !== node)
+        // @ts-ignore
+        node.parent = null
+    })
+    state.selection.clear()
+    state.dispatch('object-changed',{})
+    state.dispatch('selection-change',{})
 }
 
 export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
@@ -311,6 +321,15 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
         if(g) enter_inset(g)
     }
 
+
+    // @ts-ignore
+    function keypress(e:KeyboardEvent<HTMLCanvasElement>) {
+        // console.log("keyboard event",e.key)
+        if(e.key === 'Backspace') {
+            delete_selection(props.state)
+        }
+    }
+
     return <div className={'panel center'}>
         <Toolbar>
             <button onClick={()=>set_zoom_level(zoom_level+1)}>zoom in</button>
@@ -318,11 +337,13 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
             <button disabled={!is_inset} onClick={()=>exit_inset()}>exit</button>
         </Toolbar>
         <canvas ref={canvas} width={400} height={400}
+                tabIndex={0}
                 onDoubleClick={mousedouble}
                 onMouseDown={mousedown}
                 onMouseMove={mousemove}
                 onMouseUp={mouseup}
                 onWheel={wheel}
+                onKeyUp={keypress}
         />
     </div>
 }
