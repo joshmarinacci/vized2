@@ -99,7 +99,8 @@ export class RectPDFExporter implements PDFExporter {
     }
 
     toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
-        let rect = (node.get_component(BoundedShapeName) as BoundedShape).get_bounds()
+        let bd = (node.get_component(BoundedShapeName) as BoundedShape)
+        let rect = bd.get_bounds().scale(scale)
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
         let obj = {
             x:rect.x,
@@ -110,7 +111,7 @@ export class RectPDFExporter implements PDFExporter {
         }
         let pdf_color = cssToPdfColor(obj.fill)
         doc.setFillColor(...pdf_color)
-        doc.rect(obj.x,obj.y,obj.width,obj.height,"FD")
+        doc.rect(obj.x,obj.y,obj.width,obj.height,"F")
     }
 
 }

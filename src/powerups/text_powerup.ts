@@ -209,9 +209,29 @@ class TextPDFExporter implements PDFExporter {
         let rect = bd.get_bounds().scale(scale)
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
         let pdf_color = cssToPdfColor(color.get_color())
+        let dim = doc.getTextDimensions(ts.get_content())
+        let h_offset = 0
+        if(ts.get_halign() === "right") {
+            h_offset = rect.w - dim.w
+        }
+        if(ts.get_halign() === "center") {
+            h_offset = (rect.w - dim.w)/2
+        }
+        let v_offset = 0
+        if(ts.get_valign() === 'top') {
+            v_offset = 0//metrics.actualBoundingBoxAscent
+        }
+        if(ts.get_valign() === 'center') {
+            v_offset = (rect.h - dim.h)/2
+        }
+        if(ts.get_valign() === 'bottom') {
+            v_offset = (rect.h - dim.h)
+        }
+        // let metrics = ctx.measureText(tn.get_content())
+        // console.log("metrics are",metrics)
         doc.setFontSize(ts.get_fontsize())
         doc.setFillColor(...pdf_color)
-        doc.text(ts.get_content(), rect.x, rect.y+rect.h)
+        doc.text(ts.get_content(), rect.x+h_offset, rect.y+rect.h+v_offset)
     }
 }
 

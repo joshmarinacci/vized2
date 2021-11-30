@@ -25,9 +25,10 @@ export const make_rectangle: Action = {
         let rect1 = new TreeNodeImpl()
         rect1.title = 'rect'
         rect1.components.push(new RectShapeObject())
-        rect1.components.push(new BoundedShapeObject(new Rect(10, 250, 10, 10)))
+        rect1.components.push(new BoundedShapeObject(new Rect(10, 10, 100, 100)))
         rect1.components.push(new FilledShapeObject("#ff0000"))
         rect1.components.push(new MovableBoundedShape(rect1))
+        rect1.components.push(new ResizableRectObject(rect1))
         add_child_to_parent(rect1, node)
         state.dispatch('object-changed', {})
     }
