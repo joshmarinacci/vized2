@@ -104,7 +104,7 @@ export class ImageRendererSystem implements RenderingSystem {
 
             let img:ImageShapeObject = node.get_component(ImageShapeName) as ImageShapeObject
             ctx.fillStyle = 'magenta'
-            ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
+            // ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
             ctx.drawImage(img.dom_image,rect.x,rect.y,rect.w,rect.h)
             // console.log('aspect ratio',img.aspect_ratio)
             if (state.selection.has(node)) {
