@@ -3,7 +3,7 @@ import {
     FilledShape,
     FilledShapeName, GlobalState,
     Movable,
-    MovableName,
+    MovableName, PageName,
     PDFExporter,
     PickingSystem,
     Point,
@@ -15,6 +15,8 @@ import {
 } from "../common";
 import {JSONExporter} from "../exporters/json";
 import {cssToPdfColor} from "../exporters/pdf";
+import {Action, make_circle} from "../actions";
+import {GroupShapeName} from "./group_powerup";
 
 const CircleShapeName = "CircleShapeName"
 export interface CircleShape extends Component {
@@ -169,6 +171,13 @@ export class CirclePowerup implements Powerup {
         state.svgexporters.push(new CircleSVGExporter())
         state.pdfexporters.push(new CirclePDFExporter())
         state.jsonexporters.push(new CircleShapeJSONExporter())
+    }
+
+    child_options(node: TreeNode): Action[] {
+        if(node.has_component(GroupShapeName) || node.has_component(PageName)) {
+            return [make_circle]
+        }
+        return [];
     }
 
 }

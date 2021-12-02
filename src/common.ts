@@ -1,4 +1,5 @@
 import {JSONExporter} from "./exporters/json";
+import {Action} from "./actions";
 
 export type Callback = (arg:any) => void
 export type EVENT_TYPES = "refresh" | "selection-change" | "prop-change" | "object-changed"
@@ -62,6 +63,7 @@ export class GlobalState {
 
 export interface Powerup {
     init(state: GlobalState):void
+    child_options(node:TreeNode):Action[]
 }
 
 export class Point {

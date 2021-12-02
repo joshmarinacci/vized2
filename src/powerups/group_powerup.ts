@@ -42,11 +42,13 @@ import {
     Point,
     Powerup, Rect, RenderingSystem, TreeNode,
     TreeNodeImpl,
-    GlobalState
+    GlobalState, PageName, FilledShapeObject, add_child_to_parent
 } from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {SVGExporter, treenode_to_SVG} from "../exporters/svg";
 import {cssToPdfColor, PDFExporter, treenode_to_PDF} from "../exporters/pdf";
+import {Action, make_circle} from "../actions";
+import {CircleShapeObject, MovableCircleObject} from "./circle_powerup";
 
 
 export const GroupShapeName = "GroupShapeName"
@@ -198,6 +200,19 @@ class GroupPDFExporter implements PDFExporter {
     }
 }
 
+const make_group: Action = {
+    title: "add group",
+    fun(node: TreeNode, state: GlobalState): void {
+        let group = new TreeNodeImpl()
+        group.title = 'group'
+        group.components.push(new GroupShapeObject(group, new Point(100,50)))
+        group.components.push(new GroupParentTranslate(group))
+        group.components.push(new MovableGroupShape(group))
+        add_child_to_parent(group, node)
+        state.dispatch('object-changed', {})
+    }
+}
+
 export class GroupPowerup implements Powerup {
     init(state: GlobalState) {
         state.pickers.push(new GroupPickSystem())
@@ -205,5 +220,12 @@ export class GroupPowerup implements Powerup {
         // state.props_renderers.push(new ImagePropRendererSystem(state))
         state.svgexporters.push(new GroupSVGExporter())
         state.pdfexporters.push(new GroupPDFExporter())
+    }
+
+    child_options(node: TreeNode): Action[] {
+        if(node.has_component(GroupShapeName) || node.has_component(PageName)) {
+            return [make_group]
+        }
+        return [];
     }
 }

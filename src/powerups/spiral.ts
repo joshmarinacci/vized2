@@ -1,17 +1,20 @@
 import {
+    add_child_to_parent,
     Component,
     FilledShape,
-    FilledShapeName, GlobalState,
-    Movable, MovableName,
+    FilledShapeName, FilledShapeObject, GlobalState,
+    Movable, MovableName, PageName,
     PDFExporter,
     PickingSystem, Point,
     Powerup,
     RenderingSystem,
     SVGExporter,
-    TreeNode
+    TreeNode, TreeNodeImpl
 } from "../common";
 import {JSONExporter} from "../exporters/json";
 import {cssToPdfColor} from "../exporters/pdf";
+import {Action, make_circle} from "../actions";
+import {GroupShapeName} from "./group_powerup";
 
 const SpiralShapeName = "SpiralShape"
 export class SpiralShapeObject implements Component {
@@ -249,6 +252,18 @@ class SpiralSVGExporter implements SVGExporter {
         return `<polyline fill="none" points="${points.join(",")}" stroke-width="1" stroke="${color.get_color()}"/>`
     }
 }
+const make_spiral: Action = {
+    title: "add spiral",
+    fun(node: TreeNode, state: GlobalState): void {
+        let shape = new TreeNodeImpl()
+        shape.title = 'spiral'
+        shape.components.push(new FilledShapeObject('#000000'))
+        shape.components.push(new SpiralShapeObject(new Point(100,200),15))
+        shape.components.push(new MovableSpiralObject(shape))
+        add_child_to_parent(shape, node)
+        state.dispatch('object-changed', {})
+    }
+}
 
 export class SpiralPowerup implements Powerup {
     init(state: GlobalState) {
@@ -258,5 +273,12 @@ export class SpiralPowerup implements Powerup {
         state.svgexporters.push(new SpiralSVGExporter())
         state.pdfexporters.push(new SpiralPDFExporter())
         state.jsonexporters.push(new SpiralJSONExporter())
+    }
+
+    child_options(node: TreeNode): Action[] {
+        if(node.has_component(GroupShapeName) || node.has_component(PageName)) {
+            return [make_spiral]
+        }
+        return [];
     }
 }

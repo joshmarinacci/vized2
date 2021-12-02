@@ -15,6 +15,7 @@ import {
 import {BoundedShape, BoundedShapeName, BoundedShapeObject} from "../bounded_shape";
 import {cssToPdfColor} from "../exporters/pdf";
 import {JSONExporter} from "../exporters/json";
+import {Action, make_text} from "../actions";
 
 const TextShapeName = "TextShapeName"
 interface TextShape extends Component {
@@ -260,6 +261,10 @@ export class TextPowerup implements Powerup {
         state.svgexporters.push(new TextSVGExporter())
         state.pdfexporters.push(new TextPDFExporter())
         state.jsonexporters.push(new TextJSONExporter())
+    }
+
+    child_options(node: TreeNode): Action[] {
+        return [make_text]
     }
 
 }

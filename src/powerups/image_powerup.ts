@@ -1,11 +1,13 @@
 import {
-    Component, GlobalState, Handle,
+    Component, GlobalState, Handle, PageName,
     Point, Powerup,
     RenderingSystem, Resizable, ResizableName, TreeNode
 } from "../common"
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {cssToPdfColor, PDFExporter} from "../exporters/pdf";
 import {SVGExporter} from "../exporters/svg";
+import {Action, make_circle, make_image} from "../actions";
+import {GroupShapeName} from "./group_powerup";
 
 const ImageShapeName = "ImageShapeName"
 export interface ImageShape extends Component {
@@ -174,5 +176,12 @@ export class ImagePowerup implements Powerup {
         state.renderers.push(new ImageRendererSystem())
         state.svgexporters.push(new ImageSVGExporter())
         state.pdfexporters.push(new ImagePDFExporter())
+    }
+
+    child_options(node: TreeNode): Action[] {
+        if(node.has_component(GroupShapeName) || node.has_component(PageName)) {
+            return [make_image]
+        }
+        return [];
     }
 }

@@ -3,7 +3,7 @@ import {
     FilledShape,
     FilledShapeName,
     GlobalState,
-    MovableName,
+    MovableName, PageName,
     PDFExporter,
     Powerup,
     Rect,
@@ -21,6 +21,8 @@ import {
     ResizableRectObject
 } from "../bounded_shape";
 import {JSONExporter} from "../exporters/json";
+import {Action, make_circle, make_rectangle} from "../actions";
+import {GroupShapeName} from "./group_powerup";
 
 const RectShapeName = "RectShape"
 interface RectShape extends Component {
@@ -172,5 +174,12 @@ export class RectPowerup implements Powerup {
         state.svgexporters.push(new RectSVGExporter())
         state.pdfexporters.push(new RectPDFExporter())
         state.jsonexporters.push(new RectJsonExporter())
+    }
+
+    child_options(node: TreeNode): Action[] {
+        if(node.has_component(GroupShapeName) || node.has_component(PageName)) {
+            return [make_rectangle]
+        }
+        return [];
     }
 }

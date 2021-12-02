@@ -11,6 +11,7 @@ import {
     ResizableName,
     TreeNode
 } from "./common";
+import {Action} from "./actions";
 
 export const BoundedShapeName = "BoundedShapeName";
 export interface BoundedShape extends Component {
@@ -114,6 +115,10 @@ export class BoundedShapePickSystem implements PickingSystem {
 export class BoundedShapePowerup implements Powerup {
     init(state: GlobalState) {
         state.pickers.push(new BoundedShapePickSystem())
+    }
+
+    child_options(node: TreeNode): Action[] {
+        return [];
     }
 }
 

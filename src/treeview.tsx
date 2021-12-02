@@ -14,13 +14,8 @@ import {
 
 function AddChildMenu(props: { node: TreeNode, state:GlobalState }) {
     let pc = useContext(PopupContext) as PopupContextImpl
-    let actions:Action[] = []
-    if(props.node.has_component(PageName) || props.node.has_component(GroupShapeName)) {
-        actions.push(make_rectangle)
-        actions.push(make_circle)
-        actions.push(make_text)
-        actions.push(make_image)
-    }
+    // let actions:Action[] = []
+    let actions:Action[] = props.state.powerups.map(pow => pow.child_options(props.node)).flat()
     if(!props.node.has_component(DocName)) {
         actions.push(delete_node)
     }
