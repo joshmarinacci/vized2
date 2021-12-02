@@ -1,12 +1,21 @@
 .ide-grid {
     display: grid;
-    min-height: 80vh;
     grid-template-columns: 1fr 2fr 1fr;
     grid-template-rows: 2rem auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 90vh;
+    width: 90vw;
 }
 
 .toolbar {
     grid-row: 1;
+}
+
+.toolbar {
+    display: flex;
+    flex-direction: row;
 }
 .panel {
     border: 1px solid black;
@@ -115,3 +124,37 @@ ul.menu .menu-item:hover {
     background-color: aquamarine;
 }
 
+
+
+
+
+.canvas-wrapper {
+    border: 0px solid rebeccapurple;
+    padding:0;
+    margin:0;
+    overflow: scroll;
+    width: 100%;
+    position: relative;
+    background-color: magenta;
+}
+.canvas-sizer {
+    border: 5px solid red;
+    box-sizing: border-box;
+    padding:0;
+    margin:0;
+    background-color: magenta;
+    position: absolute;
+}
+.draw-surface {
+    border: 5px solid green;
+    position: absolute;
+}
+
+.vbox {
+    display: flex;
+    flex-direction: column;
+}
+
+.grow {
+    flex: 1.0;
+}

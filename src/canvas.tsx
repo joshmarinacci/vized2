@@ -8,7 +8,7 @@ import {
     PageName,
     ParentTranslate,
     ParentTranslateName,
-    Point,
+    Point, Rect,
     Resizable,
     ResizableName,
     SelectionSystem,
@@ -17,6 +17,7 @@ import {
 import {Toolbar} from "./comps";
 import {Action, delete_node, delete_selection, delete_selection_action, nothing} from "./actions";
 import {PopupContext, PopupContextImpl} from "./popup";
+import {BoundedShape, BoundedShapeName} from "./bounded_shape";
 
 function draw_node(state:GlobalState, ctx: CanvasRenderingContext2D, node: TreeNode) {
     //draw the current node
@@ -202,6 +203,16 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
     let canvas = useRef<HTMLCanvasElement>(null)
     let pc = useContext(PopupContext)
 
+    const SLOP = new Point(100,100)
+
+    function calc_min_bounds(current_page: TreeNode):Rect {
+        let page_bounds = (current_page.get_component(BoundedShapeName) as BoundedShape).get_bounds()
+        page_bounds = page_bounds.grow(SLOP.x)
+        let scale = Math.pow(2,zoom_level)
+        return page_bounds.scale(scale)
+    }
+    let min_bounds = calc_min_bounds(current_page)
+
     function toRootPoint(e: MouseEvent) {
         let target: HTMLElement = e.target as HTMLElement
         let bounds = target.getBoundingClientRect()
@@ -209,6 +220,7 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
         let pt = cp.subtract(pan_offset)
         let scale = Math.pow(2,zoom_level)
         pt = pt.multiply(1/scale)
+        pt = pt.subtract(SLOP)
         let root = current_root
         if(root.has_component(ParentTranslateName)) {
             let off = (root.get_component(ParentTranslateName) as ParentTranslate).get_translation_point()
@@ -237,19 +249,20 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
     }
 
     function refresh() {
+        if(!current_root) return
+        if(!current_root.has_component(BoundedShapeName)) return
         if(!canvas.current) return
         let can = canvas.current as HTMLCanvasElement
-        let width = can.width
-        let height = can.height
         let ctx = can.getContext('2d') as CanvasRenderingContext2D
         let scale = Math.pow(2,zoom_level)
-        ctx.fillStyle = 'black'
-        ctx.fillRect(0, 0, width,height)
-        ctx.fillStyle = '#f0f0f0'
-        ctx.fillRect(0+2, 0+2, width-4, height-4)
         ctx.save()
-        ctx.translate(pan_offset.x,pan_offset.y)
+        // ctx.translate(pan_offset.x,pan_offset.y)
         ctx.scale(scale,scale)
+        let page_bounds = (current_root.get_component(BoundedShapeName) as BoundedShape).get_bounds()
+        let slop_bounds = page_bounds.grow(SLOP.x)
+        ctx.translate(-slop_bounds.x,-slop_bounds.y)
+        ctx.fillStyle = '#f0f0f0'
+        ctx.fillRect(slop_bounds.x,slop_bounds.y,slop_bounds.w,slop_bounds.h)
         draw_node(props.state,ctx, current_root)
         draw_handles(props.state, ctx, current_root)
         ctx.restore()
@@ -317,6 +330,7 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
     }
     // @ts-ignore
     const wheel = (e:WheelEvent<HTMLCanvasElement>) => {
+        e.preventDefault()
         set_pan_offset(new Point(
             pan_offset.x + e.deltaX / 10,
             pan_offset.y + e.deltaY / 10
@@ -354,22 +368,28 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
     }
 
 
-    return <div className={'panel center'}>
+    return <div className={'panel center vbox'}>
         <Toolbar>
             <button onClick={()=>set_zoom_level(zoom_level+1)}>zoom in</button>
             <button onClick={()=>{set_zoom_level(zoom_level-1)}}>zoom out</button>
             <button disabled={!is_inset} onClick={()=>exit_inset()}>exit</button>
         </Toolbar>
-        <canvas ref={canvas} width={400} height={400}
+        <div className={'canvas-wrapper grow'}>
+            {/*<div className={'canvas-sizer'} style={{width:min_bounds.w+'px', height:min_bounds.h+'px'}}/>*/}
+        <canvas ref={canvas}
+                width={min_bounds.w+'px'}
+                height={min_bounds.h+'px'}
+                className={'draw-surface'}
                 tabIndex={0}
                 onDoubleClick={mousedouble}
                 onMouseDown={mousedown}
                 onMouseMove={mousemove}
                 onMouseUp={mouseup}
-                onWheel={wheel}
+                // onWheel={wheel}
                 onKeyUp={keypress}
                 onContextMenu={show_menu}
         />
+        </div>
     </div>
 }
 

@@ -150,6 +150,15 @@ export class Rect {
     translate(position: Point) {
         return new Rect(this.x+position.x,this.y+position.y,this.w,this.h)
     }
+
+    grow(value:number) {
+        return new Rect(
+            this.x - value,
+            this.y -value,
+            this.w+value+value,
+            this.h+value+value,
+        )
+    }
 }
 
 export interface Component {
