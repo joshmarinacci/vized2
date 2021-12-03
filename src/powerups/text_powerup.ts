@@ -27,6 +27,7 @@ import {
 import {cssToPdfColor} from "../exporters/pdf";
 import {JSONExporter} from "../exporters/json";
 import {Action} from "../actions";
+import {TextShapeEditor} from "./text_editor";
 
 export const TextShapeName = "TextShapeName"
 interface TextShape extends Component {
@@ -293,4 +294,11 @@ export class TextPowerup extends DefaultPowerup{
         return [make_text]
     }
 
+    override can_edit(comp: Component): boolean {
+        return comp.name === TextShapeName
+    }
+
+    override get_editor(comp: Component, node: TreeNode, state: GlobalState): any {
+        return TextShapeEditor
+    }
 }

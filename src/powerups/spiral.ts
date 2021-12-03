@@ -16,8 +16,9 @@ import {cssToPdfColor} from "../exporters/pdf";
 import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
 import {make_circle} from "./circle_powerup";
+import {SpiralEditor} from "./spiral_editor";
 
-const SpiralShapeName = "SpiralShape"
+export const SpiralShapeName = "SpiralShape"
 export class SpiralShapeObject implements Component {
     private radius: number;
     private pos: Point;
@@ -266,6 +267,7 @@ const make_spiral: Action = {
     }
 }
 
+
 export class SpiralPowerup extends DefaultPowerup{
     init(state: GlobalState) {
         // state.props_renderers.push(new SpiralPropRendererSystem(state))
@@ -276,10 +278,16 @@ export class SpiralPowerup extends DefaultPowerup{
         state.jsonexporters.push(new SpiralJSONExporter())
     }
 
+    can_edit(comp:Component) {
+        return comp.name === SpiralShapeName
+    }
+
+    get_editor(comp:Component, node:TreeNode, state:GlobalState):any {
+        return SpiralEditor
+    }
+
     child_options(node: TreeNode): Action[] {
-        if(node.has_component(GroupShapeName) || node.has_component(PageName)) {
-            return [make_spiral]
-        }
+        if(node.has_component(GroupShapeName) || node.has_component(PageName)) return [make_spiral]
         return [];
     }
 }

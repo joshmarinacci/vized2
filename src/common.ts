@@ -1,5 +1,7 @@
 import {JSONExporter} from "./exporters/json";
 import {Action} from "./actions";
+import {SpiralEditor} from "./powerups/spiral_editor";
+import {SpiralShapeName} from "./powerups/spiral";
 
 export type Callback = (arg:any) => void
 export type EVENT_TYPES = "refresh" | "selection-change" | "prop-change" | "object-changed"
@@ -66,6 +68,8 @@ export interface Powerup {
     child_options(node:TreeNode):Action[]
     new_doc_actions():Action[]
     export_actions():Action[]
+    can_edit(comp:Component):boolean
+    get_editor(comp:Component, node:TreeNode, state:GlobalState):any
 }
 
 export class DefaultPowerup implements Powerup {
@@ -82,6 +86,14 @@ export class DefaultPowerup implements Powerup {
 
     new_doc_actions(): Action[] {
         return [];
+    }
+
+    can_edit(comp: Component): boolean {
+        return false;
+    }
+
+    get_editor(comp: Component, node: TreeNode, state: GlobalState): any {
+        return undefined
     }
 
 }
