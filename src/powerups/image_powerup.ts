@@ -1,12 +1,27 @@
 import {
-    Component, DefaultPowerup, GlobalState, Handle, PageName,
-    Point, Powerup,
-    RenderingSystem, Resizable, ResizableName, TreeNode
+    add_child_to_parent,
+    Component,
+    DefaultPowerup,
+    GlobalState,
+    Handle,
+    PageName,
+    Point,
+    Rect,
+    RenderingSystem,
+    Resizable,
+    ResizableName,
+    TreeNode,
+    TreeNodeImpl
 } from "../common"
-import {BoundedShape, BoundedShapeName} from "../bounded_shape";
-import {cssToPdfColor, PDFExporter} from "../exporters/pdf";
+import {
+    BoundedShape,
+    BoundedShapeName,
+    BoundedShapeObject,
+    MovableBoundedShape
+} from "../bounded_shape";
+import {PDFExporter} from "../exporters/pdf";
 import {SVGExporter} from "../exporters/svg";
-import {Action, make_circle, make_image} from "../actions";
+import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
 
 const ImageShapeName = "ImageShapeName"
@@ -168,6 +183,25 @@ class ImageSVGExporter implements SVGExporter {
         let rect = bd.get_bounds()
 
         return `<image x="${rect.x}" y="${rect.y}" width="${rect.w}" height="${rect.h}" href="${img.get_url()}"/>`
+    }
+}
+
+export function make_image_node(url: string): TreeNode {
+    let image: TreeNode = new TreeNodeImpl()
+    image.title = 'image'
+    image.components.push(new ImageShapeObject(url, 1000, 1000))
+    image.components.push(new BoundedShapeObject(new Rect(100, 100, 200, 200)))
+    image.components.push(new MovableBoundedShape(image))
+    image.components.push(new ResizableImageObject(image))
+    return image
+}
+
+export const make_image: Action = {
+    title: "add image",
+    fun(node: TreeNode, state: GlobalState): void {
+        let image = make_image_node("https://vr.josh.earth/assets/2dimages/saturnv.jpg")
+        add_child_to_parent(image, node)
+        state.dispatch('object-changed', {})
     }
 }
 

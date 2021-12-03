@@ -1,21 +1,32 @@
 import {
-    Component, DefaultPowerup,
-    FilledShape, FilledShapeName, GlobalState,
+    add_child_to_parent,
+    Component,
+    DefaultPowerup,
+    FilledShape,
+    FilledShapeName,
+    FilledShapeObject,
+    GlobalState,
     Movable,
     MovableName,
     PDFExporter,
     Point,
-    Powerup,
     Rect,
     RenderingSystem,
     ResizableName,
     SVGExporter,
-    TreeNode
+    TreeNode,
+    TreeNodeImpl
 } from "../common";
-import {BoundedShape, BoundedShapeName, BoundedShapeObject} from "../bounded_shape";
+import {
+    BoundedShape,
+    BoundedShapeName,
+    BoundedShapeObject,
+    MovableBoundedShape,
+    ResizableRectObject
+} from "../bounded_shape";
 import {cssToPdfColor} from "../exporters/pdf";
 import {JSONExporter} from "../exporters/json";
-import {Action, make_text} from "../actions";
+import {Action} from "../actions";
 
 const TextShapeName = "TextShapeName"
 interface TextShape extends Component {
@@ -253,6 +264,21 @@ class TextSVGExporter implements SVGExporter {
         return `<text x="${bounds.x}" y="${bounds.y}" font-size="${ts.get_fontsize()}">${ts.get_content()}</text>`;
     }
 
+}
+
+export const make_text: Action = {
+    title: "add text",
+    fun(node: TreeNode, state: GlobalState): void {
+        let text = new TreeNodeImpl() as TreeNode
+        text.title = 'text1'
+        text.components.push(new TextShapeObject("text", 16, "center", 'center'))
+        text.components.push(new BoundedShapeObject(new Rect(50, 50, 50, 30)))
+        text.components.push(new MovableBoundedShape(text))
+        text.components.push(new ResizableRectObject(text))
+        text.components.push(new FilledShapeObject('#000000'))
+        add_child_to_parent(text, node)
+        state.dispatch('object-changed', {})
+    }
 }
 
 export class TextPowerup extends DefaultPowerup{

@@ -1,21 +1,25 @@
 import {
-    Component, DefaultPowerup,
+    add_child_to_parent,
+    Component,
+    DefaultPowerup,
     FilledShape,
-    FilledShapeName, GlobalState,
+    FilledShapeName,
+    FilledShapeObject,
+    GlobalState,
     Movable,
-    MovableName, PageName,
+    MovableName,
+    PageName,
     PDFExporter,
     PickingSystem,
     Point,
-    Powerup,
-    // PropRenderingSystem,
-    RenderingSystem, SVGExporter,
-    // SVGExporter,
-    TreeNode
+    RenderingSystem,
+    SVGExporter,
+    TreeNode,
+    TreeNodeImpl
 } from "../common";
 import {JSONExporter} from "../exporters/json";
 import {cssToPdfColor} from "../exporters/pdf";
-import {Action, make_circle} from "../actions";
+import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
 
 const CircleShapeName = "CircleShapeName"
@@ -161,6 +165,19 @@ export class CirclePDFExporter implements PDFExporter {
         let pdf_color = cssToPdfColor(obj.fill)
         doc.setFillColor(...pdf_color)
         doc.circle(obj.cx,obj.cy, obj.r, "F");
+    }
+}
+
+export const make_circle: Action = {
+    title: "add circle",
+    fun(node: TreeNode, state: GlobalState): void {
+        let circle = new TreeNodeImpl()
+        circle.title = 'circle'
+        circle.components.push(new CircleShapeObject(new Point(100, 100), 50))
+        circle.components.push(new FilledShapeObject("#ff00ff"))
+        circle.components.push(new MovableCircleObject(circle))
+        add_child_to_parent(circle, node)
+        state.dispatch('object-changed', {})
     }
 }
 

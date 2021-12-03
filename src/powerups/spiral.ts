@@ -13,8 +13,9 @@ import {
 } from "../common";
 import {JSONExporter} from "../exporters/json";
 import {cssToPdfColor} from "../exporters/pdf";
-import {Action, make_circle} from "../actions";
+import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
+import {make_circle} from "./circle_powerup";
 
 const SpiralShapeName = "SpiralShape"
 export class SpiralShapeObject implements Component {

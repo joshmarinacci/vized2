@@ -8,12 +8,13 @@ import {
     TreeNode,
     TreeNodeImpl
 } from "../common";
-import {Action, make_image_node} from "../actions";
+import {Action} from "../actions";
 import {export_JSON} from "../exporters/json";
 import {BoundedShapeObject, MovableBoundedShape, ResizableRectObject} from "../bounded_shape";
 import {PDFExportBounds} from "../exporters/pdf";
 import {RectShapeObject} from "./rect_powerup";
 import {TextShapeObject} from "./text_powerup";
+import {make_image_node} from "./image_powerup";
 
 function make_greeting_card_tree():TreeNode {
     let root:TreeNode = new TreeNodeImpl()

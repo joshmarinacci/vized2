@@ -1,16 +1,20 @@
 import {
-    Component, DefaultPowerup,
+    add_child_to_parent,
+    Component,
+    DefaultPowerup,
     FilledShape,
     FilledShapeName,
+    FilledShapeObject,
     GlobalState,
-    MovableName, PageName,
+    MovableName,
+    PageName,
     PDFExporter,
-    Powerup,
     Rect,
     RenderingSystem,
     ResizableName,
     SVGExporter,
-    TreeNode
+    TreeNode,
+    TreeNodeImpl
 } from "../common";
 import {cssToPdfColor} from "../exporters/pdf";
 import {
@@ -21,7 +25,7 @@ import {
     ResizableRectObject
 } from "../bounded_shape";
 import {JSONExporter} from "../exporters/json";
-import {Action, make_circle, make_rectangle} from "../actions";
+import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
 
 const RectShapeName = "RectShape"
@@ -166,6 +170,21 @@ export class RectJsonExporter implements JSONExporter {
         return false;
     }
 
+}
+
+export const make_rectangle: Action = {
+    title: "add rectangle",
+    fun(node: TreeNode, state: GlobalState): void {
+        let rect1 = new TreeNodeImpl()
+        rect1.title = 'rect'
+        rect1.components.push(new RectShapeObject())
+        rect1.components.push(new BoundedShapeObject(new Rect(10, 10, 100, 100)))
+        rect1.components.push(new FilledShapeObject("#ff0000"))
+        rect1.components.push(new MovableBoundedShape(rect1))
+        rect1.components.push(new ResizableRectObject(rect1))
+        add_child_to_parent(rect1, node)
+        state.dispatch('object-changed', {})
+    }
 }
 
 export class RectPowerup extends DefaultPowerup {

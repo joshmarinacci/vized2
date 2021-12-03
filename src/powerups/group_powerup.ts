@@ -47,8 +47,8 @@ import {
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {SVGExporter, treenode_to_SVG} from "../exporters/svg";
 import {cssToPdfColor, PDFExporter, treenode_to_PDF} from "../exporters/pdf";
-import {Action, make_circle} from "../actions";
-import {CircleShapeObject, MovableCircleObject} from "./circle_powerup";
+import {Action} from "../actions";
+import {CircleShapeObject, make_circle, MovableCircleObject} from "./circle_powerup";
 
 
 export const GroupShapeName = "GroupShapeName"
