@@ -6,8 +6,10 @@ import {
     forceDownloadBlob,
     TreeNode,
     TreeNodeImpl,
-    GlobalState
+    GlobalState, DefaultPowerup
 } from "../common";
+import {Action} from "../actions";
+import {export_SVG} from "./svg";
 
 export interface JSONExporter extends Component {
     canHandleToJSON(comp:any, node:TreeNode):boolean
@@ -96,4 +98,16 @@ export class FilledShapeJSONExporter implements JSONExporter {
         return comp.name === FilledShapeName
     }
 
+}
+
+export class JSONPowerup extends DefaultPowerup {
+    override export_actions(): Action[] {
+        let action:Action = {
+            title:"export JSON",
+            fun(node: TreeNode, state: GlobalState): void {
+                export_JSON(node,state)
+            },
+        }
+        return [action]
+    }
 }

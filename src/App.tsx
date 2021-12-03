@@ -31,7 +31,7 @@ import {
 } from "./powerups/circle_powerup";
 import {TextPowerup, TextShapeObject} from "./powerups/text_powerup";
 import {MovableSpiralObject, SpiralPowerup, SpiralShapeObject} from "./powerups/spiral";
-import {export_JSON, FilledShapeJSONExporter} from "./exporters/json";
+import {FilledShapeJSONExporter, JSONPowerup} from "./exporters/json";
 import {PDFExportBounds, PDFPowerup} from "./exporters/pdf";
 import {SVGPowerup} from "./exporters/svg";
 import {PNGPowerup} from "./exporters/png";
@@ -45,7 +45,8 @@ import {ImagePowerup, ImageShapeObject, ResizableImageObject} from "./powerups/i
 import {Toolbar} from "./comps";
 import {TreeView} from "./treeview";
 import {PopupContainer, PopupContext, PopupContextImpl} from "./popup";
-import {Action, make_image_node} from "./actions";
+import {Action} from "./actions";
+import {GreetingCardPowerup} from "./powerups/greetingcard";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -141,60 +142,6 @@ export function make_default_tree() {
     return root
 }
 
-function make_greeting_card_tree():TreeNode {
-    let root:TreeNode = new TreeNodeImpl()
-    root.title = 'root'
-    root.components.push(new DocMarker())
-
-    {
-        let page1: TreeNode = new TreeNodeImpl()
-        page1.title = 'front page'
-        page1.components.push(new PageMarker())
-        page1.components.push(new BoundedShapeObject(new Rect(0, 0, 8.5 * 100 / 2, 11 * 100 / 2)))
-        page1.components.push(new PDFExportBounds("in", 1 / 100))
-        page1.components.push(new RectShapeObject())
-        page1.components.push(new FilledShapeObject('white'))
-        add_child_to_parent(page1, root)
-
-        let text1 = new TreeNodeImpl() as TreeNode
-        text1.title = "Text: merry christmas"
-        text1.components.push(new TextShapeObject("Merry Christmas", 30, "center", 'center'))
-        text1.components.push(new BoundedShapeObject(new Rect(0, 100, 8.5 * 100 / 2, 200)))
-        text1.components.push(new MovableBoundedShape(text1))
-        text1.components.push(new ResizableRectObject(text1))
-        text1.components.push(new FilledShapeObject('#00CC00'))
-        add_child_to_parent(text1, page1)
-
-        let img = make_image_node("https://vr.josh.earth/assets/2dimages/santa.png")
-        add_child_to_parent(img,page1)
-
-    }
-
-    {
-        let page2: TreeNode = new TreeNodeImpl()
-        page2.title = 'front page'
-        page2.components.push(new PageMarker())
-        page2.components.push(new BoundedShapeObject(new Rect(0, 0, 8.5 * 100 / 2, 11 * 100 / 2)))
-        page2.components.push(new PDFExportBounds("in", 1 / 100))
-        page2.components.push(new RectShapeObject())
-        page2.components.push(new FilledShapeObject('white'))
-        add_child_to_parent(page2, root)
-
-        let text2 = new TreeNodeImpl() as TreeNode
-        text2.title = "Text: Happy NY"
-        text2.components.push(new TextShapeObject("Happy NY", 30, "center", 'center'))
-        text2.components.push(new BoundedShapeObject(new Rect(0, 250, 8.5 * 100 / 2, 200)))
-        text2.components.push(new MovableBoundedShape(text2))
-        text2.components.push(new ResizableRectObject(text2))
-        text2.components.push(new FilledShapeObject('#00CC00'))
-        add_child_to_parent(text2, page2)
-
-        let img = make_image_node("https://vr.josh.earth/assets/2dimages/holly-leaves.png")
-        add_child_to_parent(img,page2)
-    }
-
-    return root
-}
 
 export function setup_state(root:TreeNode):GlobalState {
     let state:GlobalState = new GlobalState()
@@ -210,6 +157,8 @@ export function setup_state(root:TreeNode):GlobalState {
     state.powerups.push(new PDFPowerup())
     state.powerups.push(new SVGPowerup())
     state.powerups.push(new PNGPowerup())
+    state.powerups.push(new JSONPowerup())
+    state.powerups.push(new GreetingCardPowerup())
     state.powerups.forEach(pow => pow.init(state))
     return state
 }
@@ -321,7 +270,6 @@ function PropSheet(props: { root: TreeNode, state: GlobalState }) {
     </div>
 }
 
-
 function ExportActions(props: { state: GlobalState }) {
     let pc = useContext(PopupContext)
     return <button onClick={(e)=>{
@@ -340,19 +288,35 @@ function ExportActions(props: { state: GlobalState }) {
     }>export</button>
 }
 
+function NewDocActions(props: { state: GlobalState, set_root:any }) {
+    let pc = useContext(PopupContext)
+    return <button onClick={(e)=>{
+        let actions:Action[] = props.state.powerups.map(pw => pw.new_doc_actions()).flat()
+        let menu = <ul className={'menu'}>
+            {actions.map((act,i)=>{
+                return <li key={i} className={'menu-item'} onClick={()=>{
+                    let root = act.fun(props.state.get_root(),props.state)
+                    props.set_root(root)
+                    pc?.hide()
+                }
+                }>{act.title}</li>
+            })}
+        </ul>
+        pc?.show(menu,e)
+    }
+    }>New Doc</button>
+}
+
 function App() {
     const pc = new PopupContextImpl()
     const [root, set_root] = useState(()=> make_default_tree())
     let state = setup_state(root)
-    let new_greeting_card = () => set_root(make_greeting_card_tree())
-    let export_json = () => export_JSON(root,state);
     return (
         <PopupContext.Provider value={pc}>
         <div className="App">
             <IDEGrid title={"foo"}>
                 <Toolbar>
-                    <button onClick={new_greeting_card}>new card</button>
-                    <button onClick={export_json}>JSON</button>
+                    <NewDocActions state={state} set_root={set_root}/>
                     <ExportActions state={state}/>
                 </Toolbar>
                 <Toolbar>
