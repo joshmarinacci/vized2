@@ -26,26 +26,6 @@
     grid-column: 3/3;
 }
 
-.prop-grid {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    border: 1px solid black;
-    margin: 0.5rem;
-    background-color: #f0f0f0;
-    padding: 0.5rem;
-    border-radius: 0.25em;
-}
-.prop-grid h3 {
-    grid-column-start: 1;
-    grid-column-end: 3;
-}
-
-.prop-grid canvas {
-    border: 1px solid black;
-    grid-column-start: 1;
-    grid-column-end: 3;
-}
-
 .toolbar {
     border: 0px solid red;
     background-color: #ccc;

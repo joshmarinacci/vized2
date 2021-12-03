@@ -1,19 +1,41 @@
-import {FilledShape, FilledShapeName, GlobalState, Point, TreeNode} from "./common";
+import {FilledShape, FilledShapeName, GlobalState, Point, Rect, TreeNode} from "./common";
 import React, {useEffect, useRef, useState} from "react";
 import {BoundedShape, BoundedShapeName} from "./bounded_shape";
+import {TextShapeName, TextShapeObject} from "./powerups/text_powerup";
+import "./propsheet.css"
+
+function NumberEditor(props:{value:number, set_value:any, state:GlobalState, live:boolean}) {
+    const [lvalue, set_lvalue] = useState(props.value)
+    useEffect(()=>{
+        set_lvalue(props.value)
+    },[props.value])
+
+    return <input type={"number"} value={lvalue} onChange={(e) => {
+        set_lvalue(parseFloat(e.target.value))
+        if(props.live) {
+            props.set_value(parseFloat(e.target.value))
+            props.state.dispatch("prop-change", {})
+        }
+    }}
+                  onBlur={()=>{
+                      props.set_value(lvalue)
+                      props.state.dispatch("prop-change", {})
+                  }}/>
+
+}
 
 function BoundedShapeEditor(props: { comp: BoundedShape, state: GlobalState }) {
     let rect = props.comp.get_bounds()
     return <div className={"prop-grid"}>
         <h3>Bounded Shape</h3>
         <label>x</label>
-        <input value={rect.x}/>
+        <NumberEditor value={rect.x} set_value={(x:number)=>{ props.comp.get_bounds().x = x }} state={props.state} live={true}/>
         <label>y</label>
-        <input value={rect.y}/>
+        <NumberEditor value={rect.y} set_value={(x:number)=>{ props.comp.get_bounds().y = x }} state={props.state} live={true}/>
         <label>w</label>
-        <input value={rect.w}/>
+        <NumberEditor value={rect.w} set_value={(x:number)=>{ props.comp.get_bounds().w = x }} state={props.state} live={true}/>
         <label>h</label>
-        <input value={rect.h}/>
+        <NumberEditor value={rect.h} set_value={(x:number)=>{ props.comp.get_bounds().h = x }} state={props.state} live={true}/>
     </div>
 }
 
@@ -77,6 +99,26 @@ function FilledShapeEditor(props: { comp: FilledShape, state: GlobalState }) {
     </div>
 }
 
+
+function TextShapeEditor(props: { comp: TextShapeObject, state: GlobalState }) {
+    const [content, set_content] = useState(props.comp.get_content())
+    return <div className={'prop-grid'}>
+        <h3>Text</h3>
+        <label>content</label>
+        <input type={"text"} value={content} onChange={(e) => {
+           set_content(e.target.value)
+       }}
+       onBlur={()=>{
+           props.comp.set_content(content)
+           props.state.dispatch("prop-change", props.comp)
+       }}/>
+
+        <label>font size</label>
+        <NumberEditor value={props.comp.get_fontsize()} set_value={(v:number)=>props.comp.set_fontsize(v)} state={props.state} live={true}/>
+    </div>
+}
+
+
 export function PropSheet(props: { root: TreeNode, state: GlobalState }) {
     const [node, set_node] = useState<TreeNode | null>(null)
     useEffect(() => {
@@ -92,7 +134,7 @@ export function PropSheet(props: { root: TreeNode, state: GlobalState }) {
         return () => {
             props.state.off("selection-change", op)
         }
-    })
+    },[])
     if (!node) {
         return <div className={'panel right'}>
             nothing selected
@@ -107,6 +149,9 @@ export function PropSheet(props: { root: TreeNode, state: GlobalState }) {
             if (comp.name === FilledShapeName) return <FilledShapeEditor key={i}
                                                                          comp={comp as FilledShape}
                                                                          state={props.state}/>
+            if (comp.name === TextShapeName) return <TextShapeEditor key={i}
+                                                                     comp={comp as TextShapeObject}
+                                                                     state={props.state}/>
             return <div key={i}>component</div>
         })}
     </div>

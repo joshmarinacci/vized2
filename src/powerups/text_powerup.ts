@@ -28,7 +28,7 @@ import {cssToPdfColor} from "../exporters/pdf";
 import {JSONExporter} from "../exporters/json";
 import {Action} from "../actions";
 
-const TextShapeName = "TextShapeName"
+export const TextShapeName = "TextShapeName"
 interface TextShape extends Component {
     get_content():string
     set_content(content:string):void
