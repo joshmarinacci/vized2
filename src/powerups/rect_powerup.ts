@@ -1,5 +1,5 @@
 import {
-    Component,
+    Component, DefaultPowerup,
     FilledShape,
     FilledShapeName,
     GlobalState,
@@ -168,7 +168,7 @@ export class RectJsonExporter implements JSONExporter {
 
 }
 
-export class RectPowerup implements Powerup {
+export class RectPowerup extends DefaultPowerup {
     init(state: GlobalState) {
         state.renderers.push(new RectRendererSystem())
         state.svgexporters.push(new RectSVGExporter())

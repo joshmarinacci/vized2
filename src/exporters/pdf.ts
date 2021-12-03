@@ -1,6 +1,15 @@
-import {Component, System, TreeNode, GlobalState, PageMarker, PageName} from "../common";
+import {
+    Component,
+    System,
+    TreeNode,
+    GlobalState,
+    PageMarker,
+    PageName,
+    DefaultPowerup
+} from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {jsPDF} from "jspdf"
+import {Action} from "../actions";
 
 
 export interface PDFExporter extends System {
@@ -80,4 +89,17 @@ export function export_PDF(root:TreeNode, state:GlobalState) {
     let doc = new jsPDF(settings)
     pages.forEach((pg,i) => render_pdf_page(i,pg, state, doc, scale))
     doc.save("output.pdf");
+}
+
+
+export class PDFPowerup extends DefaultPowerup {
+    override export_actions(): Action[] {
+        let action:Action = {
+            title: "export PDF",
+            fun(node: TreeNode, state: GlobalState): void {
+                export_PDF(node,state)
+            }
+        }
+        return [action]
+    }
 }

@@ -64,6 +64,26 @@ export class GlobalState {
 export interface Powerup {
     init(state: GlobalState):void
     child_options(node:TreeNode):Action[]
+    new_doc_actions():Action[]
+    export_actions():Action[]
+}
+
+export class DefaultPowerup implements Powerup {
+    child_options(node: TreeNode): Action[] {
+        return [];
+    }
+
+    init(state: GlobalState): void {
+    }
+
+    export_actions(): Action[] {
+        return [];
+    }
+
+    new_doc_actions(): Action[] {
+        return [];
+    }
+
 }
 
 export class Point {

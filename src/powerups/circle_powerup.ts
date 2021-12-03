@@ -1,5 +1,5 @@
 import {
-    Component,
+    Component, DefaultPowerup,
     FilledShape,
     FilledShapeName, GlobalState,
     Movable,
@@ -164,7 +164,7 @@ export class CirclePDFExporter implements PDFExporter {
     }
 }
 
-export class CirclePowerup implements Powerup {
+export class CirclePowerup extends DefaultPowerup{
     init(state: GlobalState) {
         state.pickers.push(new CirclePickSystem())
         state.renderers.push(new CircleRendererSystem())

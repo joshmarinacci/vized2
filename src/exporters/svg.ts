@@ -1,4 +1,5 @@
-import {forceDownloadBlob, System, TreeNode, GlobalState} from "../common";
+import {forceDownloadBlob, System, TreeNode, GlobalState, DefaultPowerup} from "../common";
+import {Action} from "../actions";
 
 export function treenode_to_SVG(node: TreeNode, state: GlobalState) {
     let exp = state.svgexporters.find(exp => exp.canExport(node,state))
@@ -21,4 +22,16 @@ export function export_SVG(root: TreeNode, state: GlobalState) {
 export interface SVGExporter extends System {
     canExport(node: TreeNode, state:GlobalState): boolean
     toSVG(node: TreeNode, state:GlobalState): string
+}
+
+export class SVGPowerup extends DefaultPowerup {
+    override export_actions(): Action[] {
+        let action:Action = {
+            title:"export SVG",
+            fun(node: TreeNode, state: GlobalState): void {
+                export_SVG(node,state)
+            },
+        }
+        return [action]
+    }
 }

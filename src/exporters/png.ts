@@ -1,5 +1,13 @@
-import {forceDownloadBlob, ParentTranslate, ParentTranslateName, TreeNode, GlobalState} from "../common";
+import {
+    forceDownloadBlob,
+    ParentTranslate,
+    ParentTranslateName,
+    TreeNode,
+    GlobalState,
+    DefaultPowerup
+} from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
+import {Action} from "../actions";
 
 function to_PNG(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState) {
     //draw the current node
@@ -42,4 +50,15 @@ export function export_PNG(root: TreeNode, state: GlobalState) {
     }
     canvasToPNGBlob(canvas).then((blob)=> forceDownloadBlob(`test.png`,blob))
 
+}
+export class PNGPowerup extends DefaultPowerup {
+    override export_actions(): Action[] {
+        let action:Action = {
+            title:"export PNG",
+            fun(node: TreeNode, state: GlobalState): void {
+                export_PNG(node,state)
+            },
+        }
+        return [action]
+    }
 }

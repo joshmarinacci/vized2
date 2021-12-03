@@ -1,20 +1,14 @@
-import {DocName, GlobalState, PageName, TreeNode} from "./common";
+import {DocName, GlobalState, TreeNode} from "./common";
 import React, {MouseEventHandler, useContext, useEffect, useState} from "react";
-import {GroupShapeName} from "./powerups/group_powerup";
 import {PopupContext, PopupContextImpl} from "./popup";
 import {
     Action,
     delete_node,
-    make_circle,
-    make_image,
-    make_rectangle,
-    make_text,
     nothing
 } from "./actions";
 
 function AddChildMenu(props: { node: TreeNode, state:GlobalState }) {
     let pc = useContext(PopupContext) as PopupContextImpl
-    // let actions:Action[] = []
     let actions:Action[] = props.state.powerups.map(pow => pow.child_options(props.node)).flat()
     if(!props.node.has_component(DocName)) {
         actions.push(delete_node)

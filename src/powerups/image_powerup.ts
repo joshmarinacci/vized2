@@ -1,5 +1,5 @@
 import {
-    Component, GlobalState, Handle, PageName,
+    Component, DefaultPowerup, GlobalState, Handle, PageName,
     Point, Powerup,
     RenderingSystem, Resizable, ResizableName, TreeNode
 } from "../common"
@@ -171,7 +171,7 @@ class ImageSVGExporter implements SVGExporter {
     }
 }
 
-export class ImagePowerup implements Powerup {
+export class ImagePowerup extends DefaultPowerup{
     init(state: GlobalState) {
         state.renderers.push(new ImageRendererSystem())
         state.svgexporters.push(new ImageSVGExporter())

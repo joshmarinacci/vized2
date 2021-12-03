@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import './App.css';
 import {
     add_child_to_parent,
@@ -32,9 +32,9 @@ import {
 import {TextPowerup, TextShapeObject} from "./powerups/text_powerup";
 import {MovableSpiralObject, SpiralPowerup, SpiralShapeObject} from "./powerups/spiral";
 import {export_JSON, FilledShapeJSONExporter} from "./exporters/json";
-import {export_PDF, PDFExportBounds} from "./exporters/pdf";
-import {export_SVG} from "./exporters/svg";
-import {export_PNG} from "./exporters/png";
+import {PDFExportBounds, PDFPowerup} from "./exporters/pdf";
+import {SVGPowerup} from "./exporters/svg";
+import {PNGPowerup} from "./exporters/png";
 import {
     GroupParentTranslate,
     GroupPowerup,
@@ -45,7 +45,7 @@ import {ImagePowerup, ImageShapeObject, ResizableImageObject} from "./powerups/i
 import {Toolbar} from "./comps";
 import {TreeView} from "./treeview";
 import {PopupContainer, PopupContext, PopupContextImpl} from "./popup";
-import {make_image_node} from "./actions";
+import {Action, make_image_node} from "./actions";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -207,6 +207,9 @@ export function setup_state(root:TreeNode):GlobalState {
     state.powerups.push(new SpiralPowerup())
     state.powerups.push(new GroupPowerup())
     state.powerups.push(new ImagePowerup())
+    state.powerups.push(new PDFPowerup())
+    state.powerups.push(new SVGPowerup())
+    state.powerups.push(new PNGPowerup())
     state.powerups.forEach(pow => pow.init(state))
     return state
 }
@@ -319,15 +322,30 @@ function PropSheet(props: { root: TreeNode, state: GlobalState }) {
 }
 
 
+function ExportActions(props: { state: GlobalState }) {
+    let pc = useContext(PopupContext)
+    return <button onClick={(e)=>{
+        let actions:Action[] = props.state.powerups.map(pw => pw.export_actions()).flat()
+        let menu = <ul className={'menu'}>
+            {actions.map((act,i)=>{
+                return <li key={i} className={'menu-item'} onClick={()=>{
+                    act.fun(props.state.get_root(),props.state)
+                    pc?.hide()
+                }
+                }>{act.title}</li>
+            })}
+        </ul>
+        pc?.show(menu,e)
+    }
+    }>export</button>
+}
+
 function App() {
     const pc = new PopupContextImpl()
     const [root, set_root] = useState(()=> make_default_tree())
     let state = setup_state(root)
     let new_greeting_card = () => set_root(make_greeting_card_tree())
     let export_json = () => export_JSON(root,state);
-    let export_pdf = () => export_PDF(root,state);
-    let export_png = () => export_PNG(root,state);
-    let export_svg = () => export_SVG(root,state);
     return (
         <PopupContext.Provider value={pc}>
         <div className="App">
@@ -335,9 +353,7 @@ function App() {
                 <Toolbar>
                     <button onClick={new_greeting_card}>new card</button>
                     <button onClick={export_json}>JSON</button>
-                    <button onClick={export_pdf}>PDF</button>
-                    <button onClick={export_png}>PNG</button>
-                    <button onClick={export_svg}>SVG</button>
+                    <ExportActions state={state}/>
                 </Toolbar>
                 <Toolbar>
                     <label>canvas</label>

@@ -1,11 +1,10 @@
 import {
-    Component, GlobalState,
+    Component, DefaultPowerup, GlobalState,
     Handle,
     Movable,
     MovableName,
     PickingSystem,
-    Point, Powerup,
-    // PropRenderingSystem,
+    Point,
     Rect,
     Resizable,
     ResizableName,
@@ -112,7 +111,7 @@ export class BoundedShapePickSystem implements PickingSystem {
 }
 
 
-export class BoundedShapePowerup implements Powerup {
+export class BoundedShapePowerup extends DefaultPowerup {
     init(state: GlobalState) {
         state.pickers.push(new BoundedShapePickSystem())
     }

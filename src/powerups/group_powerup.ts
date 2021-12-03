@@ -42,7 +42,7 @@ import {
     Point,
     Powerup, Rect, RenderingSystem, TreeNode,
     TreeNodeImpl,
-    GlobalState, PageName, FilledShapeObject, add_child_to_parent
+    GlobalState, PageName, FilledShapeObject, add_child_to_parent, DefaultPowerup
 } from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {SVGExporter, treenode_to_SVG} from "../exporters/svg";
@@ -213,7 +213,7 @@ const make_group: Action = {
     }
 }
 
-export class GroupPowerup implements Powerup {
+export class GroupPowerup extends DefaultPowerup{
     init(state: GlobalState) {
         state.pickers.push(new GroupPickSystem())
         state.renderers.push(new GroupRendererSystem())

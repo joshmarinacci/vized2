@@ -1,5 +1,5 @@
 import {
-    Component,
+    Component, DefaultPowerup,
     FilledShape, FilledShapeName, GlobalState,
     Movable,
     MovableName,
@@ -255,7 +255,7 @@ class TextSVGExporter implements SVGExporter {
 
 }
 
-export class TextPowerup implements Powerup {
+export class TextPowerup extends DefaultPowerup{
     init(state: GlobalState) {
         state.renderers.push(new TextRenderingSystem())
         state.svgexporters.push(new TextSVGExporter())

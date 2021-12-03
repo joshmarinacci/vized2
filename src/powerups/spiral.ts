@@ -1,6 +1,6 @@
 import {
     add_child_to_parent,
-    Component,
+    Component, DefaultPowerup,
     FilledShape,
     FilledShapeName, FilledShapeObject, GlobalState,
     Movable, MovableName, PageName,
@@ -265,7 +265,7 @@ const make_spiral: Action = {
     }
 }
 
-export class SpiralPowerup implements Powerup {
+export class SpiralPowerup extends DefaultPowerup{
     init(state: GlobalState) {
         // state.props_renderers.push(new SpiralPropRendererSystem(state))
         state.pickers.push(new SpiralPickSystem())
