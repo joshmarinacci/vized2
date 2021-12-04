@@ -5,6 +5,7 @@ import {
     DocMarker,
     FilledShapeObject,
     GlobalState,
+    GlobalStateContext,
     PageMarker,
     Point,
     Rect,
@@ -160,15 +161,15 @@ export function setup_state(root:TreeNode):GlobalState {
     return state
 }
 
-
-function ExportActions(props: { state: GlobalState }) {
+function ExportActions(props: {}) {
     let pc = useContext(PopupContext)
+    let state = useContext(GlobalStateContext)
     return <button onClick={(e)=>{
-        let actions:Action[] = props.state.powerups.map(pw => pw.export_actions()).flat()
+        let actions:Action[] = state.powerups.map(pw => pw.export_actions()).flat()
         let menu = <ul className={'menu'}>
             {actions.map((act,i)=>{
                 return <li key={i} className={'menu-item'} onClick={()=>{
-                    act.fun(props.state.get_root(),props.state)
+                    act.fun(state.get_root(),state)
                     pc?.hide()
                 }
                 }>{act.title}</li>
@@ -179,14 +180,15 @@ function ExportActions(props: { state: GlobalState }) {
     }>export</button>
 }
 
-function NewDocActions(props: { state: GlobalState, set_root:any }) {
+function NewDocActions(props: { set_root:any }) {
     let pc = useContext(PopupContext)
+    let state = useContext(GlobalStateContext)
     return <button onClick={(e)=>{
-        let actions:Action[] = props.state.powerups.map(pw => pw.new_doc_actions()).flat()
+        let actions:Action[] = state.powerups.map(pw => pw.new_doc_actions()).flat()
         let menu = <ul className={'menu'}>
             {actions.map((act,i)=>{
                 return <li key={i} className={'menu-item'} onClick={()=>{
-                    let root = act.fun(props.state.get_root(),props.state)
+                    let root = act.fun(state.get_root(),state)
                     props.set_root(root)
                     pc?.hide()
                 }
@@ -201,14 +203,15 @@ function NewDocActions(props: { state: GlobalState, set_root:any }) {
 function App() {
     const pc = new PopupContextImpl()
     const [root, set_root] = useState(()=> make_default_tree())
-    let state = setup_state(root)
+    const state = setup_state(root)
     return (
         <PopupContext.Provider value={pc}>
+            <GlobalStateContext.Provider value={state}>
         <div className="App">
             <IDEGrid title={"foo"}>
                 <Toolbar>
-                    <NewDocActions state={state} set_root={set_root}/>
-                    <ExportActions state={state}/>
+                    <NewDocActions set_root={set_root}/>
+                    <ExportActions/>
                 </Toolbar>
                 <Toolbar>
                     <label>canvas</label>
@@ -216,12 +219,14 @@ function App() {
                 <Toolbar>
                     <label>props</label>
                 </Toolbar>
-                <TreeView root={root} state={state}/>
+                <TreeView/>
                 <CanvasView docroot={root} state={state}/>
-                <PropSheet root={root} state={state}/>
+                <PropSheet/>
             </IDEGrid>
             <PopupContainer/>
         </div>
+
+            </GlobalStateContext.Provider>
         </PopupContext.Provider>
     );
 }

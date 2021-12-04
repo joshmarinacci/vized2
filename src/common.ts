@@ -1,7 +1,6 @@
 import {JSONExporter} from "./exporters/json";
 import {Action} from "./actions";
-import {SpiralEditor} from "./powerups/spiral_editor";
-import {SpiralShapeName} from "./powerups/spiral";
+import React from "react";
 
 export type Callback = (arg:any) => void
 export type EVENT_TYPES = "refresh" | "selection-change" | "prop-change" | "object-changed"
@@ -62,6 +61,9 @@ export class GlobalState {
         console.log("GLOBAL:", ...args)
     }
 }
+
+// @ts-ignore
+export const GlobalStateContext = React.createContext<GlobalState>();
 
 export interface Powerup {
     init(state: GlobalState):void

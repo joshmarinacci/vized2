@@ -1,5 +1,12 @@
-import {FilledShape, FilledShapeName, GlobalState, Point, TreeNode} from "./common";
-import React, {useEffect, useRef, useState} from "react";
+import {
+    FilledShape,
+    FilledShapeName,
+    GlobalState,
+    GlobalStateContext,
+    Point,
+    TreeNode
+} from "./common";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import {BoundedShape, BoundedShapeName} from "./bounded_shape";
 import "./propsheet.css"
 import {NumberEditor} from "./comps";
@@ -79,20 +86,21 @@ function FilledShapeEditor(props: { comp: FilledShape, state: GlobalState }) {
     </div>
 }
 
-export function PropSheet(props: { root: TreeNode, state: GlobalState }) {
+export function PropSheet(props: {}) {
+    const state = useContext(GlobalStateContext)
     const [node, set_node] = useState<TreeNode | null>(null)
     useEffect(() => {
         let op = () => {
-            if (props.state.selection.isEmpty()) {
+            if (state.selection.isEmpty()) {
                 set_node(null)
             } else {
                 // @ts-ignore
-                set_node(props.state.selection.get()[0])
+                set_node(state.selection.get()[0])
             }
         }
-        props.state.on("selection-change", op)
+        state.on("selection-change", op)
         return () => {
-            props.state.off("selection-change", op)
+            state.off("selection-change", op)
         }
     },[])
     if (!node) {
@@ -103,17 +111,17 @@ export function PropSheet(props: { root: TreeNode, state: GlobalState }) {
 
     return <div className={'panel right'}>
         {node.components.map((comp, i) => {
-            let pw = props.state.powerups.find(pw => pw.can_edit(comp))
+            let pw = state.powerups.find(pw => pw.can_edit(comp))
             if(pw) {
-                let Editor = pw.get_editor(comp,props.root,props.state)
-                return <Editor key={i} comp={comp} state={props.state}/>
+                let Editor = pw.get_editor(comp,state.get_root(),state)
+                return <Editor key={i} comp={comp} state={state}/>
             }
             if (comp.name === BoundedShapeName) return <BoundedShapeEditor key={i}
                                                                            comp={comp as BoundedShape}
-                                                                           state={props.state}/>
+                                                                           state={state}/>
             if (comp.name === FilledShapeName) return <FilledShapeEditor key={i}
                                                                          comp={comp as FilledShape}
-                                                                         state={props.state}/>
+                                                                         state={state}/>
             return null
         })}
     </div>

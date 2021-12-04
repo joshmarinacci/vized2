@@ -1,4 +1,4 @@
-import {DocName, GlobalState, TreeNode} from "./common";
+import {DocName, GlobalState, GlobalStateContext, TreeNode} from "./common";
 import React, {MouseEventHandler, useContext, useEffect, useState} from "react";
 import {PopupContext, PopupContextImpl} from "./popup";
 import {
@@ -49,20 +49,19 @@ function TreeParentItem(props: { node: TreeNode, state:GlobalState }) {
     </div>
 }
 
-export function TreeView(props: { root: TreeNode, state: GlobalState }) {
+export function TreeView(props: {}) {
     const [count, set_count] = useState(0)
+    const state = useContext(GlobalStateContext)
     useEffect(() => {
-        const op = () => {
-            set_count(count + 1)
-        }
-        props.state.on("selection-change", op)
-        props.state.on("object-changed",op)
+        const op = () => set_count(count + 1)
+        state.on("selection-change", op)
+        state.on("object-changed",op)
         return () => {
-            props.state.off("selection-change", op)
-            props.state.off("object-changed",op)
+            state.off("selection-change", op)
+            state.off("object-changed",op)
         }
     })
     return <div className={'panel left'}>
-        <TreeParentItem node={props.root} state={props.state}/>
+        <TreeParentItem node={state.get_root()} state={state}/>
     </div>
 }
