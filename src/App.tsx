@@ -141,9 +141,9 @@ export function make_default_tree() {
 }
 
 
-export function setup_state(root:TreeNode):GlobalState {
+export function setup_state():GlobalState {
     let state:GlobalState = new GlobalState()
-    state.set_root(root)
+    state.set_root(make_default_tree())
     state.jsonexporters.push(new FilledShapeJSONExporter())
     state.powerups.push(new BoundedShapePowerup())
     state.powerups.push(new CirclePowerup())
@@ -180,7 +180,7 @@ function ExportActions(props: {}) {
     }>export</button>
 }
 
-function NewDocActions(props: { set_root:any }) {
+function NewDocActions(props: {}) {
     let pc = useContext(PopupContext)
     let state = useContext(GlobalStateContext)
     return <button onClick={(e)=>{
@@ -188,8 +188,8 @@ function NewDocActions(props: { set_root:any }) {
         let menu = <ul className={'menu'}>
             {actions.map((act,i)=>{
                 return <li key={i} className={'menu-item'} onClick={()=>{
-                    let root = act.fun(state.get_root(),state)
-                    props.set_root(root)
+                    let root:TreeNode = act.fun(state.get_root(),state) as TreeNode
+                    state.set_root(root)
                     pc?.hide()
                 }
                 }>{act.title}</li>
@@ -202,29 +202,28 @@ function NewDocActions(props: { set_root:any }) {
 
 function App() {
     const pc = new PopupContextImpl()
-    const [root, set_root] = useState(()=> make_default_tree())
-    const state = setup_state(root)
+    const state = setup_state()
     return (
         <PopupContext.Provider value={pc}>
             <GlobalStateContext.Provider value={state}>
-        <div className="App">
-            <IDEGrid title={"foo"}>
-                <Toolbar>
-                    <NewDocActions set_root={set_root}/>
-                    <ExportActions/>
-                </Toolbar>
-                <Toolbar>
-                    <label>canvas</label>
-                </Toolbar>
-                <Toolbar>
-                    <label>props</label>
-                </Toolbar>
-                <TreeView/>
-                <CanvasView docroot={root} state={state}/>
-                <PropSheet/>
-            </IDEGrid>
-            <PopupContainer/>
-        </div>
+                <div className="App">
+                    <IDEGrid title={"foo"}>
+                        <Toolbar>
+                            <NewDocActions/>
+                            <ExportActions/>
+                        </Toolbar>
+                        <Toolbar>
+                            <label>canvas</label>
+                        </Toolbar>
+                        <Toolbar>
+                            <label>props</label>
+                        </Toolbar>
+                        <TreeView/>
+                        <CanvasView/>
+                        <PropSheet/>
+                    </IDEGrid>
+                    <PopupContainer/>
+                </div>
 
             </GlobalStateContext.Provider>
         </PopupContext.Provider>

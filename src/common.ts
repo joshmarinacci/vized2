@@ -3,7 +3,7 @@ import {Action} from "./actions";
 import React from "react";
 
 export type Callback = (arg:any) => void
-export type EVENT_TYPES = "refresh" | "selection-change" | "prop-change" | "object-changed"
+export type EVENT_TYPES = "refresh" | "selection-change" | "prop-change" | "object-changed" | "document-change"
 
 export class GlobalState {
     renderers: RenderingSystem[]
@@ -33,6 +33,7 @@ export class GlobalState {
     }
     set_root(tree: TreeNode) {
         this.root = tree
+        this.dispatch("document-change",this.root)
     }
     get_root(): TreeNode {
         return this.root

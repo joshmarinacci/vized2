@@ -56,9 +56,11 @@ export function TreeView(props: {}) {
         const op = () => set_count(count + 1)
         state.on("selection-change", op)
         state.on("object-changed",op)
+        state.on("document-change",op)
         return () => {
             state.off("selection-change", op)
             state.off("object-changed",op)
+            state.off("document-change",op)
         }
     })
     return <div className={'panel left'}>

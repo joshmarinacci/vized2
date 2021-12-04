@@ -2,7 +2,7 @@ import {GlobalState, TreeNode} from "./common";
 
 export interface Action {
     title: string
-    fun(node: TreeNode, state: GlobalState): void
+    fun(node: TreeNode, state: GlobalState): any
 }
 
 export const delete_node: Action = {

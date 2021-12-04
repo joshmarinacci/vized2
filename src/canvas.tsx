@@ -1,7 +1,7 @@
-import React, {MouseEventHandler, useContext, useEffect, useRef, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import {
     DocName,
-    GlobalState,
+    GlobalState, GlobalStateContext,
     Handle,
     Movable,
     MovableName,
@@ -193,13 +193,14 @@ function ContextMenu(props: { state: GlobalState }) {
     </ul>
 }
 
-export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
+export function CanvasView(props:{}) {
+    let state = useContext(GlobalStateContext)
     const [pan_offset, set_pan_offset] = useState(new Point(0,0))
     const [zoom_level, set_zoom_level] = useState(0)
     const [delegate, set_delegate] = useState<MouseGestureDelegate|null>()
     const [is_inset, set_is_inset] = useState(false)
-    const [current_page, set_current_page] = useState(()=>find_first_page(props.docroot))
-    const [current_root, set_current_root] = useState(()=>find_first_page(props.docroot))
+    const [current_page, set_current_page] = useState(()=>find_first_page(state.get_root()))
+    const [current_root, set_current_root] = useState(()=>find_first_page(state.get_root()))
     let canvas = useRef<HTMLCanvasElement>(null)
     let pc = useContext(PopupContext)
 
@@ -231,14 +232,14 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
 
     const over_handle = (e: MouseEvent) => {
         let pt = toRootPoint(e)
-        return props.state.active_handles.find((hand:Handle) => hand.contains(pt))
+        return state.active_handles.find((hand:Handle) => hand.contains(pt))
     }
 
     const over_group = (e:MouseEvent):TreeNode|null => {
         let pt = toRootPoint(e)
         for(let ch of current_root.children) {
             if(ch.has_component(ParentTranslateName)) {
-                for(let pk of props.state.pickers) {
+                for(let pk of state.pickers) {
                     if(pk.pick_node(pt,ch)) {
                         return ch
                     }
@@ -263,8 +264,8 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
         ctx.translate(-slop_bounds.x,-slop_bounds.y)
         ctx.fillStyle = '#f0f0f0'
         ctx.fillRect(slop_bounds.x,slop_bounds.y,slop_bounds.w,slop_bounds.h)
-        draw_node(props.state,ctx, current_root)
-        draw_handles(props.state, ctx, current_root)
+        draw_node(state,ctx, current_root)
+        draw_handles(state, ctx, current_root)
         ctx.restore()
     }
     //redraw when current root changes, or transforms, or the docroot
@@ -272,36 +273,39 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
 
     //change first page when docroot changes
     useEffect(() => {
-        set_current_page(find_first_page(props.docroot))
-        set_current_root(props.docroot)
-    },[props.docroot])
+        set_current_page(find_first_page(state.get_root()))
+        set_current_root(state.get_root())
+    },[state.get_root()])
 
     //redraw on refresh or prop change
     useEffect(()=>{
         let op = () => refresh()
-        props.state.on("prop-change", op)
-        props.state.on("object-changed", op)
-        props.state.on("refresh", op)
+        state.on("prop-change", op)
+        state.on("object-changed", op)
+        state.on("refresh", op)
         return () => {
-            props.state.off("refresh",op)
-            props.state.off("prop-change", op)
-            props.state.off("object-changed", op)
+            state.off("refresh",op)
+            state.off("prop-change", op)
+            state.off("object-changed", op)
         }
     })
 
     //recalc current page when selection changes
     useEffect(()=>{
         let op = () => {
-            let page = find_page_for_selection(props.state.selection)
+            let page = find_page_for_selection(state.selection)
+            if(!page) page = find_first_page(state.get_root())
             if(page && page !== current_page) {
                 set_current_page(page)
                 set_current_root(page)
             }
             refresh()
         }
-        props.state.on("selection-change", op)
+        state.on("selection-change", op)
+        state.on("document-change", op)
         return () => {
-            props.state.off("selection-change",op)
+            state.off("selection-change",op)
+            state.off("document-change",op)
         }
     })
 
@@ -312,9 +316,9 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
         let hand: Handle = over_handle(e) as Handle
         let del = null
         if (hand) {
-            del =  new HandleMoveDelegate(props.state,hand)
+            del =  new HandleMoveDelegate(state,hand)
         } else {
-            del = new MouseMoveDelegate(props.state)
+            del = new MouseMoveDelegate(state)
         }
         del.press(e,pt,current_root)
         set_delegate(del)
@@ -342,7 +346,7 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
     }
 
     const exit_inset = () => {
-        set_current_root(props.state.get_root())
+        set_current_root(state.get_root())
         set_is_inset(false)
     }
 
@@ -357,13 +361,13 @@ export function CanvasView(props:{docroot:TreeNode, state:GlobalState}) {
     function keypress(e:KeyboardEvent<HTMLCanvasElement>) {
         // console.log("keyboard event",e.key)
         if(e.key === 'Backspace') {
-            delete_selection(props.state)
+            delete_selection(state)
         }
     }
 
     // @ts-ignore
     const show_menu = (e:MouseEvent<HTMLCanvasElement>) => {
-        let container:JSX.Element = <ContextMenu state={props.state}/>
+        let container:JSX.Element = <ContextMenu state={state}/>
         pc?.show(container,e)
     }
 
