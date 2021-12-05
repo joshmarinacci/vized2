@@ -50,9 +50,16 @@ export function TextShapeEditor(props: { comp: TextShapeObject, state: GlobalSta
 
         <label>Font Family</label>
         <select value={family} onChange={e=>{
-            set_family(e.target.value)
-            props.comp.set_fontfamily(e.target.value)
-            props.state.dispatch("prop-change", props.comp)
+            let fam = e.target.value
+            set_family(fam)
+            props.comp.set_fontfamily(fam)
+            if(!document.fonts.check(`16px ${fam}`)) {
+                document.fonts.load(`16px ${fam}`).then(()=>{
+                    props.state.dispatch("prop-change", props.comp)
+                })
+            } else {
+                props.state.dispatch("prop-change", props.comp)
+            }
         }}>
             {props.state.fonts.map(fd => {
                 return <option key={fd.name}>{fd.name}</option>
