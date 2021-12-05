@@ -27,15 +27,19 @@ function BoundedShapeEditor(props: { comp: BoundedShape, state: GlobalState }) {
 }
 
 function FilledShapeEditor(props: { comp: FilledShape, state: GlobalState }) {
+    const [pal, set_pal] = useState({
+        title:'none',
+        colors:[]
+    })
+    const change_palette = (e:any) => {
+        set_pal(props.state.palettes.find(p => p.title === e.target.value))
+    }
+
     let canvas = useRef<HTMLCanvasElement>(null)
     let size = 20
-    let w = 100
+    let w = size*8
+    let h = Math.ceil(pal.colors.length/8)*size
     let wrap = Math.floor(w / size)
-    const colors = [
-        '#ff00ff', '#ff0000',
-        '#ffff00', '#00ff00',
-        '#00ffff', '#0000ff',
-        '#ffffff', '#000000']
 
     const n2xy = (n: number) => ({
         x: n % wrap * size,
@@ -52,7 +56,7 @@ function FilledShapeEditor(props: { comp: FilledShape, state: GlobalState }) {
             let ctx = can.getContext('2d') as CanvasRenderingContext2D
             ctx.fillStyle = 'white'
             ctx.fillRect(0, 0, can.width, can.height)
-            colors.forEach((color, i) => {
+            pal.colors.forEach((color, i) => {
                 ctx.fillStyle = color
                 let pt = n2xy(i)
                 ctx.fillRect(pt.x, pt.y, 20, 20)
@@ -68,14 +72,19 @@ function FilledShapeEditor(props: { comp: FilledShape, state: GlobalState }) {
     })
     return <div className={"prop-grid"}>
         <h3>Filled Shape</h3>
-        <canvas ref={canvas} width={100} height={60}
+        <select value={pal.title} onChange={change_palette}>
+            {props.state.palettes.map((obj,i) => {
+                return <option key={i} value={obj.title}>{obj.title}</option>
+            })}
+        </select>
+        <canvas ref={canvas} width={w} height={h}
                 onClick={(e) => {
                     let target: HTMLElement = e.target as HTMLElement
                     let bounds = target.getBoundingClientRect()
                     let pt = new Point(e.clientX - bounds.x, e.clientY - bounds.y)
                     let n = xy2n(pt)
-                    if (n >= 0 && n < colors.length) {
-                        let color = colors[n]
+                    if (n >= 0 && n < pal.colors.length) {
+                        let color = pal.colors[n]
                         props.comp.set_color(color)
                         props.state.dispatch("prop-change", {})
                         redraw()

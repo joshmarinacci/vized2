@@ -16,6 +16,8 @@ class FontDefImpl implements FontDef {
     }
 }
 
+const PALETTE_URL = "https://api.silly.io/api/list/color-palettes"
+
 export class GlobalState {
     renderers: RenderingSystem[]
     jsonexporters:JSONExporter[]
@@ -26,6 +28,7 @@ export class GlobalState {
     active_handles: Handle[]
     selection: SelectionSystem
     fonts: FontDef[]
+    palettes:any[]
     private listeners: Map<string, Callback[]>
     private root: TreeNode
 
@@ -50,6 +53,11 @@ export class GlobalState {
         this.listeners = new Map<string, Callback[]>()
         // @ts-ignore
         this.root = null
+        this.palettes = []
+        fetch(PALETTE_URL).then(r => r.json()).then(d => {
+            console.log("palette data is",d.data.items)
+            this.palettes = d.data.items
+        })
     }
     set_root(tree: TreeNode) {
         this.root = tree
@@ -80,6 +88,10 @@ export class GlobalState {
 
     private log(...args:any[]) {
         console.log("GLOBAL:", ...args)
+    }
+
+    get_palettes():any{
+
     }
 }
 
