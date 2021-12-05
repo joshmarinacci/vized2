@@ -164,7 +164,7 @@ export function PropSheet(props: {}) {
             if (comp.name === FilledShapeName) return <FilledShapeEditor key={i}
                                                                          comp={comp as FilledShape}
                                                                          state={state}/>
-            return null
+            return <h4 key={comp.name}>{comp.name}</h4>
         })}
     </div>
 }

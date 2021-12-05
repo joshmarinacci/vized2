@@ -51,6 +51,7 @@ import {GreetingCardPowerup} from "./powerups/greetingcard";
 import {PropSheet} from "./propsheet";
 import {make_image_file} from "./powerups/image_from_file";
 import {DialogContextImpl, DialogContext, DialogContainer} from "./dialog";
+import {PresentationPowerup} from "./powerups/presentation";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -68,6 +69,7 @@ export function make_default_tree(state: GlobalState) {
     root.components.push(new RectShapeObject())
     root.components.push(new FilledShapeObject('white'))
 
+    /*
     let group1 = new TreeNodeImpl()
     group1.title = 'group'
     group1.components.push(new GroupShapeObject(group1, new Point(100,50)))
@@ -93,7 +95,7 @@ export function make_default_tree(state: GlobalState) {
         rect2.components.push(new MovableBoundedShape(rect2))
         rect2.components.push(new ResizableRectObject(rect2))
         add_child_to_parent(rect2, group1)
-    }
+    }*/
     {
         let rect3: TreeNode = new TreeNodeImpl()
         rect3.title = 'rect'
@@ -112,7 +114,7 @@ export function make_default_tree(state: GlobalState) {
         circ1.components.push(circle_shape)
         circ1.components.push(new MovableCircleObject(circ1))
         add_child_to_parent(circ1, root)
-    }
+    }/*
     {
         let spiral:TreeNode = new TreeNodeImpl()
         spiral.title = 'spiral'
@@ -127,12 +129,12 @@ export function make_default_tree(state: GlobalState) {
         let image = make_image_node(url,state)
         add_child_to_parent(image,root)
     }
-
+*/
     {
         let text1 = new TreeNodeImpl() as TreeNode
         text1.title = 'text1'
-        text1.components.push(new TextShapeObject("Jesse", 16, "center",'center'))
-        text1.components.push(new BoundedShapeObject(new Rect(50,150,200,200)))
+        text1.components.push(new TextShapeObject("Jesse", 20, "center",'center'))
+        text1.components.push(new BoundedShapeObject(new Rect(50,150,150,100)))
         text1.components.push(new MovableBoundedShape(text1))
         text1.components.push(new ResizableRectObject(text1))
         text1.components.push(new FilledShapeObject('#000000'))
@@ -158,6 +160,7 @@ export function setup_state():GlobalState {
     state.powerups.push(new PNGPowerup())
     state.powerups.push(new JSONPowerup())
     state.powerups.push(new GreetingCardPowerup())
+    state.powerups.push(new PresentationPowerup())
     state.powerups.forEach(pow => pow.init(state))
     return state
 }

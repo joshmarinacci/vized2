@@ -9,7 +9,6 @@ import {
     TreeNodeImpl
 } from "../common";
 import {Action} from "../actions";
-import {export_JSON} from "../exporters/json";
 import {BoundedShapeObject, MovableBoundedShape, ResizableRectObject} from "../bounded_shape";
 import {PDFExportBounds} from "../exporters/pdf";
 import {RectShapeObject} from "./rect_powerup";

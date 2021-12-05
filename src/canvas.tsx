@@ -178,7 +178,9 @@ function find_page_for_node(node:TreeNode):TreeNode|null {
 }
 function find_page_for_selection(selection: SelectionSystem):TreeNode|null {
     if(selection.isEmpty()) return null
-    return find_page_for_node(selection.get()[0])
+    let node = selection.get()[0]
+    if(!node.parent) return null
+    return find_page_for_node(node)
 }
 
 function ContextMenu(props: { state: GlobalState }) {
@@ -214,6 +216,21 @@ export function CanvasView(props:{}) {
     const [current_root, set_current_root] = useState(()=>find_first_page(state.get_root()))
     let canvas = useRef<HTMLCanvasElement>(null)
     let pc = useContext(PopupContext)
+
+
+    useEffect(()=>{
+        let op = (rt:TreeNode) => {
+            // console.log(`doc changed. new root = ${rt.id} ${state.get_root().id}`)
+            set_pan_offset(new Point(0,0))
+            set_zoom_level(0)
+            set_delegate(null)
+            set_is_inset(false)
+        }
+        state.on("document-change", op)
+        return () => {
+            state.off("document-change",op)
+        }
+    })
 
     const SLOP = new Point(100,100)
 
@@ -287,8 +304,9 @@ export function CanvasView(props:{}) {
 
     //change first page when docroot changes
     useEffect(() => {
-        set_current_page(find_first_page(state.get_root()))
-        set_current_root(state.get_root())
+        let page = find_first_page(state.get_root())
+        set_current_page(page)
+        set_current_root(page)
     },[state.get_root()])
 
     //redraw on refresh or prop change
@@ -316,10 +334,8 @@ export function CanvasView(props:{}) {
             refresh()
         }
         state.on("selection-change", op)
-        state.on("document-change", op)
         return () => {
             state.off("selection-change",op)
-            state.off("document-change",op)
         }
     })
 
