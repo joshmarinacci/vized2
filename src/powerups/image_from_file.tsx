@@ -7,13 +7,14 @@ import {
     TreeNodeImpl
 } from "../common";
 import {useContext, useRef, useState} from "react";
-import {PopupContext} from "../popup";
-import {ImageShapeObject, make_image_node, ResizableImageObject} from "./image_powerup";
+import {ImageShapeObject, ResizableImageObject} from "./image_powerup";
 import {BoundedShapeObject, MovableBoundedShape} from "../bounded_shape";
+import {DialogContext} from "../dialog";
+import {Toolbar} from "../comps";
 
 function ImageFileUpload() {
     let input = useRef<HTMLInputElement>(null)
-    let pm = useContext(PopupContext)
+    let dc = useContext(DialogContext)
     let state = useContext(GlobalStateContext)
     const [valid, set_valid] = useState(false)
     const file_changed = () => {
@@ -29,10 +30,10 @@ function ImageFileUpload() {
         }
     }
     const cancel = () => {
-        pm?.hide()
+        dc.hide()
     }
     const import_selected = () => {
-        pm?.hide()
+        dc.hide()
         let image: TreeNode = new TreeNodeImpl()
         image.title = 'image'
         let iso = new ImageShapeObject()
@@ -51,12 +52,14 @@ function ImageFileUpload() {
         add_child_to_parent(image, state.get_root())
         state.dispatch('object-changed', {})
     }
-    return <div className={'dialog'}>
-        upload your image here
-        <input ref={input} type={"file"}
-               onChange={file_changed}/>
-        <button onClick={cancel}>cancel</button>
-        <button disabled={!valid} onClick={import_selected}>import</button>
+    return <div className={'dialog vcenter'}>
+            <p>upload your image here</p>
+            <input ref={input} type={"file"} onChange={file_changed}/>
+            <div className={'grow'}></div>
+            <Toolbar>
+                <button onClick={cancel}>cancel</button>
+                <button disabled={!valid} onClick={import_selected}>import</button>
+            </Toolbar>
     </div>
 }
 

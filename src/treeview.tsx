@@ -41,7 +41,7 @@ function TreeParentItem(props: { node: TreeNode, state:GlobalState }) {
     }
     const show_menu:MouseEventHandler<HTMLDivElement> = (e) => {
         let container:JSX.Element = <AddChildMenu node={props.node} state={props.state}/>
-        pc?.show(container,e)
+        pc.show(container,e)
     }
     return <div className={klass}>
         <div className={"tree-item-info"} onClick={on_click} onContextMenu={show_menu}>{props.node.title}</div>

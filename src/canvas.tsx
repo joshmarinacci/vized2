@@ -384,7 +384,7 @@ export function CanvasView(props:{}) {
     const show_menu = (e:MouseEvent<HTMLCanvasElement>) => {
         e.preventDefault()
         let container:JSX.Element = <ContextMenu state={state}/>
-        pc?.show(container,e)
+        pc.show(container,e)
     }
 
 

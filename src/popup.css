@@ -1,0 +1,25 @@
+.popup-wrapper {
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom: 0;
+    background-color: transparent;
+}
+.popup-wrapper.hidden {
+    display: none;
+}
+.popup-scrim {
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom: 0;
+    background-color: rgba(255,0,0,0.0);
+}
+.popup-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    border: 0px solid black;
+}

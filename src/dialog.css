@@ -1,0 +1,39 @@
+.dialog-wrapper {
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom: 0;
+    background-color: transparent;
+}
+.dialog-wrapper.hidden {
+    display: none;
+}
+.dialog-scrim {
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom: 0;
+    background-color: rgba(255,255,255,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid red;
+    padding-top: 10rem;
+}
+.dialog-container {
+
+}
+
+
+
+.dialog {
+    background-color: #cccccc;
+    padding: 1em;
+    border: 1px solid black;
+    min-width: 50vw;
+    min-height: 20vh;
+    display: flex;
+    flex-direction: column;
+}

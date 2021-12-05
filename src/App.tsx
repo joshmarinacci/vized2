@@ -50,6 +50,7 @@ import {Action} from "./actions";
 import {GreetingCardPowerup} from "./powerups/greetingcard";
 import {PropSheet} from "./propsheet";
 import {make_image_file} from "./powerups/image_from_file";
+import {DialogContextImpl, DialogContext, DialogContainer} from "./dialog";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -170,12 +171,12 @@ function ExportActions(props: {}) {
             {actions.map((act,i)=>{
                 return <li key={i} className={'menu-item'} onClick={()=>{
                     act.fun(state.get_root(),state)
-                    pc?.hide()
+                    pc.hide()
                 }
                 }>{act.title}</li>
             })}
         </ul>
-        pc?.show(menu,e)
+        pc.show(menu,e)
     }
     }>export</button>
 }
@@ -190,18 +191,19 @@ function NewDocActions(props: {}) {
                 return <li key={i} className={'menu-item'} onClick={()=>{
                     let root:TreeNode = act.fun(state.get_root(),state) as TreeNode
                     state.set_root(root)
-                    pc?.hide()
+                    pc.hide()
                 }
                 }>{act.title}</li>
             })}
         </ul>
-        pc?.show(menu,e)
+        pc.show(menu,e)
     }
     }>New Doc</button>
 }
 
 function ImportActions(props: {}) {
     let pc = useContext(PopupContext)
+    let dc = useContext(DialogContext)
     let state = useContext(GlobalStateContext)
     return <button onClick={(e)=>{
         let actions:Action[] = [make_image_file]
@@ -209,51 +211,54 @@ function ImportActions(props: {}) {
             {actions.map((act,i)=>{
                 return <li key={i} className={'menu-item'} onClick={()=>{
                     if(act.use_gui) {
-                        pc?.hide()
+                        pc.hide()
                         // @ts-ignore
-                        pc?.show(act.get_gui(),e)
+                        dc.show(act.get_gui())
                     } else {
                         let root: TreeNode = act.fun(state.get_root(), state) as TreeNode
                         state.set_root(root)
-                        pc?.hide()
+                        pc.hide()
                     }
                 }
                 }>{act.title}</li>
             })}
         </ul>
-        pc?.show(menu,e)
+        pc.show(menu,e)
     }
     }>import</button>
 }
 
 function App() {
     const pc = new PopupContextImpl()
+    const dc = new DialogContextImpl()
     const state = setup_state()
     return (
-        <PopupContext.Provider value={pc}>
-            <GlobalStateContext.Provider value={state}>
-                <div className="App">
-                    <IDEGrid title={"foo"}>
-                        <Toolbar>
-                            <NewDocActions/>
-                            <ImportActions/>
-                            <ExportActions/>
-                        </Toolbar>
-                        <Toolbar>
-                            <label>canvas</label>
-                        </Toolbar>
-                        <Toolbar>
-                            <label>props</label>
-                        </Toolbar>
-                        <TreeView/>
-                        <CanvasView/>
-                        <PropSheet/>
-                    </IDEGrid>
-                    <PopupContainer/>
-                </div>
-
-            </GlobalStateContext.Provider>
-        </PopupContext.Provider>
+        <DialogContext.Provider value={dc}>
+            <PopupContext.Provider value={pc}>
+                <GlobalStateContext.Provider value={state}>
+                    <div className="App">
+                        <IDEGrid title={"foo"}>
+                            <Toolbar>
+                                <NewDocActions/>
+                                <ImportActions/>
+                                <ExportActions/>
+                            </Toolbar>
+                            <Toolbar>
+                                <label>canvas</label>
+                            </Toolbar>
+                            <Toolbar>
+                                <label>props</label>
+                            </Toolbar>
+                            <TreeView/>
+                            <CanvasView/>
+                            <PropSheet/>
+                        </IDEGrid>
+                        <PopupContainer/>
+                        <DialogContainer/>
+                    </div>
+                </GlobalStateContext.Provider>
+            </PopupContext.Provider>
+        </DialogContext.Provider>
     );
 }
 

@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
 import {Point} from "./common";
+import "./popup.css"
 
 export interface PopupContextInterface {
     show(content:JSX.Element, e:any):void
@@ -8,7 +9,8 @@ export interface PopupContextInterface {
     off(cb:any):void
 }
 
-export const PopupContext = React.createContext<PopupContextInterface | null>(null);
+// @ts-ignore
+export const PopupContext = React.createContext<PopupContextInterface>();
 
 export class PopupContextImpl implements PopupContextInterface {
     private listeners: any[];
@@ -45,14 +47,10 @@ export function PopupContainer() {
                 set_content(v)
                 set_pos(new Point(evt.clientX, evt.clientY))
             }
-            if(type === 'hide') {
-                set_content(null)
-            }
+            if(type === 'hide') set_content(null)
         }
-        pc?.on(op)
-        return () => {
-            pc?.off(op)
-        }
+        pc.on(op)
+        return () => pc.off(op)
     })
     let style = {
         left: pos.x,
@@ -60,10 +58,7 @@ export function PopupContainer() {
     }
     let ct = content?<div style={style} className={"popup-container visible"}>{content}</div>:<div style={style} className={"popup-container hidden"}>should be hidden</div>
     return <div className={'popup-wrapper ' + (content?"visible":"hidden")}>
-        <div className={"popup-scrim"} onClick={()=>{
-            set_content(null)
-        }
-        }></div>
+        <div className={"popup-scrim"} onClick={()=> set_content(null)}></div>
         {ct}
     </div>
 }
