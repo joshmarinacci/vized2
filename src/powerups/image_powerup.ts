@@ -23,6 +23,7 @@ import {PDFExporter} from "../exporters/pdf";
 import {SVGExporter} from "../exporters/svg";
 import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
+import {make_image_file} from "./image_from_file";
 
 const ImageShapeName = "ImageShapeName"
 export interface ImageShape extends Component {
@@ -31,18 +32,18 @@ export interface ImageShape extends Component {
 
 export class ImageShapeObject implements ImageShape {
     name: string;
-    private url: any;
     private ow: number;
     private oh: number;
     aspect_ratio: number;
     imageid: string | null;
-    constructor(url:string,w:number,h:number) {
+    url:string | null
+    constructor() {
         this.name = ImageShapeName
-        this.url = url
-        this.ow = w
-        this.oh = h
+        this.ow = 0
+        this.oh = 0
         this.imageid = null
-        this.aspect_ratio = w/h
+        this.aspect_ratio = 0
+        this.url = null
     }
 
     get_size():Point {
@@ -62,6 +63,7 @@ export class ImageShapeObject implements ImageShape {
         this.ow = img.width
         this.oh = img.height
         this.aspect_ratio = this.ow/this.oh
+        this.url = img.url
     }
 }
 
@@ -192,7 +194,7 @@ class ImageSVGExporter implements SVGExporter {
 export function make_image_node(url: string, state:GlobalState): TreeNode {
     let image: TreeNode = new TreeNodeImpl()
     image.title = 'image'
-    let iso = new ImageShapeObject(url, 1000, 1000)
+    let iso = new ImageShapeObject()
     let bds = new BoundedShapeObject(new Rect(100, 100, 200, 200))
     state.add_image_from_url(url).then(img => {
         iso.sync(img)
@@ -207,6 +209,7 @@ export function make_image_node(url: string, state:GlobalState): TreeNode {
 }
 
 export const make_image: Action = {
+    use_gui: false,
     title: "add image",
     fun(node: TreeNode, state: GlobalState): void {
         let image = make_image_node("https://vr.josh.earth/assets/2dimages/saturnv.jpg",state)
@@ -224,7 +227,7 @@ export class ImagePowerup extends DefaultPowerup {
 
     child_options(node: TreeNode): Action[] {
         if(node.has_component(GroupShapeName) || node.has_component(PageName)) {
-            return [make_image]
+            return [make_image, make_image_file]
         }
         return [];
     }

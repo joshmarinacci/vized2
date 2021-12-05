@@ -178,6 +178,7 @@ export class RectJsonExporter implements JSONExporter {
 }
 
 export const make_rectangle: Action = {
+    use_gui: false,
     title: "add rectangle",
     fun(node: TreeNode, state: GlobalState): void {
         let rect1 = new TreeNodeImpl()

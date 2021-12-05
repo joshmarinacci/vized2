@@ -27,10 +27,11 @@ export interface SVGExporter extends System {
 export class SVGPowerup extends DefaultPowerup {
     override export_actions(): Action[] {
         let action:Action = {
+            use_gui: false,
             title:"export SVG",
             fun(node: TreeNode, state: GlobalState): void {
                 export_SVG(node,state)
-            },
+            }
         }
         return [action]
     }

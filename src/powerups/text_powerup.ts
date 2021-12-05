@@ -280,6 +280,7 @@ class TextSVGExporter implements SVGExporter {
 }
 
 export const make_text: Action = {
+    use_gui: false,
     title: "add text",
     fun(node: TreeNode, state: GlobalState): void {
         let text = new TreeNodeImpl() as TreeNode

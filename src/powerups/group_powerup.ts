@@ -201,6 +201,7 @@ class GroupPDFExporter implements PDFExporter {
 }
 
 const make_group: Action = {
+    use_gui: false,
     title: "add group",
     fun(node: TreeNode, state: GlobalState): void {
         let group = new TreeNodeImpl()

@@ -228,6 +228,7 @@ class SpiralSVGExporter implements SVGExporter {
     }
 }
 const make_spiral: Action = {
+    use_gui: false,
     title: "add spiral",
     fun(node: TreeNode, state: GlobalState): void {
         let shape = new TreeNodeImpl()

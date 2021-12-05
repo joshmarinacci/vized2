@@ -49,6 +49,7 @@ import {PopupContainer, PopupContext, PopupContextImpl} from "./popup";
 import {Action} from "./actions";
 import {GreetingCardPowerup} from "./powerups/greetingcard";
 import {PropSheet} from "./propsheet";
+import {make_image_file} from "./powerups/image_from_file";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -199,6 +200,32 @@ function NewDocActions(props: {}) {
     }>New Doc</button>
 }
 
+function ImportActions(props: {}) {
+    let pc = useContext(PopupContext)
+    let state = useContext(GlobalStateContext)
+    return <button onClick={(e)=>{
+        let actions:Action[] = [make_image_file]
+        let menu = <ul className={'menu'}>
+            {actions.map((act,i)=>{
+                return <li key={i} className={'menu-item'} onClick={()=>{
+                    if(act.use_gui) {
+                        pc?.hide()
+                        // @ts-ignore
+                        pc?.show(act.get_gui(),e)
+                    } else {
+                        let root: TreeNode = act.fun(state.get_root(), state) as TreeNode
+                        state.set_root(root)
+                        pc?.hide()
+                    }
+                }
+                }>{act.title}</li>
+            })}
+        </ul>
+        pc?.show(menu,e)
+    }
+    }>import</button>
+}
+
 function App() {
     const pc = new PopupContextImpl()
     const state = setup_state()
@@ -209,6 +236,7 @@ function App() {
                     <IDEGrid title={"foo"}>
                         <Toolbar>
                             <NewDocActions/>
+                            <ImportActions/>
                             <ExportActions/>
                         </Toolbar>
                         <Toolbar>

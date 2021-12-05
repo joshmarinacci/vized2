@@ -104,10 +104,11 @@ export class FilledShapeJSONExporter implements JSONExporter {
 export class JSONPowerup extends DefaultPowerup {
     override export_actions(): Action[] {
         let action:Action = {
+            use_gui: false,
             title:"export JSON",
             fun(node: TreeNode, state: GlobalState): void {
                 export_JSON(node,state)
-            },
+            }
         }
         return [action]
     }

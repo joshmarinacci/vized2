@@ -2,10 +2,12 @@ import {GlobalState, TreeNode} from "./common";
 
 export interface Action {
     title: string
+    use_gui:boolean
     fun(node: TreeNode, state: GlobalState): any
 }
 
 export const delete_node: Action = {
+    use_gui: false,
     title: 'delete',
     fun(node: TreeNode, state: GlobalState): void {
         node.parent.children = node.parent.children.filter(ch => ch !== node)
@@ -15,6 +17,7 @@ export const delete_node: Action = {
     }
 }
 export const nothing: Action = {
+    use_gui: false,
     title: "nothing",
     fun(node: TreeNode, state: GlobalState): void {
     }
@@ -31,6 +34,7 @@ export function delete_selection(state: GlobalState) {
     state.dispatch('selection-change', {})
 }
 export const delete_selection_action:Action = {
+    use_gui: false,
     title: "delete selection",
     fun(node: TreeNode, state: GlobalState): void {
         delete_selection(state)
@@ -38,6 +42,7 @@ export const delete_selection_action:Action = {
 }
 
 export const move_to_bottom:Action = {
+    use_gui: false,
     title: "move to bottom",
     fun(nodex: TreeNode, state: GlobalState): any {
         let parent = state.selection.get()[0].parent
@@ -54,6 +59,7 @@ export const move_to_bottom:Action = {
 
 }
 export const move_to_top:Action = {
+    use_gui: false,
     title: "move to top",
     fun(node: TreeNode, state: GlobalState): any {
         let parent = state.selection.get()[0].parent
@@ -71,6 +77,7 @@ export const move_to_top:Action = {
 }
 
 export const move_up:Action = {
+    use_gui: false,
     title: "move up",
     fun(node: TreeNode, state: GlobalState): any {
         state.selection.get().forEach((ch:TreeNode)=>{
@@ -85,6 +92,7 @@ export const move_up:Action = {
 }
 
 export const move_down:Action = {
+    use_gui: false,
     title: "move down",
     fun(node: TreeNode, state: GlobalState): any {
         state.selection.get().forEach((ch:TreeNode)=>{

@@ -74,6 +74,7 @@ function make_greeting_card_tree(state: GlobalState):TreeNode {
 export class GreetingCardPowerup extends DefaultPowerup {
     override new_doc_actions(): Action[] {
         let action:Action = {
+            use_gui: false,
             title:"new greeting card",
             fun(node:TreeNode, state:GlobalState):any {
                 return make_greeting_card_tree(state)

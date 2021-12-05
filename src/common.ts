@@ -33,6 +33,21 @@ export type ImageReference = {
     id:string
     loaded:boolean
     dom_image:HTMLImageElement
+    url:string
+}
+
+function file_to_DataURL(file: File):Promise<string> {
+    return new Promise((res,rej)=>{
+        let fr = new FileReader()
+        fr.addEventListener('load',()=> {
+            // @ts-ignore
+            res(fr.result)
+        })
+        fr.addEventListener("error", (e)=>{
+            rej(e)
+        })
+        fr.readAsDataURL(file)
+    })
 }
 
 export class GlobalState {
@@ -135,6 +150,7 @@ export class GlobalState {
                 height: 0,
                 loaded: false,
                 dom_image:new Image(),
+                url:url
             }
             img.dom_image.addEventListener('load',()=>{
                 console.log("image is loaded now",img.id,img.dom_image)
@@ -147,6 +163,11 @@ export class GlobalState {
             })
             img.dom_image.src = url
         })
+    }
+
+    async add_image_from_file(file: File) {
+        let data_url = await file_to_DataURL(file)
+        return await this.add_image_from_url(data_url)
     }
 }
 

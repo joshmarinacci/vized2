@@ -54,10 +54,11 @@ export function export_PNG(root: TreeNode, state: GlobalState) {
 export class PNGPowerup extends DefaultPowerup {
     override export_actions(): Action[] {
         let action:Action = {
+            use_gui: false,
             title:"export PNG",
             fun(node: TreeNode, state: GlobalState): void {
                 export_PNG(node,state)
-            },
+            }
         }
         return [action]
     }

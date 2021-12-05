@@ -169,6 +169,7 @@ export class CirclePDFExporter implements PDFExporter {
 }
 
 export const make_circle: Action = {
+    use_gui: false,
     title: "add circle",
     fun(node: TreeNode, state: GlobalState): void {
         let circle = new TreeNodeImpl()

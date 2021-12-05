@@ -95,6 +95,7 @@ export function export_PDF(root:TreeNode, state:GlobalState) {
 export class PDFPowerup extends DefaultPowerup {
     override export_actions(): Action[] {
         let action:Action = {
+            use_gui: false,
             title: "export PDF",
             fun(node: TreeNode, state: GlobalState): void {
                 export_PDF(node,state)
