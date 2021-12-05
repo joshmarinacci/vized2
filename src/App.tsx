@@ -39,7 +39,10 @@ import {
     GroupShapeObject,
     MovableGroupShape
 } from "./powerups/group_powerup";
-import {ImagePowerup, ImageShapeObject, ResizableImageObject} from "./powerups/image_powerup";
+import {
+    ImagePowerup,
+    make_image_node
+} from "./powerups/image_powerup";
 import {Toolbar} from "./comps";
 import {TreeView} from "./treeview";
 import {PopupContainer, PopupContext, PopupContextImpl} from "./popup";
@@ -53,7 +56,7 @@ function IDEGrid(props:{title:string, children:any[]}) {
   </div>
 }
 
-export function make_default_tree() {
+export function make_default_tree(state: GlobalState) {
     let root:TreeNode = new TreeNodeImpl()
     root.title = 'root'
     root.components.push(new DocMarker())
@@ -118,13 +121,8 @@ export function make_default_tree() {
     }
 
     {
-        let image:TreeNode = new TreeNodeImpl()
-        image.title = 'image'
         let url = "https://vr.josh.earth/assets/2dimages/saturnv.jpg"
-        image.components.push(new ImageShapeObject(url,1000,1000))
-        image.components.push(new BoundedShapeObject(new Rect(100,100,200,200)))
-        image.components.push(new MovableBoundedShape(image))
-        image.components.push(new ResizableImageObject(image))
+        let image = make_image_node(url,state)
         add_child_to_parent(image,root)
     }
 
@@ -144,7 +142,7 @@ export function make_default_tree() {
 
 export function setup_state():GlobalState {
     let state:GlobalState = new GlobalState()
-    state.set_root(make_default_tree())
+    state.set_root(make_default_tree(state))
     state.jsonexporters.push(new FilledShapeJSONExporter())
     state.powerups.push(new BoundedShapePowerup())
     state.powerups.push(new CirclePowerup())

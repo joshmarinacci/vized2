@@ -27,6 +27,14 @@ class FontDefImpl implements FontDef {
 
 const PALETTE_URL = "https://api.silly.io/api/list/color-palettes"
 
+export type ImageReference = {
+    width: number;
+    height: number;
+    id:string
+    loaded:boolean
+    dom_image:HTMLImageElement
+}
+
 export class GlobalState {
     renderers: RenderingSystem[]
     jsonexporters:JSONExporter[]
@@ -41,6 +49,7 @@ export class GlobalState {
     patterns:any[]
     private listeners: Map<string, Callback[]>
     private root: TreeNode
+    private images:ImageReference[]
 
     constructor() {
         this.renderers = []
@@ -51,6 +60,7 @@ export class GlobalState {
         this.pickers = []
         this.active_handles = []
         this.selection = new SelectionSystem()
+        this.images = []
         this.fonts = [
             new FontDefImpl('serif'),
             new FontDefImpl('sans-serif'),
@@ -104,6 +114,39 @@ export class GlobalState {
 
     get_palettes():any{
 
+    }
+
+    image_ready(imageid: string | null) {
+        let img = this.images.find(im => im.id === imageid)
+        if(img && img.loaded) return true
+        return false;
+    }
+
+    get_DomImage(imageid: string | null):HTMLImageElement {
+        let img  = this.images.find(im => im.id === imageid) as ImageReference
+        return img.dom_image
+    }
+
+    add_image_from_url(url: string):Promise<ImageReference> {
+        return new Promise((res,rej)=>{
+            let img:ImageReference = {
+                id:  "image_asset_" + Math.floor(Math.random() * 1000000),
+                width: 0,
+                height: 0,
+                loaded: false,
+                dom_image:new Image(),
+            }
+            img.dom_image.addEventListener('load',()=>{
+                console.log("image is loaded now",img.id,img.dom_image)
+                img.width = img.dom_image.width
+                img.height = img.dom_image.height
+                img.loaded = true
+                this.images.push(img)
+                res(img)
+                setTimeout(()=>  this.dispatch("refresh",img),0)
+            })
+            img.dom_image.src = url
+        })
     }
 }
 

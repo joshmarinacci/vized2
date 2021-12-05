@@ -3,7 +3,7 @@ import {
     Component,
     DefaultPowerup,
     GlobalState,
-    Handle,
+    Handle, ImageReference,
     PageName,
     Point,
     Rect,
@@ -34,23 +34,15 @@ export class ImageShapeObject implements ImageShape {
     private url: any;
     private ow: number;
     private oh: number;
-    dom_image: HTMLImageElement;
     aspect_ratio: number;
+    imageid: string | null;
     constructor(url:string,w:number,h:number) {
         this.name = ImageShapeName
         this.url = url
         this.ow = w
         this.oh = h
+        this.imageid = null
         this.aspect_ratio = w/h
-        this.dom_image = new Image()
-        this.dom_image.crossOrigin = "anonymous"
-        this.dom_image.addEventListener('load',()=>{
-            console.log("image loaded",this.dom_image.width,this.dom_image.height)
-            this.ow = this.dom_image.width
-            this.oh = this.dom_image.height
-            this.aspect_ratio = this.ow/this.oh
-        })
-        this.dom_image.src = this.url
     }
 
     get_size():Point {
@@ -63,6 +55,13 @@ export class ImageShapeObject implements ImageShape {
 
     get_url() {
         return this.url
+    }
+
+    sync(img: ImageReference) {
+        this.imageid = img.id
+        this.ow = img.width
+        this.oh = img.height
+        this.aspect_ratio = this.ow/this.oh
     }
 }
 
@@ -125,7 +124,9 @@ export class ImageRendererSystem implements RenderingSystem {
             let img:ImageShapeObject = node.get_component(ImageShapeName) as ImageShapeObject
             ctx.fillStyle = 'magenta'
             // ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
-            ctx.drawImage(img.dom_image,rect.x,rect.y,rect.w,rect.h)
+            if(state.image_ready(img.imageid)) {
+                ctx.drawImage(state.get_DomImage(img.imageid), rect.x, rect.y, rect.w, rect.h)
+            }
             // console.log('aspect ratio',img.aspect_ratio)
             if (state.selection.has(node)) {
                 ctx.strokeStyle = 'magenta'
@@ -161,7 +162,9 @@ export class ImagePDFExporter implements PDFExporter {
         // let pdf_color = cssToPdfColor('#ff00ff')
         // doc.setFillColor(...pdf_color)
         // doc.rect(obj.x,obj.y,obj.width,obj.height,"FD")
-        doc.addImage(img.dom_image,'JPEG',obj.x,obj.y,obj.width,obj.height,null,0)
+        if(state.image_ready(img.imageid)) {
+            doc.addImage(state.get_DomImage(img.imageid), 'JPEG', obj.x, obj.y, obj.width, obj.height, null, 0)
+        }
     }
 
 }
@@ -186,11 +189,18 @@ class ImageSVGExporter implements SVGExporter {
     }
 }
 
-export function make_image_node(url: string): TreeNode {
+export function make_image_node(url: string, state:GlobalState): TreeNode {
     let image: TreeNode = new TreeNodeImpl()
     image.title = 'image'
-    image.components.push(new ImageShapeObject(url, 1000, 1000))
-    image.components.push(new BoundedShapeObject(new Rect(100, 100, 200, 200)))
+    let iso = new ImageShapeObject(url, 1000, 1000)
+    let bds = new BoundedShapeObject(new Rect(100, 100, 200, 200))
+    state.add_image_from_url(url).then(img => {
+        iso.sync(img)
+        bds.get_bounds().w = img.width
+        bds.get_bounds().h = img.height
+    })
+    image.components.push(iso)
+    image.components.push(bds)
     image.components.push(new MovableBoundedShape(image))
     image.components.push(new ResizableImageObject(image))
     return image
@@ -199,13 +209,13 @@ export function make_image_node(url: string): TreeNode {
 export const make_image: Action = {
     title: "add image",
     fun(node: TreeNode, state: GlobalState): void {
-        let image = make_image_node("https://vr.josh.earth/assets/2dimages/saturnv.jpg")
+        let image = make_image_node("https://vr.josh.earth/assets/2dimages/saturnv.jpg",state)
         add_child_to_parent(image, node)
         state.dispatch('object-changed', {})
     }
 }
 
-export class ImagePowerup extends DefaultPowerup{
+export class ImagePowerup extends DefaultPowerup {
     init(state: GlobalState) {
         state.renderers.push(new ImageRendererSystem())
         state.svgexporters.push(new ImageSVGExporter())

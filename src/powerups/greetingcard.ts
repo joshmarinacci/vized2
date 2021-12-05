@@ -16,7 +16,7 @@ import {RectShapeObject} from "./rect_powerup";
 import {TextShapeObject} from "./text_powerup";
 import {make_image_node} from "./image_powerup";
 
-function make_greeting_card_tree():TreeNode {
+function make_greeting_card_tree(state: GlobalState):TreeNode {
     let root:TreeNode = new TreeNodeImpl()
     root.title = 'root'
     root.components.push(new DocMarker())
@@ -40,7 +40,7 @@ function make_greeting_card_tree():TreeNode {
         text1.components.push(new FilledShapeObject('#00CC00'))
         add_child_to_parent(text1, page1)
 
-        let img = make_image_node("https://vr.josh.earth/assets/2dimages/santa.png")
+        let img = make_image_node("https://vr.josh.earth/assets/2dimages/santa.png",state)
         add_child_to_parent(img,page1)
 
     }
@@ -64,7 +64,7 @@ function make_greeting_card_tree():TreeNode {
         text2.components.push(new FilledShapeObject('#00CC00'))
         add_child_to_parent(text2, page2)
 
-        let img = make_image_node("https://vr.josh.earth/assets/2dimages/holly-leaves.png")
+        let img = make_image_node("https://vr.josh.earth/assets/2dimages/holly-leaves.png", state)
         add_child_to_parent(img,page2)
     }
 
@@ -76,7 +76,7 @@ export class GreetingCardPowerup extends DefaultPowerup {
         let action:Action = {
             title:"new greeting card",
             fun(node:TreeNode, state:GlobalState):any {
-                return make_greeting_card_tree()
+                return make_greeting_card_tree(state)
             }
         }
         return [action]
