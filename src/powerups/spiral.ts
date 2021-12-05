@@ -22,10 +22,12 @@ export const SpiralShapeName = "SpiralShape"
 export class SpiralShapeObject implements Component {
     private radius: number;
     private pos: Point;
+    private wrap: number;
     constructor(pos:Point, radius: number) {
         this.pos = pos
         this.radius = radius
         this.name = SpiralShapeName
+        this.wrap = 5
     }
     name: string;
     get_radius() {
@@ -37,42 +39,13 @@ export class SpiralShapeObject implements Component {
     get_position(): Point {
         return this.pos
     }
+    get_wrap() {
+        return this.wrap
+    }
+    set_wrap(wrap:number) {
+        this.wrap = wrap
+    }
 }
-
-// export class SpiralPropRendererSystem implements PropRenderingSystem {
-//     name: string;
-//     private state: GlobalState;
-//     constructor(state:GlobalState) {
-//         this.name = 'SpiralPropRendererSystem'
-//         this.state = state
-//     }
-//
-//     render_view(comp: Component): HTMLElement {
-//         let shape = (comp as SpiralShapeObject)
-//         let x = LABEL("x")
-//         let xbox = NUMBER_INPUT(shape.get_position().x,(v)=>{
-//             shape.get_position().x = v
-//             this.state.dispatch("refresh", {})
-//         })
-//         let y = LABEL("y")
-//         let ybox = NUMBER_INPUT(shape.get_position().y,(v)=>{
-//             shape.get_position().y = v
-//             this.state.dispatch("refresh", {})
-//         })
-//         let r = LABEL("radius")
-//         let rbox = NUMBER_INPUT(shape.get_radius(),(v)=>{
-//             shape.set_radius(v)
-//             this.state.dispatch("refresh", {})
-//         })
-//         return DIV(["prop-group"],[x,xbox,y,ybox,r,rbox])
-//     }
-//
-//     supports(name: string): any {
-//         if(name === SpiralShapeName) return true
-//         return false
-//     }
-//
-// }
 
 class SpiralRendererSystem implements RenderingSystem {
     name: string;
@@ -83,13 +56,13 @@ class SpiralRendererSystem implements RenderingSystem {
     render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void {
         if(node.has_component(SpiralShapeName)) {
             let spiral:SpiralShapeObject = <SpiralShapeObject>node.get_component(SpiralShapeName)
-            let times = 5*Math.PI*2
+            let times = spiral.get_wrap()*Math.PI*2
             let radius = spiral.get_radius() / times
 
             ctx.save()
             ctx.translate(spiral.get_position().x,spiral.get_position().y)
             if (node.has_component(FilledShapeName)) {
-                let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
+                let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
                 ctx.strokeStyle = color.get_fill()
                 ctx.lineWidth = 1
             }
