@@ -2,6 +2,15 @@ import {JSONExporter} from "./exporters/json";
 import {Action} from "./actions";
 import React from "react";
 
+export const DIAG_HATCH_IMAGE = new Image()
+DIAG_HATCH_IMAGE.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAD0lEQVQImWNgQAX/yeAAAIHCA/0RE2WAAAAAAElFTkSuQmCC"
+
+export const VERT_HATCH_IMAGE = new Image()
+VERT_HATCH_IMAGE.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAEUlEQVQYlWNgQAX/CfCHqwIAwakP8c7+oCsAAAAASUVORK5CYII="
+
+export const CROSS_HATCH = new Image()
+CROSS_HATCH.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAJklEQVQYlWNgYGD4z4Ab/MdgYJPEJoDT1P8ErMSvAK8VeB2J15sAIVgP8RldsJUAAAAASUVORK5CYII="
+
 export type Callback = (arg:any) => void
 export type EVENT_TYPES = "refresh" | "selection-change" | "prop-change" | "object-changed" | "document-change"
 
@@ -29,6 +38,7 @@ export class GlobalState {
     selection: SelectionSystem
     fonts: FontDef[]
     palettes:any[]
+    patterns:any[]
     private listeners: Map<string, Callback[]>
     private root: TreeNode
 
@@ -54,10 +64,12 @@ export class GlobalState {
         // @ts-ignore
         this.root = null
         this.palettes = []
-        fetch(PALETTE_URL).then(r => r.json()).then(d => {
-            console.log("palette data is",d.data.items)
-            this.palettes = d.data.items
-        })
+        fetch(PALETTE_URL).then(r => r.json()).then(d => this.palettes = d.data.items)
+        this.patterns = [
+            DIAG_HATCH_IMAGE,
+            VERT_HATCH_IMAGE,
+            CROSS_HATCH,
+        ]
     }
     set_root(tree: TreeNode) {
         this.root = tree
@@ -244,9 +256,11 @@ export type TreeNode = {
     get_component(name:string):Component
 }
 
+export type FillType = "hexstring" | "pattern"
 export interface FilledShape extends Component {
-    get_color(): string
-    set_color(color:string):void
+    get_fill_type():FillType
+    get_fill(): any
+    set_fill(fill:any):void
 }
 
 export const DocName = "DocName"
@@ -334,19 +348,27 @@ export const FilledShapeName = "FilledShapeName"
 
 export class FilledShapeObject implements FilledShape {
     name: string;
-    private color: string;
-
-    constructor(color: string) {
+    private fill_type:FillType
+    private fill: any;
+    constructor(color:string) {
         this.name = FilledShapeName
-        this.color = color
+        this.fill_type = "hexstring"
+        this.fill = color
     }
 
-    get_color(): string {
-        return this.color
+    get_fill(): any {
+        return this.fill
     }
-    set_color(color: string) {
-        this.color = color
+
+    get_fill_type(): FillType {
+        return this.fill_type
     }
+
+    set_fill(fill: any): void {
+        this.fill = fill
+    }
+
+
 }
 
 const SelectionSystemName = 'SelectionSystemName'

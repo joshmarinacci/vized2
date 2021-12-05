@@ -90,7 +90,7 @@ class SpiralRendererSystem implements RenderingSystem {
             ctx.translate(spiral.get_position().x,spiral.get_position().y)
             if (node.has_component(FilledShapeName)) {
                 let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
-                ctx.strokeStyle = color.get_color()
+                ctx.strokeStyle = color.get_fill()
                 ctx.lineWidth = 1
             }
             for(let th=0; th<times; th+=0.1) {
@@ -203,7 +203,7 @@ export class SpiralPDFExporter implements PDFExporter {
     toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
         let spiral:SpiralShapeObject = node.get_component(SpiralShapeName) as SpiralShapeObject
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
-        let pdf_color = cssToPdfColor(color.get_color())
+        let pdf_color = cssToPdfColor(color.get_fill())
         doc.setFillColor(...pdf_color)
         let times = 5*Math.PI*2
         let radius = spiral.get_radius() / times
@@ -251,7 +251,7 @@ class SpiralSVGExporter implements SVGExporter {
             points.push((x2+ox).toFixed(1))
             points.push((y2+oy).toFixed(1))
         }
-        return `<polyline fill="none" points="${points.join(",")}" stroke-width="1" stroke="${color.get_color()}"/>`
+        return `<polyline fill="none" points="${points.join(",")}" stroke-width="1" stroke="${color.get_fill()}"/>`
     }
 }
 const make_spiral: Action = {

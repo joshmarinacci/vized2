@@ -64,7 +64,7 @@ export class CircleRendererSystem implements RenderingSystem {
         if(node.has_component(CircleShapeName)) {
             let shape:CircleShape = node.get_component(CircleShapeName) as CircleShape
             if(node.has_component(FilledShapeName)) {
-                ctx.fillStyle = (node.get_component(FilledShapeName) as FilledShape).get_color()
+                ctx.fillStyle = (node.get_component(FilledShapeName) as FilledShape).get_fill()
             } else {
                 ctx.fillStyle = 'magenta'
             }
@@ -134,7 +134,7 @@ export class CircleSVGExporter implements SVGExporter {
             cx:circle.get_position().x,
             cy:circle.get_position().y,
             r:circle.get_radius(),
-            fill:color.get_color()
+            fill:color.get_fill()
         }
         let pairs = Object.keys(obj).map(k => `${k}='${obj[k]}'`)
         return '<circle ' + pairs.join(" ") + "/>"
@@ -160,7 +160,7 @@ export class CirclePDFExporter implements PDFExporter {
             cx:circle.get_position().x * scale,
             cy:circle.get_position().y * scale,
             r:circle.get_radius() * scale,
-            fill:color.get_color()
+            fill:color.get_fill()
         }
         let pdf_color = cssToPdfColor(obj.fill)
         doc.setFillColor(...pdf_color)

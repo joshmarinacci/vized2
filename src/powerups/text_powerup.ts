@@ -114,7 +114,7 @@ class TextRenderingSystem implements RenderingSystem {
 
             let bounds = bs.get_bounds()
             ctx.translate(bounds.x, bounds.y)
-            ctx.fillStyle = fill.get_color()
+            ctx.fillStyle = fill.get_fill()
             ctx.font = `${tn.get_fontsize()}pt ${tn.get_fontfamily()}`
             let metrics = ctx.measureText(tn.get_content())
             // console.log("metrics are",metrics)
@@ -233,7 +233,7 @@ class TextPDFExporter implements PDFExporter {
         let bd: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
         let rect = bd.get_bounds().scale(scale)
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
-        let pdf_color = cssToPdfColor(color.get_color())
+        let pdf_color = cssToPdfColor(color.get_fill())
         let dim = doc.getTextDimensions(ts.get_content())
         let h_offset = 0
         if(ts.get_halign() === "right") {

@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
 import {
+    DIAG_HATCH_IMAGE,
     DocName,
     GlobalState, GlobalStateContext,
     Handle,
@@ -263,6 +264,9 @@ export function CanvasView(props:{}) {
         let slop_bounds = page_bounds.grow(SLOP.x)
         ctx.translate(-slop_bounds.x,-slop_bounds.y)
         ctx.fillStyle = '#f0f0f0'
+        ctx.fillRect(slop_bounds.x,slop_bounds.y,slop_bounds.w,slop_bounds.h)
+        let pat:CanvasPattern = ctx.createPattern(DIAG_HATCH_IMAGE,"repeat") as CanvasPattern
+        ctx.fillStyle = pat
         ctx.fillRect(slop_bounds.x,slop_bounds.y,slop_bounds.w,slop_bounds.h)
         draw_node(state,ctx, current_root)
         draw_handles(state, ctx, current_root)

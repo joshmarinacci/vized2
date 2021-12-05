@@ -49,7 +49,12 @@ export class RectRendererSystem implements RenderingSystem {
             let rect = bd.get_bounds()
 
             if (node.has_component(FilledShapeName)) {
-                ctx.fillStyle = (node.get_component(FilledShapeName) as FilledShape).get_color()
+                let fill = (node.get_component(FilledShapeName) as FilledShape).get_fill()
+                if(fill instanceof Image) {
+                    ctx.fillStyle = ctx.createPattern(fill as HTMLImageElement, "repeat") as CanvasPattern
+                } else {
+                    ctx.fillStyle = fill
+                }
             } else {
                 ctx.fillStyle = 'magenta'
             }
@@ -85,7 +90,7 @@ export class RectSVGExporter implements SVGExporter {
             y:rect.y,
             width:rect.w,
             height:rect.w,
-            fill:color.get_color()
+            fill:color.get_fill()
         }
         // @ts-ignore
         let pairs = Object.keys(obj).map(k => `${k}='${obj[k]}'`)
@@ -113,7 +118,7 @@ export class RectPDFExporter implements PDFExporter {
             y:rect.y,
             width:rect.w,
             height:rect.w,
-            fill:color.get_color()
+            fill:color.get_fill()
         }
         let pdf_color = cssToPdfColor(obj.fill)
         doc.setFillColor(...pdf_color)

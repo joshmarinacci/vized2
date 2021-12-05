@@ -82,7 +82,8 @@ export class FilledShapeJSONExporter implements JSONExporter {
         let filled = component as FilledShape
         return {
             name:filled.name,
-            color:filled.get_color()
+            type:filled.get_fill_type(),
+            color:filled.get_fill()
         }
     }
 
