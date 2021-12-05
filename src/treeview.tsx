@@ -3,7 +3,7 @@ import React, {MouseEventHandler, useContext, useEffect, useState} from "react";
 import {PopupContext, PopupContextImpl} from "./popup";
 import {
     Action,
-    delete_node,
+    delete_node, move_down, move_to_bottom, move_to_top, move_up,
     nothing
 } from "./actions";
 
@@ -12,6 +12,10 @@ function AddChildMenu(props: { node: TreeNode, state:GlobalState }) {
     let actions:Action[] = props.state.powerups.map(pow => pow.child_options(props.node)).flat()
     if(!props.node.has_component(DocName)) {
         actions.push(delete_node)
+        actions.push(move_to_bottom)
+        actions.push(move_down)
+        actions.push(move_up)
+        actions.push(move_to_top)
     }
     if(actions.length === 0) actions.push(nothing)
     return <ul className={'menu'}>

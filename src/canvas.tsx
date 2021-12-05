@@ -16,7 +16,13 @@ import {
     TreeNode
 } from "./common";
 import {Toolbar} from "./comps";
-import {Action, delete_node, delete_selection, delete_selection_action, nothing} from "./actions";
+import {
+    Action,
+    delete_selection,
+    delete_selection_action, move_down,
+    move_to_bottom, move_to_top, move_up,
+    nothing
+} from "./actions";
 import {PopupContext, PopupContextImpl} from "./popup";
 import {BoundedShape, BoundedShapeName} from "./bounded_shape";
 
@@ -180,6 +186,10 @@ function ContextMenu(props: { state: GlobalState }) {
     let actions:Action[] = []
     if(!props.state.selection.isEmpty()) {
         actions.push(delete_selection_action)
+        actions.push(move_to_bottom)
+        actions.push(move_down)
+        actions.push(move_up)
+        actions.push(move_to_top)
     }
     if(actions.length === 0) actions.push(nothing)
     return <ul className={'menu'}>
@@ -315,6 +325,7 @@ export function CanvasView(props:{}) {
 
     // @ts-ignore
     const mousedown = (e:MouseEvent<HTMLCanvasElement>) => {
+        if(e.button === 2) return
         //check if pressed on a handle
         let pt = toRootPoint(e)
         let hand: Handle = over_handle(e) as Handle
@@ -371,6 +382,7 @@ export function CanvasView(props:{}) {
 
     // @ts-ignore
     const show_menu = (e:MouseEvent<HTMLCanvasElement>) => {
+        e.preventDefault()
         let container:JSX.Element = <ContextMenu state={state}/>
         pc?.show(container,e)
     }
