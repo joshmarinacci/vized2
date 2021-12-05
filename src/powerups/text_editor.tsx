@@ -7,6 +7,7 @@ export function TextShapeEditor(props: { comp: TextShapeObject, state: GlobalSta
     const [content, set_content] = useState(props.comp.get_content())
     const [halign, set_halign] = useState(props.comp.get_halign())
     const [valign, set_valign] = useState(props.comp.get_valign())
+    const [family, set_family] = useState(props.comp.get_fontfamily())
 
     useEffect(()=>{
         set_halign(props.comp.get_halign())
@@ -45,6 +46,19 @@ export function TextShapeEditor(props: { comp: TextShapeObject, state: GlobalSta
             <option>top</option>
             <option>center</option>
             <option>bottom</option>
+        </select>
+
+        <label>Font Family</label>
+        <select value={family} onChange={e=>{
+            set_family(e.target.value)
+            props.comp.set_fontfamily(e.target.value)
+            props.state.dispatch("prop-change", props.comp)
+        }}>
+            {props.state.fonts.map(fd => {
+                return <option key={fd.name}>{fd.name}</option>
+            })
+            })
+
         </select>
     </div>
 }

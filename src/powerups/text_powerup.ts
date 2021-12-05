@@ -39,6 +39,8 @@ interface TextShape extends Component {
     set_halign(halign:string): void;
     get_valign(): string;
     set_valign(valign:string):void
+    get_fontfamily():string
+    set_fontfamily(family:string):void
 }
 
 export class TextShapeObject implements TextShape {
@@ -47,12 +49,14 @@ export class TextShapeObject implements TextShape {
     private fontsize: number;
     private halign: string;
     private valign: string;
+    private fontfamily: string;
     constructor(content:string, size:number, halign:string, valign:string) {
         this.name = TextShapeName
         this.content = content
         this.fontsize = size
         this.halign = halign
         this.valign = valign
+        this.fontfamily = 'serif'
     }
 
     get_valign(): string {
@@ -85,6 +89,14 @@ export class TextShapeObject implements TextShape {
     set_halign(halign: string): void {
         this.halign = halign
     }
+
+    get_fontfamily(): string {
+        return this.fontfamily;
+    }
+
+    set_fontfamily(family: string): void {
+        this.fontfamily = family
+    }
 }
 
 class TextRenderingSystem implements RenderingSystem {
@@ -103,7 +115,7 @@ class TextRenderingSystem implements RenderingSystem {
             let bounds = bs.get_bounds()
             ctx.translate(bounds.x, bounds.y)
             ctx.fillStyle = fill.get_color()
-            ctx.font = `${tn.get_fontsize()}pt sans-serif`
+            ctx.font = `${tn.get_fontsize()}pt ${tn.get_fontfamily()}`
             let metrics = ctx.measureText(tn.get_content())
             // console.log("metrics are",metrics)
             let h_offset = 0

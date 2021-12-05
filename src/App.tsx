@@ -1,5 +1,6 @@
 import React, {useContext, useState} from 'react';
 import './App.css';
+import './fonts.css'
 import {
     add_child_to_parent,
     DocMarker,

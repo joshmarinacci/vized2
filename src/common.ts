@@ -5,6 +5,17 @@ import React from "react";
 export type Callback = (arg:any) => void
 export type EVENT_TYPES = "refresh" | "selection-change" | "prop-change" | "object-changed" | "document-change"
 
+export interface FontDef {
+    name:string
+}
+
+class FontDefImpl implements FontDef {
+    name: string;
+    constructor(name: string) {
+        this.name = name
+    }
+}
+
 export class GlobalState {
     renderers: RenderingSystem[]
     jsonexporters:JSONExporter[]
@@ -14,6 +25,7 @@ export class GlobalState {
     pickers: PickingSystem[]
     active_handles: Handle[]
     selection: SelectionSystem
+    fonts: FontDef[]
     private listeners: Map<string, Callback[]>
     private root: TreeNode
 
@@ -26,10 +38,18 @@ export class GlobalState {
         this.pickers = []
         this.active_handles = []
         this.selection = new SelectionSystem()
+        this.fonts = [
+            new FontDefImpl('serif'),
+            new FontDefImpl('sans-serif'),
+            new FontDefImpl('monospace'),
+            new FontDefImpl('Montserrat'),
+            new FontDefImpl('Oswald'),
+            new FontDefImpl('Lobster'),
+            new FontDefImpl('Zilla Slab'),
+        ]
         this.listeners = new Map<string, Callback[]>()
         // @ts-ignore
         this.root = null
-        // this.props_renderers = []
     }
     set_root(tree: TreeNode) {
         this.root = tree
