@@ -7,7 +7,7 @@ import {
     FilledShapeObject,
     GlobalState,
     Movable,
-    MovableName,
+    MovableName, PageName,
     PDFExporter,
     Point,
     Rect,
@@ -304,7 +304,8 @@ export class TextPowerup extends DefaultPowerup{
     }
 
     child_options(node: TreeNode): Action[] {
-        return [make_text]
+        if(node.has_component(PageName)) return [make_text]
+        return []
     }
 
     override can_edit(comp: Component): boolean {
