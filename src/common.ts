@@ -66,6 +66,8 @@ export class GlobalState {
     private listeners: Map<string, Callback[]>
     private root: TreeNode
     private images:ImageReference[]
+    active_v_snap: number;
+    active_h_snap: number;
 
     constructor() {
         this.renderers = []
@@ -77,6 +79,8 @@ export class GlobalState {
         this.active_handles = []
         this.selection = new SelectionSystem()
         this.images = []
+        this.active_v_snap = -1
+        this.active_h_snap = -1
         this.fonts = [
             new FontDefImpl('serif'),
             new FontDefImpl('sans-serif'),
@@ -304,6 +308,10 @@ export class Rect {
             this.w+value+value,
             this.h+value+value,
         )
+    }
+
+    center() {
+        return new Point(this.x+this.w/2, this.y + this.h/2)
     }
 }
 

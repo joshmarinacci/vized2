@@ -51,6 +51,24 @@ function draw_handles(state:GlobalState, ctx: CanvasRenderingContext2D, node:Tre
         ctx.fillRect(off.x+hand.x, off.y+hand.y, hand.w, hand.h)
     })
 }
+function draw_snaps(state: GlobalState, ctx: CanvasRenderingContext2D, page: TreeNode) {
+    let pg_bounds = (page.get_component(BoundedShapeName) as BoundedShape).get_bounds()
+    if(state.active_v_snap !== -1) {
+        ctx.beginPath()
+        ctx.moveTo(state.active_v_snap, pg_bounds.y)
+        ctx.lineTo(state.active_v_snap, pg_bounds.y2)
+        ctx.strokeStyle = 'green'
+        ctx.stroke()
+    }
+    if(state.active_h_snap !== -1) {
+        ctx.beginPath()
+        ctx.moveTo(pg_bounds.x, state.active_h_snap)
+        ctx.lineTo(pg_bounds.x2, state.active_h_snap)
+        ctx.strokeStyle = 'green'
+        ctx.stroke()
+    }
+}
+
 
 
 export interface MouseGestureDelegate {
@@ -101,12 +119,37 @@ class MouseMoveDelegate implements MouseGestureDelegate {
             let mov: Movable = node.get_component(MovableName) as Movable
             mov.moveBy(diff)
         })
+        //if bounds of selection is near a snap area, draw the snap, then jump to that spot
+        let bs = this.state.selection.get().filter(sh => sh.has_component(BoundedShapeName))
+        if(bs.length >= 1) {
+            let bds = (bs[0].get_component(BoundedShapeName) as BoundedShape).get_bounds()
+            let page = find_page_for_node(bs[0])
+            this.state.active_v_snap = -1
+            this.state.active_h_snap = -1
+            if(page) {
+                let page_bounds = (page.get_component(BoundedShapeName) as BoundedShape).get_bounds()
+                let off = new Point(0,0)
+                if(Math.abs(bds.center().x - page_bounds.center().x) < 10) {
+                    this.state.active_v_snap = page_bounds.center().x
+                    off.x = page_bounds.center().x - bds.center().x
+                }
+                if(Math.abs(bds.center().y - page_bounds.center().y) < 10) {
+                    this.state.active_h_snap = page_bounds.center().y
+                    off.y = page_bounds.center().y - bds.center().y
+                }
+                movables.forEach(node => (node.get_component(MovableName) as Movable).moveBy(off))
+            }
+        }
+
+
         this.state.active_handles.forEach(h => h.update_from_node())
         this.state.dispatch('refresh', {})
     }
 
     release(e: MouseEvent, pt:Point, root:TreeNode) {
         this.press_point = null
+        this.state.active_v_snap = -1
+        this.state.active_h_snap = -1
         this.state.dispatch('object-changed',{})
     }
 
@@ -217,7 +260,7 @@ export function CanvasView(props:{}) {
     let canvas = useRef<HTMLCanvasElement>(null)
     let pc = useContext(PopupContext)
 
-
+    // reset things when the document changes
     useEffect(()=>{
         let op = (rt:TreeNode) => {
             // console.log(`doc changed. new root = ${rt.id} ${state.get_root().id}`)
@@ -297,6 +340,7 @@ export function CanvasView(props:{}) {
         ctx.fillRect(slop_bounds.x,slop_bounds.y,slop_bounds.w,slop_bounds.h)
         draw_node(state,ctx, current_root)
         draw_handles(state, ctx, current_root)
+        draw_snaps(state,ctx,current_page)
         ctx.restore()
     }
     //redraw when current root changes, or transforms, or the docroot
