@@ -64,12 +64,12 @@ export function make_default_tree(state: GlobalState) {
     root.title = 'root'
     root.components.push(new DocMarker())
     root.components.push(new PageMarker())
-    root.components.push(new BoundedShapeObject(new Rect(0,0,8.5*100,11*100)))
+    root.components.push(new BoundedShapeObject(new Rect(0,0,4*100,5*100)))
     root.components.push(new PDFExportBounds("in",1/100))
     root.components.push(new RectShapeObject())
     root.components.push(new FilledShapeObject('white'))
 
-    /*
+
     let group1 = new TreeNodeImpl()
     group1.title = 'group'
     group1.components.push(new GroupShapeObject(group1, new Point(100,50)))
@@ -95,7 +95,7 @@ export function make_default_tree(state: GlobalState) {
         rect2.components.push(new MovableBoundedShape(rect2))
         rect2.components.push(new ResizableRectObject(rect2))
         add_child_to_parent(rect2, group1)
-    }*/
+    }
     {
         let rect3: TreeNode = new TreeNodeImpl()
         rect3.title = 'rect'

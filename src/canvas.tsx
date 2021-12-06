@@ -25,6 +25,7 @@ import {
 } from "./actions";
 import {PopupContext, PopupContextImpl} from "./popup";
 import {BoundedShape, BoundedShapeName} from "./bounded_shape";
+import {GroupShape, GroupShapeName} from "./powerups/group_powerup";
 
 function draw_node(state:GlobalState, ctx: CanvasRenderingContext2D, node: TreeNode) {
     //draw the current node
@@ -249,6 +250,32 @@ function ContextMenu(props: { state: GlobalState }) {
     </ul>
 }
 
+function fillRectHole(ctx: CanvasRenderingContext2D, slop_bounds: Rect, child_bounds: Rect, style: string) {
+    ctx.fillStyle = style//'rgba(255,0,0,0.5)'
+    let y1 = slop_bounds.y
+    let y2 = child_bounds.y
+    let y3 = child_bounds.y2
+    let y4 = slop_bounds.y2
+    let x1 = slop_bounds.x
+    let x2 = child_bounds.x
+    let x3 = child_bounds.x2
+    let x4 = slop_bounds.x2
+    ctx.fillRect(x1,y1,slop_bounds.w,y2-y1)
+    ctx.fillRect(x1,y2,x2-x1,y3-y2)
+    ctx.fillRect(x3,y2,x4-x3,y3-y2)
+    ctx.fillRect(x1,y3,slop_bounds.w,y4-y3)
+}
+
+function strokeRect(ctx: CanvasRenderingContext2D, child_bounds: Rect, style: string) {
+    ctx.strokeStyle = style
+    ctx.strokeRect(child_bounds.x,child_bounds.y,child_bounds.w,child_bounds.h)
+}
+
+function fillRect(ctx: CanvasRenderingContext2D, rect: Rect, style: any) {
+    ctx.fillStyle = style
+    ctx.fillRect(rect.x,rect.y,rect.w,rect.h)
+}
+
 export function CanvasView(props:{}) {
     let state = useContext(GlobalStateContext)
     const [pan_offset, set_pan_offset] = useState(new Point(0,0))
@@ -259,6 +286,7 @@ export function CanvasView(props:{}) {
     const [current_root, set_current_root] = useState(()=>find_first_page(state.get_root()))
     let canvas = useRef<HTMLCanvasElement>(null)
     let pc = useContext(PopupContext)
+    // console.log("current root = ",current_root.title)
 
     // reset things when the document changes
     useEffect(()=>{
@@ -321,8 +349,8 @@ export function CanvasView(props:{}) {
     }
 
     function refresh() {
+        // console.log("inset",is_inset,'current_root',current_root.title)
         if(!current_root) return
-        if(!current_root.has_component(BoundedShapeName)) return
         if(!canvas.current) return
         let can = canvas.current as HTMLCanvasElement
         let ctx = can.getContext('2d') as CanvasRenderingContext2D
@@ -330,17 +358,24 @@ export function CanvasView(props:{}) {
         ctx.save()
         // ctx.translate(pan_offset.x,pan_offset.y)
         ctx.scale(scale,scale)
-        let page_bounds = (current_root.get_component(BoundedShapeName) as BoundedShape).get_bounds()
+        let page_bounds = (current_page.get_component(BoundedShapeName) as BoundedShape).get_bounds()
         let slop_bounds = page_bounds.grow(SLOP.x)
         ctx.translate(-slop_bounds.x,-slop_bounds.y)
-        ctx.fillStyle = '#f0f0f0'
-        ctx.fillRect(slop_bounds.x,slop_bounds.y,slop_bounds.w,slop_bounds.h)
-        let pat:CanvasPattern = ctx.createPattern(DIAG_HATCH_IMAGE,"repeat") as CanvasPattern
-        ctx.fillStyle = pat
-        ctx.fillRect(slop_bounds.x,slop_bounds.y,slop_bounds.w,slop_bounds.h)
-        draw_node(state,ctx, current_root)
-        draw_handles(state, ctx, current_root)
+        fillRect(ctx,slop_bounds,'#f0f0f0')
+        fillRect(ctx,slop_bounds,ctx.createPattern(DIAG_HATCH_IMAGE,"repeat") as CanvasPattern)
+
+        ctx.save()
+        draw_node(state,ctx, current_page)
+        draw_handles(state, ctx, current_page)
         draw_snaps(state,ctx,current_page)
+        ctx.restore()
+
+        if(is_inset && current_root.has_component(GroupShapeName)) {
+            let group = current_root.get_component(GroupShapeName) as GroupShape
+            let child_bounds = group.get_child_bounds()
+            strokeRect(ctx,child_bounds,'aqua')
+            fillRectHole(ctx,slop_bounds,child_bounds,'rgba(255,0,0,0.2)')
+        }
         ctx.restore()
     }
     //redraw when current root changes, or transforms, or the docroot
@@ -421,7 +456,7 @@ export function CanvasView(props:{}) {
     }
 
     const exit_inset = () => {
-        set_current_root(state.get_root())
+        set_current_root(current_page)
         set_is_inset(false)
     }
 

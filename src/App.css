@@ -101,7 +101,7 @@ ul.menu .menu-item:hover {
     position: absolute;
 }
 .draw-surface {
-    border: 5px solid green;
+    border: 1px solid black;
     position: absolute;
 }
 
