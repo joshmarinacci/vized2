@@ -99,6 +99,42 @@ export class TextShapeObject implements TextShape {
     }
 }
 
+function layout_text_lines(text: string, max_width: number, line_height: number, ctx: CanvasRenderingContext2D):string[] {
+    let lines = []
+    let current_line = ""
+    let words = text.split(" ")
+    for(let i=0; i<words.length; i++) {
+        let word = words[i]
+        let test_line = current_line
+        if(test_line.length > 0) test_line += ' '
+        test_line += word
+        let metrics = ctx.measureText(test_line)
+        if(metrics.width > max_width) {
+            //end line now
+            lines.push(current_line)
+            current_line = word
+            continue
+        }
+        if(current_line.length > 0) current_line += ' '
+        current_line += word
+    }
+    lines.push(current_line)
+    return lines
+}
+
+function calc_text_size(lines: string[], ctx: CanvasRenderingContext2D, line_height:number) {
+    let longest = 0
+    let total_height = 0
+    lines.forEach(line => {
+        longest = Math.max(longest,ctx.measureText(line).width)
+        total_height += line_height
+    })
+    return {
+        width:longest,
+        height:total_height,
+    }
+}
+
 class TextRenderingSystem implements RenderingSystem {
     name: string;
     constructor() {
@@ -116,32 +152,23 @@ class TextRenderingSystem implements RenderingSystem {
             ctx.translate(bounds.x, bounds.y)
             ctx.fillStyle = fill.get_fill()
             ctx.font = `${tn.get_fontsize()}pt ${tn.get_fontfamily()}`
-            let metrics = ctx.measureText(tn.get_content())
-            // console.log("metrics are",metrics)
-            let h_offset = 0
-            if(tn.get_halign() === "right") {
-                h_offset = bounds.w - metrics.width
-            }
-            if(tn.get_halign() === "center") {
-                h_offset = (bounds.w - metrics.width)/2
-            }
-            let v_offset = 0
-            if(tn.get_valign() === 'top') {
-                v_offset = metrics.actualBoundingBoxAscent
-            }
-            if(tn.get_valign() === 'center') {
-                v_offset = (bounds.h - (metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent)) /2 + metrics.actualBoundingBoxAscent
-            }
-            if(tn.get_valign() === 'bottom') {
-                v_offset = (bounds.h - (metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent)) + metrics.actualBoundingBoxAscent
-            }
-            ctx.fillText(tn.get_content(),h_offset,v_offset )
+            let line_height = tn.get_fontsize()*1.5
+            let lines = layout_text_lines(tn.get_content(), bounds.w, line_height, ctx)
+            let metrics = calc_text_size(lines,ctx, line_height)
+            const h_aligns = { left:0.0, center:0.5, right:1.0 }
+            const v_aligns = { top:0.0, center:0.5, bottom:1.0 }
+            // @ts-ignore
+            let h_offset = h_aligns[tn.get_halign()]*(bounds.w-metrics.width)
+            // @ts-ignore
+            let v_offset = v_aligns[tn.get_valign()]*(bounds.h - metrics.height)
+            ctx.translate(h_offset,v_offset)
+            lines.forEach((line,i)=> ctx.fillText(line,0,line_height*(i+1)))
             ctx.restore()
             if (state.selection.has(node)) {
                 ctx.save()
                 ctx.strokeStyle = 'magenta'
                 ctx.lineWidth = 3.5
-                ctx.strokeRect(bounds.x,bounds.y,bounds.w,bounds.h)//h_offset, v_offset, rect.w, rect.h)
+                ctx.strokeRect(bounds.x,bounds.y,bounds.w,bounds.h)
                 ctx.restore()
             }
         }
