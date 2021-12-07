@@ -101,24 +101,28 @@ export class TextShapeObject implements TextShape {
 
 function layout_text_lines(text: string, max_width: number, line_height: number, ctx: CanvasRenderingContext2D):string[] {
     let lines = []
-    let current_line = ""
-    let words = text.split(" ")
-    for(let i=0; i<words.length; i++) {
-        let word = words[i]
-        let test_line = current_line
-        if(test_line.length > 0) test_line += ' '
-        test_line += word
-        let metrics = ctx.measureText(test_line)
-        if(metrics.width > max_width) {
-            //end line now
-            lines.push(current_line)
-            current_line = word
-            continue
+    let paras = text.split("\n")
+    for(let p=0; p<paras.length; p++) {
+        let para = paras[p]
+        let current_line = ""
+        let words = para.split(" ")
+        for (let i = 0; i < words.length; i++) {
+            let word = words[i]
+            let test_line = current_line
+            if (test_line.length > 0) test_line += ' '
+            test_line += word
+            let metrics = ctx.measureText(test_line)
+            if (metrics.width > max_width) {
+                //end line now
+                lines.push(current_line)
+                current_line = word
+                continue
+            }
+            if (current_line.length > 0) current_line += ' '
+            current_line += word
         }
-        if(current_line.length > 0) current_line += ' '
-        current_line += word
+        lines.push(current_line)
     }
-    lines.push(current_line)
     return lines
 }
 

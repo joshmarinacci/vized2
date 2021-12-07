@@ -57,7 +57,7 @@ function make_list_page():TreeNode {
 
     let list = new TreeNodeImpl() as TreeNode
     list.title = "list"
-    let ts2 = new TextShapeObject("list item 1\nlist item 2", 20, "left", 'center')
+    let ts2 = new TextShapeObject("list item 1\nlist item 2\nlist item 3", 20, "left", 'top')
     ts2.set_fontfamily('Oswald')
     list.components.push(ts2)
     list.components.push(new BoundedShapeObject(new Rect(20, 75, 600, 270)))
