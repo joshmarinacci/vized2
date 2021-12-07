@@ -90,7 +90,6 @@ class MouseMoveDelegate implements MouseGestureDelegate {
 
     press(e: MouseEvent, pt:Point, root:TreeNode) {
         this.press_point = pt
-        //skip root
         let picked:TreeNode|null = null
         root.children.forEach((ch:TreeNode) => {
             this.state.pickers.forEach(pk => {
@@ -404,6 +403,8 @@ export function CanvasView(props:{}) {
     //recalc current page when selection changes
     useEffect(()=>{
         let op = () => {
+            //do nothing if the selection is empty
+            if(state.selection.isEmpty()) return refresh()
             let page = find_page_for_selection(state.selection)
             if(!page) page = find_first_page(state.get_root())
             if(page && page !== current_page) {

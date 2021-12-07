@@ -32,7 +32,7 @@ function make_title_page():TreeNode {
     let ts = new TextShapeObject("Title Here", 40, "center", 'center')
     ts.set_fontfamily('Oswald')
     text1.components.push(ts)
-    text1.components.push(new BoundedShapeObject(new Rect(100, 100, 430, 115)))
+    text1.components.push(new BoundedShapeObject(new Rect(105, 122, 430, 116)))
     text1.components.push(new MovableBoundedShape(text1))
     text1.components.push(new ResizableRectObject(text1))
     text1.components.push(new FilledShapeObject('#000000'))
