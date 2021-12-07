@@ -12,18 +12,18 @@ export function TextShapeEditor(props: { comp: TextShapeObject, state: GlobalSta
     useEffect(()=>{
         set_halign(props.comp.get_halign())
         set_valign(props.comp.get_valign())
+        set_content(props.comp.get_content())
+        set_family(props.comp.get_fontfamily())
     },[props.comp])
 
     return <div className={'prop-grid'}>
         <h3>Text</h3>
         <label>content</label>
-        <input type={"text"} value={content} onChange={(e) => {
+        <textarea value={content} onChange={(e) => {
             set_content(e.target.value)
-        }}
-               onBlur={()=>{
-                   props.comp.set_content(content)
-                   props.state.dispatch("prop-change", props.comp)
-               }}/>
+            props.comp.set_content(e.target.value)
+            props.state.dispatch("prop-change", props.comp)
+        }}/>
 
         <label>font size</label>
         <NumberEditor value={props.comp.get_fontsize()} set_value={(v:number)=>props.comp.set_fontsize(v)} state={props.state} live={true}/>
