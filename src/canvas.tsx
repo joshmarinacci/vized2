@@ -235,6 +235,7 @@ export function CanvasView(props:{}) {
     let state = useContext(GlobalStateContext)
     const [pan_offset, set_pan_offset] = useState(new Point(0,0))
     const [zoom_level, set_zoom_level] = useState(0)
+    const scale = Math.pow(1.5,zoom_level)
     const [delegate, set_delegate] = useState<MouseGestureDelegate|null>()
     const [is_inset, set_is_inset] = useState(false)
     const [current_page, set_current_page] = useState(()=>find_first_page(state.get_root()))
@@ -259,14 +260,13 @@ export function CanvasView(props:{}) {
     })
 
     const SLOP = new Point(100,100)
-    const min_bounds = calc_total_min_bounds(current_page).grow(SLOP.x).scale(Math.pow(2,zoom_level))
+    const min_bounds = calc_total_min_bounds(current_page).grow(SLOP.x)
 
     function toRootPoint(e: MouseEvent) {
         let target: HTMLElement = e.target as HTMLElement
         let bounds = target.getBoundingClientRect()
         let cp = new Point(e.clientX - bounds.x, e.clientY - bounds.y)
         let pt = cp.subtract(pan_offset)
-        let scale = Math.pow(2,zoom_level)
         pt = pt.multiply(1/scale)
         pt = pt.subtract(SLOP)
         let root = current_root
@@ -302,7 +302,7 @@ export function CanvasView(props:{}) {
         if(!canvas.current) return
         let can = canvas.current as HTMLCanvasElement
         let ctx = can.getContext('2d') as CanvasRenderingContext2D
-        let scale = Math.pow(2,zoom_level)
+        // let scale = Math.pow(2,zoom_level)
         //real size of the canvas
         ctx.fillStyle = 'yellow'
         ctx.fillRect(0,0,can.width,can.height)
@@ -435,17 +435,19 @@ export function CanvasView(props:{}) {
     }
 
 
+    let scaled_min_bounds = min_bounds.scale(scale)
     return <div className={'panel center vbox'}>
         <Toolbar>
             <button onClick={()=>set_zoom_level(zoom_level+1)}>zoom in</button>
+            <label>{(scale*100).toFixed(0)}</label>
             <button onClick={()=>{set_zoom_level(zoom_level-1)}}>zoom out</button>
             <button disabled={!is_inset} onClick={()=>exit_inset()}>exit</button>
         </Toolbar>
         <div className={'canvas-wrapper grow'}>
             {/*<div className={'canvas-sizer'} style={{width:min_bounds.w+'px', height:min_bounds.h+'px'}}/>*/}
         <canvas ref={canvas}
-                width={min_bounds.w+'px'}
-                height={min_bounds.h+'px'}
+                width={scaled_min_bounds.w+'px'}
+                height={scaled_min_bounds.h+'px'}
                 className={'draw-surface'}
                 tabIndex={0}
                 onDoubleClick={mousedouble}
