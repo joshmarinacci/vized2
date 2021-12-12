@@ -228,6 +228,9 @@ export class Point {
         return this
     }
 
+    add(pt: Point) {
+        return new Point(this.x+pt.x, this.y+pt.y)
+    }
     subtract(pt: Point) {
         return new Point(this.x-pt.x, this.y-pt.y)
     }
@@ -267,6 +270,9 @@ export class Rect {
     }
     set y2(v:number) {
         this.h = v-this.y
+    }
+    get position():Point {
+        return new Point(this.x,this.y)
     }
 
     contains(pt: Point):boolean {

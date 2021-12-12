@@ -268,7 +268,7 @@ export function CanvasView(props:{}) {
         let cp = new Point(e.clientX - bounds.x, e.clientY - bounds.y)
         let pt = cp.subtract(pan_offset)
         pt = pt.multiply(1/scale)
-        pt = pt.subtract(SLOP)
+        pt = pt.add(min_bounds.position)
         let root = current_root
         if(root.has_component(ParentTranslateName)) {
             let off = (root.get_component(ParentTranslateName) as ParentTranslate).get_translation_point()
