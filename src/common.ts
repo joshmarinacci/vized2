@@ -242,17 +242,19 @@ export class Point {
 }
 
 export class Rect {
+    empty: boolean
+    x: number
+    y: number
+    w: number
+    h: number
     constructor(x: number, y: number, w: number, h: number) {
         this.x = x
         this.y = y
         this.w = w
         this.h = h
+        this.empty = false
     }
 
-    x: number
-    y: number
-    w: number
-    h: number
 
     get x2():number {
         return this.x + this.w
@@ -279,22 +281,25 @@ export class Rect {
         return new Rect(this.x*scale,this.y*scale,this.w*scale,this.h*scale)
     }
 
-    add(bounds: Rect) {
-        let r2 = new Rect(this.x,this.y,this.w,this.h)
-        if(bounds.x < this.x) r2.x = bounds.x
-        if(bounds.y < this.y) r2.y = bounds.y
-        if(bounds.x2 > this.x2) r2.x2 = bounds.x2
-        if(bounds.y2 > this.y2) r2.y2 = bounds.y2
-        return r2
+    add(r2: Rect) {
+        if( this.empty && !r2.empty) return r2
+        if(!this.empty &&  r2.empty) return this.clone()
+        let x1 = Math.min(this.x,  r2.x)
+        let x2 = Math.max(this.x2, r2.x2)
+        let y1 = Math.min(this.y,  r2.y)
+        let y2 = Math.max(this.y2, r2.y2)
+        return new Rect(x1, y1, x2-x1, y2-y1)
     }
 
     makeEmpty() {
-        return new Rect(
+        let rect = new Rect(
             Number.MAX_VALUE,
             Number.MAX_VALUE,
             Number.MIN_VALUE,
             Number.MIN_VALUE
         )
+        rect.empty = true
+        return rect
     }
 
     translate(position: Point) {
@@ -304,14 +309,18 @@ export class Rect {
     grow(value:number) {
         return new Rect(
             this.x - value,
-            this.y -value,
-            this.w+value+value,
-            this.h+value+value,
+            this.y - value,
+            this.w + value+value,
+            this.h + value+value,
         )
     }
 
     center() {
         return new Point(this.x+this.w/2, this.y + this.h/2)
+    }
+
+    private clone() {
+        return new Rect(this.x,this.y,this.w,this.h)
     }
 }
 

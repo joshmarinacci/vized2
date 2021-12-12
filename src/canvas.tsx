@@ -275,6 +275,24 @@ function fillRect(ctx: CanvasRenderingContext2D, rect: Rect, style: any) {
     ctx.fillRect(rect.x,rect.y,rect.w,rect.h)
 }
 
+/** returns union of bouds of all children. smallest rect that can contain all children */
+function calc_child_bounds(node: TreeNode):Rect {
+    let rect = new Rect(0,0,0,0).makeEmpty()
+    node.children.forEach(ch => {
+        if(ch.has_component(BoundedShapeName)) {
+            let bds = ch.get_component(BoundedShapeName) as BoundedShape
+            rect = rect.add(bds.get_bounds())
+        }
+    })
+    return rect
+}
+
+function calc_total_min_bounds(current_page: TreeNode) {
+    let child_bounds:Rect = calc_child_bounds(current_page)
+    let page_bounds :Rect = (current_page.get_component(BoundedShapeName) as BoundedShape).get_bounds()
+    return page_bounds.add(child_bounds)
+}
+
 export function CanvasView(props:{}) {
     let state = useContext(GlobalStateContext)
     const [pan_offset, set_pan_offset] = useState(new Point(0,0))
@@ -303,14 +321,7 @@ export function CanvasView(props:{}) {
     })
 
     const SLOP = new Point(100,100)
-
-    function calc_min_bounds(current_page: TreeNode):Rect {
-        let page_bounds = (current_page.get_component(BoundedShapeName) as BoundedShape).get_bounds()
-        page_bounds = page_bounds.grow(SLOP.x)
-        let scale = Math.pow(2,zoom_level)
-        return page_bounds.scale(scale)
-    }
-    let min_bounds = calc_min_bounds(current_page)
+    const min_bounds = calc_total_min_bounds(current_page).grow(SLOP.x).scale(Math.pow(2,zoom_level))
 
     function toRootPoint(e: MouseEvent) {
         let target: HTMLElement = e.target as HTMLElement
@@ -354,14 +365,16 @@ export function CanvasView(props:{}) {
         let can = canvas.current as HTMLCanvasElement
         let ctx = can.getContext('2d') as CanvasRenderingContext2D
         let scale = Math.pow(2,zoom_level)
+        //real size of the canvas
+        ctx.fillStyle = 'yellow'
+        ctx.fillRect(0,0,can.width,can.height)
         ctx.save()
         // ctx.translate(pan_offset.x,pan_offset.y)
         ctx.scale(scale,scale)
-        let page_bounds = (current_page.get_component(BoundedShapeName) as BoundedShape).get_bounds()
-        let slop_bounds = page_bounds.grow(SLOP.x)
-        ctx.translate(-slop_bounds.x,-slop_bounds.y)
-        fillRect(ctx,slop_bounds,'#f0f0f0')
-        fillRect(ctx,slop_bounds,ctx.createPattern(DIAG_HATCH_IMAGE,"repeat") as CanvasPattern)
+
+        ctx.translate(-min_bounds.x,-min_bounds.y)
+        fillRect(ctx,min_bounds,'#f0f0f0')
+        fillRect(ctx,min_bounds,ctx.createPattern(DIAG_HATCH_IMAGE,"repeat") as CanvasPattern)
 
         ctx.save()
         draw_node(state,ctx, current_page)
@@ -373,12 +386,12 @@ export function CanvasView(props:{}) {
             let group = current_root.get_component(GroupShapeName) as GroupShape
             let child_bounds = group.get_child_bounds()
             strokeRect(ctx,child_bounds,'aqua')
-            fillRectHole(ctx,slop_bounds,child_bounds,'rgba(255,0,0,0.2)')
+            fillRectHole(ctx,min_bounds,child_bounds,'rgba(255,0,0,0.2)')
         }
         ctx.restore()
     }
-    //redraw when current root changes, or transforms, or the docroot
-    useEffect(()=> refresh(),[canvas,pan_offset, zoom_level, current_root])
+    //redraw when current root changes, or transforms, or the docroot or min bounds
+    useEffect(()=> refresh(),[canvas, pan_offset, zoom_level, current_root, min_bounds.w, min_bounds.h])
 
     //change first page when docroot changes
     useEffect(() => {
