@@ -52,6 +52,7 @@ import {PropSheet} from "./propsheet";
 import {make_image_file} from "./powerups/image_from_file";
 import {DialogContextImpl, DialogContext, DialogContainer} from "./dialog";
 import {PresentationPowerup} from "./powerups/presentation";
+import {BookmarkPowerup} from "./powerups/bookmark";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -160,6 +161,7 @@ export function setup_state():GlobalState {
     state.powerups.push(new PNGPowerup())
     state.powerups.push(new JSONPowerup())
     state.powerups.push(new GreetingCardPowerup())
+    state.powerups.push(new BookmarkPowerup())
     state.powerups.push(new PresentationPowerup())
     state.powerups.forEach(pow => pow.init(state))
     return state
