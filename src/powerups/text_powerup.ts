@@ -99,7 +99,14 @@ export class TextShapeObject implements TextShape {
     }
 }
 
-function layout_text_lines(text: string, max_width: number, line_height: number, ctx: CanvasRenderingContext2D):string[] {
+type TextMetrics = { w:number, h:number}
+interface RenderingSurface {
+    measureText(text: string, size: number, family: string):TextMetrics
+    strokeRect(rect: Rect, color: string): void;
+    fillText(text: string, x: number, y: number, fill:any, size:number, family:string): void;
+}
+
+function layout_text_lines(text: string, max_width: number, line_height: number, surf: RenderingSurface, tn: TextShape):string[] {
     let lines = []
     let paras = text.split("\n")
     for(let p=0; p<paras.length; p++) {
@@ -111,8 +118,8 @@ function layout_text_lines(text: string, max_width: number, line_height: number,
             let test_line = current_line
             if (test_line.length > 0) test_line += ' '
             test_line += word
-            let metrics = ctx.measureText(test_line)
-            if (metrics.width > max_width) {
+            let metrics = surf.measureText(test_line, tn.get_fontsize(), tn.get_fontfamily())
+            if (metrics.w > max_width) {
                 //end line now
                 lines.push(current_line)
                 current_line = word
@@ -126,17 +133,96 @@ function layout_text_lines(text: string, max_width: number, line_height: number,
     return lines
 }
 
-function calc_text_size(lines: string[], ctx: CanvasRenderingContext2D, line_height:number) {
+function calc_text_size(lines: string[], surf: RenderingSurface, line_height: number, tn: TextShape) {
     let longest = 0
     let total_height = 0
     lines.forEach(line => {
-        longest = Math.max(longest,ctx.measureText(line).width)
+        longest = Math.max(longest,surf.measureText(line, tn.get_fontsize(), tn.get_fontfamily()).w)
         total_height += line_height
     })
     return {
         width:longest,
         height:total_height,
     }
+}
+
+class CanvasRenderingSurface implements RenderingSurface {
+    private ctx: CanvasRenderingContext2D;
+    constructor(ctx:CanvasRenderingContext2D) {
+        this.ctx = ctx
+    }
+
+    measureText(text: string, size: number, family: string): TextMetrics {
+        this.ctx.font = `${size}pt ${family}`
+        let metrics = this.ctx.measureText(text)
+        return {
+            w:metrics.width,
+            h:metrics.actualBoundingBoxAscent+metrics.actualBoundingBoxDescent
+        }
+    }
+
+    strokeRect(rect: Rect, color: string): void {
+        this.ctx.fillStyle = color
+        this.ctx.strokeRect(rect.x, rect.y, rect.w, rect.h)
+    }
+
+    fillText(text: string, x: number, y: number, fill:any, size:number, family:string): void {
+        this.ctx.fillStyle = fill
+        this.ctx.font = `${size}pt ${family}`
+        this.ctx.fillText(text,x,y)
+    }
+}
+
+class PDFRenderingSurface implements RenderingSurface {
+    private doc: any;
+    constructor(doc: any) {
+        this.doc = doc
+    }
+
+    fillText(text: string, x: number, y: number, fill: any, size: number, family: string): void {
+        this.doc.setFillColor(...cssToPdfColor(fill))
+        this.doc.setFontSize(size)
+        this.doc.text(text,x,y)
+    }
+
+    measureText(text: string, size: number, fontfamily: string): TextMetrics {
+        this.doc.setFontSize(size)
+        let dim = this.doc.getTextDimensions(text)
+            return {
+                w:dim.w,
+                h:dim.h
+            }
+        }
+
+    strokeRect(rect: Rect, fill: string): void {
+        this.doc.setLineWidth(0.01)
+        this.doc.setFillColor(...cssToPdfColor(fill))
+        this.doc.rect(rect.x, rect.y, rect.w, rect.h, "D")
+    }
+}
+
+function render_text(surf: RenderingSurface, rect: Rect, tn: TextShape, fill: FilledShape) {
+    // if(false) {
+    //     surf.strokeRect(rect,'cyan')
+    // }
+    let line_height = surf.measureText("MEASURE",tn.get_fontsize(), tn.get_fontfamily()).h * 1.2
+
+    let lines = layout_text_lines(tn.get_content(), rect.w, line_height, surf, tn)
+    let metrics = calc_text_size(lines,surf, line_height, tn)
+    const h_aligns = { left:0.0, center:0.5, right:1.0 }
+    const v_aligns = { top:0.0, center:0.5, bottom:1.0 }
+    // @ts-ignore
+    let h_offset = h_aligns[tn.get_halign()]*(rect.w - metrics.width)
+    // @ts-ignore
+    let v_offset = v_aligns[tn.get_valign()]*(rect.h - metrics.height)
+
+    lines.forEach((line,i)=> surf.fillText(
+        line,
+        rect.x + h_offset,
+        rect.y+line_height*(i+1) + v_offset,
+        fill.get_fill(),
+        tn.get_fontsize(),
+        tn.get_fontfamily()))
 }
 
 class TextRenderingSystem implements RenderingSystem {
@@ -147,32 +233,18 @@ class TextRenderingSystem implements RenderingSystem {
 
     render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void {
         if(node.has_component(TextShapeName) && node.has_component(BoundedShapeName)) {
-            ctx.save()
             let bs = node.get_component(BoundedShapeName) as BoundedShape
             let tn = node.get_component(TextShapeName) as TextShape
             let fill = node.get_component(FilledShapeName) as FilledShape
+            let rect = bs.get_bounds()
 
-            let bounds = bs.get_bounds()
-            ctx.translate(bounds.x, bounds.y)
-            ctx.fillStyle = fill.get_fill()
-            ctx.font = `${tn.get_fontsize()}pt ${tn.get_fontfamily()}`
-            let line_height = tn.get_fontsize()*1.5
-            let lines = layout_text_lines(tn.get_content(), bounds.w, line_height, ctx)
-            let metrics = calc_text_size(lines,ctx, line_height)
-            const h_aligns = { left:0.0, center:0.5, right:1.0 }
-            const v_aligns = { top:0.0, center:0.5, bottom:1.0 }
-            // @ts-ignore
-            let h_offset = h_aligns[tn.get_halign()]*(bounds.w-metrics.width)
-            // @ts-ignore
-            let v_offset = v_aligns[tn.get_valign()]*(bounds.h - metrics.height)
-            ctx.translate(h_offset,v_offset)
-            lines.forEach((line,i)=> ctx.fillText(line,0,line_height*(i+1)))
-            ctx.restore()
+            let surf:RenderingSurface = new CanvasRenderingSurface(ctx)
+            render_text(surf,rect,tn,fill)
             if (state.selection.has(node)) {
                 ctx.save()
                 ctx.strokeStyle = 'magenta'
                 ctx.lineWidth = 3.5
-                ctx.strokeRect(bounds.x,bounds.y,bounds.w,bounds.h)
+                ctx.strokeRect(rect.x,rect.y,rect.w,rect.h)
                 ctx.restore()
             }
         }
@@ -258,36 +330,12 @@ class TextPDFExporter implements PDFExporter {
     }
 
     toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
-        // console.log("rendering text to pdf right here",node,doc)
-        // console.log("list of fonts", doc.getFontList())
         let ts: TextShape = node.get_component(TextShapeName) as TextShape
-        let bd: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
-        let rect = bd.get_bounds().scale(scale)
+        let bounds: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
+        let rect = bounds.get_bounds().scale(scale)
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
-        let pdf_color = cssToPdfColor(color.get_fill())
-        let dim = doc.getTextDimensions(ts.get_content())
-        let h_offset = 0
-        if(ts.get_halign() === "right") {
-            h_offset = rect.w - dim.w
-        }
-        if(ts.get_halign() === "center") {
-            h_offset = (rect.w - dim.w)/2
-        }
-        let v_offset = 0
-        if(ts.get_valign() === 'top') {
-            v_offset = 0//metrics.actualBoundingBoxAscent
-        }
-        if(ts.get_valign() === 'center') {
-            v_offset = (rect.h - dim.h)/2
-        }
-        if(ts.get_valign() === 'bottom') {
-            v_offset = (rect.h - dim.h)
-        }
-        // let metrics = ctx.measureText(tn.get_content())
-        // console.log("metrics are",metrics)
-        doc.setFontSize(ts.get_fontsize())
-        doc.setFillColor(...pdf_color)
-        doc.text(ts.get_content(), rect.x+h_offset, rect.y+rect.h+v_offset)
+        let surf:RenderingSurface = new PDFRenderingSurface(doc)
+        render_text(surf,rect,ts,color)
     }
 }
 
