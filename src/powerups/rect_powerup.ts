@@ -27,6 +27,7 @@ import {
 import {JSONExporter} from "../exporters/json";
 import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
+import {jsPDF, PatternData, TilingPattern} from "jspdf";
 
 const RectShapeName = "RectShape"
 interface RectShape extends Component {
@@ -120,9 +121,32 @@ export class RectPDFExporter implements PDFExporter {
             height:rect.w,
             fill:color.get_fill()
         }
-        let pdf_color = cssToPdfColor(obj.fill)
-        doc.setFillColor(...pdf_color)
-        doc.rect(obj.x,obj.y,obj.width,obj.height,"F")
+        if(obj.fill instanceof Image) {
+            console.log('doing a pattern')
+            doc.advancedAPI((doc:jsPDF) => {
+                var pattern = new TilingPattern([0, 0, 1, 1], 0, 0);
+                doc.beginTilingPattern(pattern);
+                doc.setFillColor(255, 0, 0);
+                doc.circle(0.5, 0.5, 0.1, "F");
+                doc.endTilingPattern("dots", pattern);
+                console.log("the pattern is",pattern)
+                let pd:PatternData = {
+                    //key:"dots",
+                    // @ts-ignore
+                    key:pattern.id,
+                    matrix:undefined,
+                    boundingBox:[obj.x,obj.y,obj.x+obj.width,obj.y+obj.height],
+                    xStep:1,
+                    yStep:1
+                }
+                console.log("pattern data",pd)
+                doc.fill(pd); // I don't know how to reference patterns.
+                doc.rect(obj.x,obj.y,obj.width,obj.height,"F")
+            })
+        } else {
+            doc.setFillColor(...cssToPdfColor(obj.fill))
+            doc.rect(obj.x,obj.y,obj.width,obj.height,"F")
+        }
     }
 
 }
