@@ -6,7 +6,6 @@ import {
     Movable, MovableName, PageName,
     PDFExporter,
     PickingSystem, Point,
-    Powerup,
     RenderingSystem,
     SVGExporter,
     TreeNode, TreeNodeImpl
@@ -15,7 +14,6 @@ import {JSONExporter} from "../exporters/json";
 import {cssToPdfColor} from "../exporters/pdf";
 import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
-import {make_circle} from "./circle_powerup";
 import {SpiralEditor} from "./spiral_editor";
 
 export const SpiralShapeName = "SpiralShape"
