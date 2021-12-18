@@ -94,7 +94,17 @@ export class GlobalState {
         // @ts-ignore
         this.root = null
         this.palettes = []
-        fetch(PALETTE_URL).then(r => r.json()).then(d => this.palettes = d.data.items)
+        fetch(PALETTE_URL)
+            .then(r => r.json()).then(d => this.palettes = d.data.items)
+            .catch(e => {
+                console.log("error loading remote color palettes. just use defaults")
+                this.palettes = [
+                    {
+                        title:"backup",
+                        colors:['red','green','blue','black','white']
+                    }
+                ]
+            })
         this.patterns = [
             DIAG_HATCH_IMAGE,
             VERT_HATCH_IMAGE,

@@ -103,7 +103,7 @@ export class BoundedShapePickSystem implements PickingSystem {
 
     pick_node(pt: Point, node: TreeNode): boolean {
         if (node.has_component(BoundedShapeName)) {
-            let rect = (<BoundedShape>node.get_component(BoundedShapeName)).get_bounds()
+            let rect = (node.get_component(BoundedShapeName) as BoundedShape).get_bounds()
             if (rect.contains(pt)) return true
         }
         return false;

@@ -106,14 +106,13 @@ export class SnowflakeRendererSystem implements RenderingSystem {
 
     render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void {
         if (node.has_component(SnowflakeName)) {
-            console.log('drawing flake bounds')
+            // this.log('drawing flake bounds')
             let flake = node.get_component(SnowflakeName) as Snowflake
             let pos = flake.get_position()
             let rect = flake.get_child_bounds()
             ctx.fillStyle = 'rgba(255,0,0,0.5)'
             ctx.save()
             this.draw_children(ctx,node,state)
-            // ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
             if (state.selection.has(node)) {
                 ctx.strokeStyle = 'magenta'
                 ctx.lineWidth = 3.5
@@ -135,13 +134,10 @@ export class SnowflakeRendererSystem implements RenderingSystem {
             node.children.forEach(ch => this.draw_node(ctx, ch, state))
         }
         ctx.restore()
-
     }
 
     private draw_node(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState) {
-        this.log("drawing child node",node)
-        ctx.fillStyle = 'green'
-        ctx.fillRect(10,10,20,20)
+        // this.log("drawing child node",node)
         state.renderers.forEach((rend) => rend.render(ctx, node, state))
     }
 

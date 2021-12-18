@@ -29,7 +29,7 @@ function BoundedShapeEditor(props: { comp: BoundedShape, state: GlobalState }) {
 function FilledShapeEditor(props: { comp: FilledShape, state: GlobalState }) {
     const [pal, set_pal] = useState({
         title:'none',
-        colors:[]
+        colors:["red","green","blue"]
     })
     const change_palette = (e:any) => {
         set_pal(props.state.palettes.find(p => p.title === e.target.value))
