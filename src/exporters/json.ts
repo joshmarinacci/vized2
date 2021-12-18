@@ -9,7 +9,6 @@ import {
     GlobalState, DefaultPowerup
 } from "../common";
 import {Action} from "../actions";
-import {export_SVG} from "./svg";
 
 export interface JSONExporter extends Component {
     canHandleToJSON(comp:any, node:TreeNode):boolean
@@ -55,6 +54,7 @@ export function POJO_to_treenode(obj: any, state: GlobalState):TreeNode {
         let exp = state.jsonexporters.find(exp => exp.canHandleFromJSON(comp,node))
         if(exp) return exp.fromJSON(comp,node)
         console.warn(`cannot import component ${comp.name}`)
+        return null
     })
     return node
 }

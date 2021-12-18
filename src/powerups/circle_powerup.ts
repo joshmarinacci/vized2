@@ -92,7 +92,7 @@ export class CirclePickSystem implements PickingSystem {
     }
     pick_node(pt: Point, node: TreeNode): boolean {
         if(node.has_component(CircleShapeName)) {
-            let circle = (<CircleShape> node.get_component(CircleShapeName))
+            let circle = (node.get_component(CircleShapeName) as CircleShape)
             let dist = circle.get_position().subtract(pt)
             if(dist.magnitude() < circle.get_radius()) {
                 return true
@@ -111,7 +111,7 @@ export class MovableCircleObject implements Movable {
         this.name = MovableName
     }
     moveBy(pt: Point): void {
-        let circle:CircleShape = <CircleShape>this.node.get_component(CircleShapeName)
+        let circle = this.node.get_component(CircleShapeName) as CircleShape
         circle.get_position().x += pt.x
         circle.get_position().y += pt.y
     }
@@ -129,8 +129,8 @@ export class CircleSVGExporter implements SVGExporter {
     }
 
     toSVG(node: TreeNode): string {
-        let circle: CircleShape = <CircleShape>node.get_component(CircleShapeName)
-        let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
+        let circle = node.get_component(CircleShapeName) as CircleShape
+        let color = node.get_component(FilledShapeName) as FilledShape
         let obj:any = {
             cx:circle.get_position().x,
             cy:circle.get_position().y,
@@ -154,8 +154,8 @@ export class CirclePDFExporter implements PDFExporter {
     }
 
     toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
-        let circle: CircleShape = <CircleShape>node.get_component(CircleShapeName)
-        let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
+        let circle: CircleShape = node.get_component(CircleShapeName) as CircleShape
+        let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
 
         let obj = {
             cx:circle.get_position().x * scale,

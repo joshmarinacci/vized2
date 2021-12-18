@@ -3,7 +3,7 @@ import {
     DefaultPowerup,
     DocMarker, DocName, FilledShapeObject,
     GlobalState,
-    PageMarker, PageName, Rect,
+    PageMarker, Rect,
     TreeNode,
     TreeNodeImpl
 } from "../common";

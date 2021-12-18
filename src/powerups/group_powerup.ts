@@ -40,15 +40,14 @@ import {
     Movable, MovableName, ParentTranslate, ParentTranslateName,
     PickingSystem,
     Point,
-    Powerup, Rect, RenderingSystem, TreeNode,
+    Rect, RenderingSystem, TreeNode,
     TreeNodeImpl,
-    GlobalState, PageName, FilledShapeObject, add_child_to_parent, DefaultPowerup
+    GlobalState, PageName, add_child_to_parent, DefaultPowerup
 } from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {SVGExporter, treenode_to_SVG} from "../exporters/svg";
 import {cssToPdfColor, PDFExporter, treenode_to_PDF} from "../exporters/pdf";
 import {Action} from "../actions";
-import {CircleShapeObject, make_circle, MovableCircleObject} from "./circle_powerup";
 
 
 export const GroupShapeName = "GroupShapeName"

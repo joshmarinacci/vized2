@@ -53,7 +53,7 @@ class SpiralRendererSystem implements RenderingSystem {
 
     render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void {
         if(node.has_component(SpiralShapeName)) {
-            let spiral:SpiralShapeObject = <SpiralShapeObject>node.get_component(SpiralShapeName)
+            let spiral:SpiralShapeObject = node.get_component(SpiralShapeName) as SpiralShapeObject
             let times = spiral.get_wrap()*Math.PI*2
             let radius = spiral.get_radius() / times
 
@@ -97,7 +97,7 @@ export class SpiralPickSystem implements PickingSystem {
 
     pick_node(pt: Point, node: TreeNode): boolean {
         if(node.has_component(SpiralShapeName)) {
-            let circle = (<SpiralShapeObject>node.get_component(SpiralShapeName))
+            let circle = node.get_component(SpiralShapeName) as SpiralShapeObject
             let dist = circle.get_position().subtract(pt)
             if (dist.magnitude() < circle.get_radius()) {
                 return true
@@ -115,7 +115,7 @@ export class MovableSpiralObject implements Movable {
         this.name = MovableName
     }
     moveBy(pt: Point): void {
-        let shape:SpiralShapeObject = <SpiralShapeObject>this.node.get_component(SpiralShapeName)
+        let shape = this.node.get_component(SpiralShapeName) as SpiralShapeObject
         shape.get_position().x += pt.x
         shape.get_position().y += pt.y
     }
@@ -210,7 +210,7 @@ class SpiralSVGExporter implements SVGExporter {
 
     toSVG(node: TreeNode): string {
         let spiral:SpiralShapeObject = node.get_component(SpiralShapeName) as SpiralShapeObject
-        let color: FilledShape = <FilledShape>node.get_component(FilledShapeName)
+        let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
         let times = 5*Math.PI*2
         let radius = spiral.get_radius() / times
         let ox = spiral.get_position().x
