@@ -423,7 +423,9 @@ export class TreeNodeImpl implements TreeNode {
         this.children = []
         this.components = []
     }
-
+    add_component(comp:Component, name?:string) {
+        this.components.push(comp)
+    }
 
     get_component(name:string): Component {
         // @ts-ignore

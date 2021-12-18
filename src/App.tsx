@@ -22,7 +22,7 @@ import {
     ResizableRectObject
 } from "./bounded_shape";
 import {
-    CirclePowerup, CircleRadiusSelectionObject,
+    CirclePowerup, CircleLikeRadiusSelection,
     CircleShape,
     CircleShapeObject,
     MovableCircleObject
@@ -111,21 +111,21 @@ export function make_default_tree(state: GlobalState) {
         let circ1: TreeNode = new TreeNodeImpl()
         circ1.title = 'circle'
         circ1.components.push(new FilledShapeObject('#00FF00'))
-        let circle_shape:CircleShape = new CircleShapeObject(new Point(100,100),20)
-        circ1.components.push(circle_shape)
+        circ1.components.push(new CircleShapeObject(new Point(100,100),20))
         circ1.components.push(new MovableCircleObject(circ1))
-        circ1.components.push(new CircleRadiusSelectionObject(circ1))
+        circ1.components.push(new CircleLikeRadiusSelection(circ1))
         add_child_to_parent(circ1, root)
-    }/*
+    }
     {
         let spiral:TreeNode = new TreeNodeImpl()
         spiral.title = 'spiral'
         spiral.components.push(new FilledShapeObject('#000000'))
         spiral.components.push(new SpiralShapeObject(new Point(100,200),15))
         spiral.components.push(new MovableSpiralObject(spiral))
+        spiral.components.push(new CircleLikeRadiusSelection(spiral))
         add_child_to_parent(spiral,root)
     }
-
+/*
     {
         let url = "https://vr.josh.earth/assets/2dimages/saturnv.jpg"
         let image = make_image_node(url,state)
