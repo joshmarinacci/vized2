@@ -22,7 +22,7 @@ import {
     ResizableRectObject
 } from "./bounded_shape";
 import {
-    CirclePowerup,
+    CirclePowerup, CircleRadiusSelectionObject,
     CircleShape,
     CircleShapeObject,
     MovableCircleObject
@@ -114,6 +114,7 @@ export function make_default_tree(state: GlobalState) {
         let circle_shape:CircleShape = new CircleShapeObject(new Point(100,100),20)
         circ1.components.push(circle_shape)
         circ1.components.push(new MovableCircleObject(circ1))
+        circ1.components.push(new CircleRadiusSelectionObject(circ1))
         add_child_to_parent(circ1, root)
     }/*
     {

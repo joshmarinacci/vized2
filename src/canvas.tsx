@@ -8,7 +8,7 @@ import {
     MovableName,
     ParentTranslate,
     ParentTranslateName,
-    Point,
+    Point, RadiusSelection, RadiusSelectionName,
     Resizable,
     ResizableName,
     TreeNode
@@ -164,13 +164,24 @@ class MouseMoveDelegate implements MouseGestureDelegate {
     }
 
     private refresh_handles(shapes: any[]) {
+        this.log("refreshing handles")
         this.state.active_handles = []
         shapes.forEach(shape => {
+            this.log("shape",shape)
             if (shape.has_component(ResizableName)) {
                 let res: Resizable = shape.get_component(ResizableName) as Resizable
                 this.state.active_handles.push(res.get_handle())
             }
+            if (shape.has_component(RadiusSelectionName)) {
+                console.log("has rad sel")
+                let rad:RadiusSelection = shape.get_component(RadiusSelectionName) as RadiusSelection
+                this.state.active_handles.push(rad.get_handle())
+            }
         })
+    }
+
+    private log(...args:any) {
+        console.log("Canvas: ",...args)
     }
 }
 

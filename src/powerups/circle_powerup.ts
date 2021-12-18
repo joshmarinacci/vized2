@@ -5,13 +5,13 @@ import {
     FilledShape,
     FilledShapeName,
     FilledShapeObject,
-    GlobalState,
+    GlobalState, Handle,
     Movable,
     MovableName,
     PageName,
     PDFExporter,
     PickingSystem,
-    Point,
+    Point, RadiusSelection, RadiusSelectionName,
     RenderingSystem,
     SVGExporter,
     TreeNode,
@@ -21,6 +21,7 @@ import {JSONExporter} from "../exporters/json";
 import {cssToPdfColor} from "../exporters/pdf";
 import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
+import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 
 const CircleShapeName = "CircleShapeName"
 export interface CircleShape extends Component {
@@ -168,6 +169,50 @@ export class CirclePDFExporter implements PDFExporter {
     }
 }
 
+class RadiusHandle extends Handle {
+    private node: TreeNode;
+
+    constructor(node: TreeNode) {
+        super(0, 0);
+        this.node = node
+    }
+
+    update_from_node() {
+        let circle = this.node.get_component(CircleShapeName) as CircleShape
+        this.x = circle.get_position().x + circle.get_radius() -5
+        this.y = circle.get_position().y - 5
+    }
+
+    override moveBy(diff: Point) {
+        this.x += diff.x
+        // this.y += diff.y
+        this.update_to_node()
+    }
+
+    private update_to_node() {
+        let circ = this.node.get_component(CircleShapeName) as CircleShape
+        let rad = this.x + 5 - circ.get_position().x
+        if(rad < 1) rad = 1
+        circ.set_radius(rad)
+    }
+}
+
+export class CircleRadiusSelectionObject implements RadiusSelection {
+    name: string;
+    private node: TreeNodeImpl;
+    private handle: RadiusHandle;
+
+    constructor(circle: TreeNodeImpl) {
+        this.node = circle
+        this.name = RadiusSelectionName
+        this.handle = new RadiusHandle(this.node)
+    }
+
+    get_handle(): Handle {
+        return this.handle
+    }
+}
+
 export const make_circle: Action = {
     use_gui: false,
     title: "add circle",
@@ -177,6 +222,7 @@ export const make_circle: Action = {
         circle.components.push(new CircleShapeObject(new Point(100, 100), 50))
         circle.components.push(new FilledShapeObject("#ff00ff"))
         circle.components.push(new MovableCircleObject(circle))
+        circle.components.push(new CircleRadiusSelectionObject(circle))
         add_child_to_parent(circle, node)
         state.dispatch('object-changed', {})
     }

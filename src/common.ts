@@ -376,7 +376,12 @@ export interface Movable extends Component {
 
 export const ResizableName = "ResizableName"
 export interface Resizable extends Component {
-    get_handle(): Handle,
+    get_handle(): Handle
+}
+
+export const RadiusSelectionName = "RadiusSelectionName"
+export interface RadiusSelection extends Component {
+    get_handle():Handle
 }
 
 export const ParentTranslateName = "ParentTranslateName"
