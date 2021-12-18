@@ -5,7 +5,7 @@ import {
     GlobalStateContext,
     Handle,
     Movable,
-    MovableName,
+    MovableName, ParentDrawChildrenName,
     ParentTranslate,
     ParentTranslateName,
     Point, RadiusSelection, RadiusSelectionName,
@@ -40,6 +40,8 @@ import {
 function draw_node(state:GlobalState, ctx: CanvasRenderingContext2D, node: TreeNode) {
     //draw the current node
     state.renderers.forEach((rend) => rend.render(ctx, node, state))
+    // don't draw children if the parent already did it
+    if(node.has_component(ParentDrawChildrenName)) return
     //get transform for children
     ctx.save()
     if(node.has_component(ParentTranslateName)) {

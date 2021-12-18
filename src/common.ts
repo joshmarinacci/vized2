@@ -389,6 +389,12 @@ export interface ParentTranslate extends Component {
     get_translation_point(): Point;
 }
 
+export const ParentDrawChildrenName = "ParentDrawChildrenName"
+export interface ParentDrawChildren extends Component {
+
+}
+
+
 export interface System {
     name: string
 }

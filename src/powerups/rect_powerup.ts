@@ -201,17 +201,22 @@ export class RectJsonExporter implements JSONExporter {
 
 }
 
+export function make_std_rect(bounds:Rect):TreeNodeImpl {
+    let rect1 = new TreeNodeImpl()
+    rect1.title = 'rect'
+    rect1.components.push(new RectShapeObject())
+    rect1.components.push(new BoundedShapeObject(bounds))
+    rect1.components.push(new FilledShapeObject("#ff0000"))
+    rect1.components.push(new MovableBoundedShape(rect1))
+    rect1.components.push(new ResizableRectObject(rect1))
+    return rect1
+
+}
 export const make_rectangle: Action = {
     use_gui: false,
     title: "add rectangle",
     fun(node: TreeNode, state: GlobalState): void {
-        let rect1 = new TreeNodeImpl()
-        rect1.title = 'rect'
-        rect1.components.push(new RectShapeObject())
-        rect1.components.push(new BoundedShapeObject(new Rect(10, 10, 100, 100)))
-        rect1.components.push(new FilledShapeObject("#ff0000"))
-        rect1.components.push(new MovableBoundedShape(rect1))
-        rect1.components.push(new ResizableRectObject(rect1))
+        let rect1 = make_std_rect(new Rect(10, 10, 100, 100))
         add_child_to_parent(rect1, node)
         state.dispatch('object-changed', {})
     }

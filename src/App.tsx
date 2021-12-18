@@ -1,8 +1,9 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext} from 'react';
 import './App.css';
 import './fonts.css'
 import {
     add_child_to_parent,
+    DefaultPowerup,
     DocMarker,
     FilledShapeObject,
     GlobalState,
@@ -14,7 +15,7 @@ import {
     TreeNodeImpl
 } from "./common";
 import {CanvasView} from "./canvas";
-import {make_rectangle, RectPowerup, RectShapeObject} from "./powerups/rect_powerup";
+import {RectPowerup, RectShapeObject} from "./powerups/rect_powerup";
 import {
     BoundedShapeObject,
     BoundedShapePowerup,
@@ -23,11 +24,9 @@ import {
 } from "./bounded_shape";
 import {
     CirclePowerup, CircleLikeRadiusSelection,
-    CircleShape,
-    CircleShapeObject,
-    MovableCircleObject, make_std_circle
+    make_std_circle
 } from "./powerups/circle_powerup";
-import {make_text, TextPowerup, TextShapeObject} from "./powerups/text_powerup";
+import {TextPowerup, TextShapeObject} from "./powerups/text_powerup";
 import {MovableSpiralObject, SpiralPowerup, SpiralShapeObject} from "./powerups/spiral";
 import {FilledShapeJSONExporter, JSONPowerup} from "./exporters/json";
 import {PDFExportBounds, PDFPowerup} from "./exporters/pdf";
@@ -40,8 +39,7 @@ import {
     MovableGroupShape
 } from "./powerups/group_powerup";
 import {
-    ImagePowerup,
-    make_image_node
+    ImagePowerup
 } from "./powerups/image_powerup";
 import {Toolbar} from "./comps";
 import {TreeView} from "./treeview";
@@ -53,6 +51,7 @@ import {make_image_file} from "./powerups/image_from_file";
 import {DialogContextImpl, DialogContext, DialogContainer} from "./dialog";
 import {PresentationPowerup} from "./powerups/presentation";
 import {BookmarkPowerup} from "./powerups/bookmark";
+import {SnowflakePowerup} from "./powerups/snowflake";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -108,7 +107,7 @@ export function make_default_tree(state: GlobalState) {
         add_child_to_parent(rect3, root)
     }
     {
-        let circ1 = make_std_circle()
+        let circ1 = make_std_circle(new Point(100,300),30)
         add_child_to_parent(circ1, root)
     }
     {
@@ -141,10 +140,37 @@ export function make_default_tree(state: GlobalState) {
 }
 
 
+function make_empty_doc(state: GlobalState):TreeNodeImpl {
+    let root = new TreeNodeImpl()
+    root.title = 'root'
+    root.add_component(new DocMarker())
+    root.add_component(new PageMarker())
+    root.add_component(new BoundedShapeObject(new Rect(0,0,4*100,5*100)))
+    root.add_component(new PDFExportBounds("in",1/100))
+    root.add_component(new RectShapeObject())
+    root.add_component(new FilledShapeObject('white'))
+    return root
+}
+
+class StandardPowerup extends DefaultPowerup {
+    override new_doc_actions(): Action[] {
+        let action:Action = {
+            use_gui: false,
+            title:"new empty one page doc",
+            fun(node:TreeNode, state:GlobalState):any {
+                return make_empty_doc(state)
+            }
+        }
+        return [action]
+    }
+
+}
+
 export function setup_state():GlobalState {
     let state:GlobalState = new GlobalState()
     state.set_root(make_default_tree(state))
     state.jsonexporters.push(new FilledShapeJSONExporter())
+    state.powerups.push(new StandardPowerup())
     state.powerups.push(new BoundedShapePowerup())
     state.powerups.push(new CirclePowerup())
     state.powerups.push(new RectPowerup())
@@ -159,6 +185,7 @@ export function setup_state():GlobalState {
     state.powerups.push(new GreetingCardPowerup())
     state.powerups.push(new BookmarkPowerup())
     state.powerups.push(new PresentationPowerup())
+    state.powerups.push(new SnowflakePowerup())
     state.powerups.forEach(pow => pow.init(state))
     return state
 }

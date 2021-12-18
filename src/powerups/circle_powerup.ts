@@ -23,7 +23,7 @@ import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
 import {SpiralShapeName, SpiralShapeObject} from "./spiral";
 
-const CircleShapeName = "CircleShapeName"
+export const CircleShapeName = "CircleShapeName"
 export interface CircleShape extends Component {
     get_position():Point
     get_radius():number
@@ -228,10 +228,10 @@ export class CircleLikeRadiusSelection implements RadiusSelection {
     }
 }
 
-export function make_std_circle():TreeNodeImpl {
+export function make_std_circle(center:Point, radius:number):TreeNodeImpl {
     let circle = new TreeNodeImpl()
     circle.title = 'circle'
-    circle.components.push(new CircleShapeObject(new Point(100, 100), 50))
+    circle.components.push(new CircleShapeObject(center, radius))
     circle.components.push(new FilledShapeObject("#ff00ff"))
     circle.components.push(new MovableCircleObject(circle))
     circle.components.push(new CircleLikeRadiusSelection(circle))
@@ -242,7 +242,7 @@ export const make_circle: Action = {
     use_gui: false,
     title: "add circle",
     fun(node: TreeNode, state: GlobalState): void {
-        add_child_to_parent(make_std_circle(), node)
+        add_child_to_parent(make_std_circle(new Point(100,100),20), node)
         state.dispatch('object-changed', {})
     }
 }
