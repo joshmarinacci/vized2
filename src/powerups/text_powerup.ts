@@ -362,13 +362,13 @@ export const make_text: Action = {
     use_gui: false,
     title: "add text",
     fun(node: TreeNode, state: GlobalState): void {
-        let text = new TreeNodeImpl() as TreeNode
+        let text = new TreeNodeImpl()
         text.title = 'text1'
-        text.components.push(new TextShapeObject("text", 16, "center", 'center'))
-        text.components.push(new BoundedShapeObject(new Rect(50, 50, 50, 30)))
-        text.components.push(new MovableBoundedShape(text))
-        text.components.push(new ResizableRectObject(text))
-        text.components.push(new FilledShapeObject('#000000'))
+        text.add_component(new TextShapeObject("text", 16, "center", 'center'))
+        text.add_component(new BoundedShapeObject(new Rect(50, 50, 50, 30)))
+        text.add_component(new MovableBoundedShape(text))
+        text.add_component(new ResizableRectObject(text))
+        text.add_component(new FilledShapeObject('#000000'))
         add_child_to_parent(text, node)
         state.dispatch('object-changed', {})
     }

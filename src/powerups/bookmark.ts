@@ -13,14 +13,14 @@ import {PDFExportBounds} from "../exporters/pdf";
 import {RectShapeObject} from "./rect_powerup";
 
 function make_bookmark_tree(state: GlobalState):TreeNode {
-    let root:TreeNode = new TreeNodeImpl()
+    let root = new TreeNodeImpl()
     root.title = 'root'
-    root.components.push(new DocMarker())
-    root.components.push(new PageMarker())
-    root.components.push(new BoundedShapeObject(new Rect(0, 0, 2 * 100 / 2, 7 * 100 / 2)))
-    root.components.push(new PDFExportBounds("in", 1 / 100))
-    root.components.push(new RectShapeObject())
-    root.components.push(new FilledShapeObject('white'))
+    root.add_component(new DocMarker())
+    root.add_component(new PageMarker())
+    root.add_component(new BoundedShapeObject(new Rect(0, 0, 2 * 100 / 2, 7 * 100 / 2)))
+    root.add_component(new PDFExportBounds("in", 1 / 100))
+    root.add_component(new RectShapeObject())
+    root.add_component(new FilledShapeObject('white'))
     return root
 }
 

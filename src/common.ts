@@ -339,7 +339,7 @@ export type TreeNode = {
     title:string,
     parent: TreeNode,
     children: TreeNode[],
-    components: Component[],
+    //components: Component[],
     has_component(name:string):boolean
     get_component(name:string):Component
 }

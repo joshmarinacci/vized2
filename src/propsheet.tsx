@@ -4,7 +4,7 @@ import {
     GlobalState,
     GlobalStateContext,
     Point,
-    TreeNode
+    TreeNode, TreeNodeImpl
 } from "./common";
 import React, {useContext, useEffect, useRef, useState} from "react";
 import {BoundedShape, BoundedShapeName} from "./bounded_shape";
@@ -152,7 +152,7 @@ export function PropSheet(props: {}) {
     }
 
     return <div className={'panel right'}>
-        {node.components.map((comp, i) => {
+        {(node as TreeNodeImpl).components.map((comp, i) => {
             let pw = state.powerups.find(pw => pw.can_edit(comp))
             if(pw) {
                 let Editor = pw.get_editor(comp,state.get_root(),state)

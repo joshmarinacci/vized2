@@ -14,7 +14,7 @@ import {
     TreeNodeImpl
 } from "./common";
 import {CanvasView} from "./canvas";
-import {RectPowerup, RectShapeObject} from "./powerups/rect_powerup";
+import {make_rectangle, RectPowerup, RectShapeObject} from "./powerups/rect_powerup";
 import {
     BoundedShapeObject,
     BoundedShapePowerup,
@@ -25,9 +25,9 @@ import {
     CirclePowerup, CircleLikeRadiusSelection,
     CircleShape,
     CircleShapeObject,
-    MovableCircleObject
+    MovableCircleObject, make_std_circle
 } from "./powerups/circle_powerup";
-import {TextPowerup, TextShapeObject} from "./powerups/text_powerup";
+import {make_text, TextPowerup, TextShapeObject} from "./powerups/text_powerup";
 import {MovableSpiralObject, SpiralPowerup, SpiralShapeObject} from "./powerups/spiral";
 import {FilledShapeJSONExporter, JSONPowerup} from "./exporters/json";
 import {PDFExportBounds, PDFPowerup} from "./exporters/pdf";
@@ -61,68 +61,63 @@ function IDEGrid(props:{title:string, children:any[]}) {
 }
 
 export function make_default_tree(state: GlobalState) {
-    let root:TreeNode = new TreeNodeImpl()
+    let root:TreeNodeImpl = new TreeNodeImpl()
     root.title = 'root'
-    root.components.push(new DocMarker())
-    root.components.push(new PageMarker())
-    root.components.push(new BoundedShapeObject(new Rect(0,0,4*100,5*100)))
-    root.components.push(new PDFExportBounds("in",1/100))
-    root.components.push(new RectShapeObject())
-    root.components.push(new FilledShapeObject('white'))
+    root.add_component(new DocMarker())
+    root.add_component(new PageMarker())
+    root.add_component(new BoundedShapeObject(new Rect(0,0,4*100,5*100)))
+    root.add_component(new PDFExportBounds("in",1/100))
+    root.add_component(new RectShapeObject())
+    root.add_component(new FilledShapeObject('white'))
 
 
     let group1 = new TreeNodeImpl()
     group1.title = 'group'
-    group1.components.push(new GroupShapeObject(group1, new Point(100,50)))
-    group1.components.push(new GroupParentTranslate(group1))
-    group1.components.push(new MovableGroupShape(group1))
+    group1.add_component(new GroupShapeObject(group1, new Point(100,50)))
+    group1.add_component(new GroupParentTranslate(group1))
+    group1.add_component(new MovableGroupShape(group1))
     add_child_to_parent(group1,root)
 
     {
         let rect1 = new TreeNodeImpl()
         rect1.title = 'rect'
-        rect1.components.push(new RectShapeObject())
-        rect1.components.push(new BoundedShapeObject(new Rect(10, 10, 10, 10)))
-        rect1.components.push(new FilledShapeObject("#ff0000"))
-        rect1.components.push(new MovableBoundedShape(rect1))
+        rect1.add_component(new RectShapeObject())
+        rect1.add_component(new BoundedShapeObject(new Rect(10, 10, 10, 10)))
+        rect1.add_component(new FilledShapeObject("#ff0000"))
+        rect1.add_component(new MovableBoundedShape(rect1))
         add_child_to_parent(rect1, group1)
     }
     {
-        let rect2: TreeNode = new TreeNodeImpl()
+        let rect2 = new TreeNodeImpl()
         rect2.title = 'rect'
-        rect2.components.push(new RectShapeObject())
-        rect2.components.push(new BoundedShapeObject(new Rect(200, 30, 50, 50)))
-        rect2.components.push(new FilledShapeObject('#0000FF'))
-        rect2.components.push(new MovableBoundedShape(rect2))
-        rect2.components.push(new ResizableRectObject(rect2))
+        rect2.add_component(new RectShapeObject())
+        rect2.add_component(new BoundedShapeObject(new Rect(200, 30, 50, 50)))
+        rect2.add_component(new FilledShapeObject('#0000FF'))
+        rect2.add_component(new MovableBoundedShape(rect2))
+        rect2.add_component(new ResizableRectObject(rect2))
         add_child_to_parent(rect2, group1)
     }
     {
-        let rect3: TreeNode = new TreeNodeImpl()
+        let rect3 = new TreeNodeImpl()
         rect3.title = 'rect'
-        rect3.components.push(new RectShapeObject())
-        rect3.components.push(new BoundedShapeObject(new Rect(50, 200, 50, 50)))
-        rect3.components.push(new FilledShapeObject('#00FF00'))
-        rect3.components.push(new MovableBoundedShape(rect3))
-        rect3.components.push(new ResizableRectObject(rect3))
+        rect3.add_component(new RectShapeObject())
+        rect3.add_component(new BoundedShapeObject(new Rect(50, 200, 50, 50)))
+        rect3.add_component(new FilledShapeObject('#00FF00'))
+        rect3.add_component(new MovableBoundedShape(rect3))
+        rect3.add_component(new ResizableRectObject(rect3))
         add_child_to_parent(rect3, root)
     }
     {
-        let circ1: TreeNode = new TreeNodeImpl()
-        circ1.title = 'circle'
-        circ1.components.push(new FilledShapeObject('#00FF00'))
-        circ1.components.push(new CircleShapeObject(new Point(100,100),20))
-        circ1.components.push(new MovableCircleObject(circ1))
-        circ1.components.push(new CircleLikeRadiusSelection(circ1))
+        let circ1 = make_std_circle()
         add_child_to_parent(circ1, root)
     }
     {
-        let spiral:TreeNode = new TreeNodeImpl()
+        let spiral = new TreeNodeImpl()
         spiral.title = 'spiral'
-        spiral.components.push(new FilledShapeObject('#000000'))
-        spiral.components.push(new SpiralShapeObject(new Point(100,200),15))
-        spiral.components.push(new MovableSpiralObject(spiral))
-        spiral.components.push(new CircleLikeRadiusSelection(spiral))
+        spiral.add_component(new FilledShapeObject('#000000'))
+        spiral.add_component(new SpiralShapeObject(new Point(100,200),15))
+        spiral.add_component(new MovableSpiralObject(spiral))
+        spiral.add_component(new CircleLikeRadiusSelection(spiral))
         add_child_to_parent(spiral,root)
     }
 /*
@@ -133,13 +128,13 @@ export function make_default_tree(state: GlobalState) {
     }
 */
     {
-        let text1 = new TreeNodeImpl() as TreeNode
+        let text1 = new TreeNodeImpl()
         text1.title = 'text1'
-        text1.components.push(new TextShapeObject("Jesse is a\nsilly head", 20, "center",'center'))
-        text1.components.push(new BoundedShapeObject(new Rect(50,150,150,100)))
-        text1.components.push(new MovableBoundedShape(text1))
-        text1.components.push(new ResizableRectObject(text1))
-        text1.components.push(new FilledShapeObject('#000000'))
+        text1.add_component(new TextShapeObject("Jesse is a\nsilly head", 20, "center",'center'))
+        text1.add_component(new BoundedShapeObject(new Rect(50,150,150,100)))
+        text1.add_component(new MovableBoundedShape(text1))
+        text1.add_component(new ResizableRectObject(text1))
+        text1.add_component(new FilledShapeObject('#000000'))
         add_child_to_parent(text1,root)
     }
     return root

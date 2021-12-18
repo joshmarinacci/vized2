@@ -192,7 +192,7 @@ class ImageSVGExporter implements SVGExporter {
 }
 
 export function make_image_node(url: string, state:GlobalState): TreeNode {
-    let image: TreeNode = new TreeNodeImpl()
+    let image = new TreeNodeImpl()
     image.title = 'image'
     let iso = new ImageShapeObject()
     let bds = new BoundedShapeObject(new Rect(100, 100, 200, 200))
@@ -201,10 +201,10 @@ export function make_image_node(url: string, state:GlobalState): TreeNode {
         bds.get_bounds().w = img.width
         bds.get_bounds().h = img.height
     })
-    image.components.push(iso)
-    image.components.push(bds)
-    image.components.push(new MovableBoundedShape(image))
-    image.components.push(new ResizableImageObject(image))
+    image.add_component(iso)
+    image.add_component(bds)
+    image.add_component(new MovableBoundedShape(image))
+    image.add_component(new ResizableImageObject(image))
     return image
 }
 

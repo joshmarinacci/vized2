@@ -228,17 +228,21 @@ export class CircleLikeRadiusSelection implements RadiusSelection {
     }
 }
 
+export function make_std_circle():TreeNodeImpl {
+    let circle = new TreeNodeImpl()
+    circle.title = 'circle'
+    circle.components.push(new CircleShapeObject(new Point(100, 100), 50))
+    circle.components.push(new FilledShapeObject("#ff00ff"))
+    circle.components.push(new MovableCircleObject(circle))
+    circle.components.push(new CircleLikeRadiusSelection(circle))
+    return circle
+}
+
 export const make_circle: Action = {
     use_gui: false,
     title: "add circle",
     fun(node: TreeNode, state: GlobalState): void {
-        let circle = new TreeNodeImpl()
-        circle.title = 'circle'
-        circle.components.push(new CircleShapeObject(new Point(100, 100), 50))
-        circle.components.push(new FilledShapeObject("#ff00ff"))
-        circle.components.push(new MovableCircleObject(circle))
-        circle.components.push(new CircleLikeRadiusSelection(circle))
-        add_child_to_parent(circle, node)
+        add_child_to_parent(make_std_circle(), node)
         state.dispatch('object-changed', {})
     }
 }

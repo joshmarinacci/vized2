@@ -16,27 +16,27 @@ import {TextShapeObject} from "./text_powerup";
 import {make_image_node} from "./image_powerup";
 
 function make_greeting_card_tree(state: GlobalState):TreeNode {
-    let root:TreeNode = new TreeNodeImpl()
+    let root = new TreeNodeImpl()
     root.title = 'root'
-    root.components.push(new DocMarker())
+    root.add_component(new DocMarker())
 
     {
-        let page1: TreeNode = new TreeNodeImpl()
+        let page1 = new TreeNodeImpl()
         page1.title = 'front page'
-        page1.components.push(new PageMarker())
-        page1.components.push(new BoundedShapeObject(new Rect(0, 0, 8.5 * 100 / 2, 11 * 100 / 2)))
-        page1.components.push(new PDFExportBounds("in", 1 / 100))
-        page1.components.push(new RectShapeObject())
-        page1.components.push(new FilledShapeObject('white'))
+        page1.add_component(new PageMarker())
+        page1.add_component(new BoundedShapeObject(new Rect(0, 0, 8.5 * 100 / 2, 11 * 100 / 2)))
+        page1.add_component(new PDFExportBounds("in", 1 / 100))
+        page1.add_component(new RectShapeObject())
+        page1.add_component(new FilledShapeObject('white'))
         add_child_to_parent(page1, root)
 
-        let text1 = new TreeNodeImpl() as TreeNode
+        let text1 = new TreeNodeImpl()
         text1.title = "Text: merry christmas"
-        text1.components.push(new TextShapeObject("Merry Christmas", 30, "center", 'center'))
-        text1.components.push(new BoundedShapeObject(new Rect(0, 100, 8.5 * 100 / 2, 200)))
-        text1.components.push(new MovableBoundedShape(text1))
-        text1.components.push(new ResizableRectObject(text1))
-        text1.components.push(new FilledShapeObject('#00CC00'))
+        text1.add_component(new TextShapeObject("Merry Christmas", 30, "center", 'center'))
+        text1.add_component(new BoundedShapeObject(new Rect(0, 100, 8.5 * 100 / 2, 200)))
+        text1.add_component(new MovableBoundedShape(text1))
+        text1.add_component(new ResizableRectObject(text1))
+        text1.add_component(new FilledShapeObject('#00CC00'))
         add_child_to_parent(text1, page1)
 
         let img = make_image_node("https://vr.josh.earth/assets/2dimages/santa.png",state)
@@ -45,22 +45,22 @@ function make_greeting_card_tree(state: GlobalState):TreeNode {
     }
 
     {
-        let page2: TreeNode = new TreeNodeImpl()
+        let page2 = new TreeNodeImpl()
         page2.title = 'front page'
-        page2.components.push(new PageMarker())
-        page2.components.push(new BoundedShapeObject(new Rect(0, 0, 8.5 * 100 / 2, 11 * 100 / 2)))
-        page2.components.push(new PDFExportBounds("in", 1 / 100))
-        page2.components.push(new RectShapeObject())
-        page2.components.push(new FilledShapeObject('white'))
+        page2.add_component(new PageMarker())
+        page2.add_component(new BoundedShapeObject(new Rect(0, 0, 8.5 * 100 / 2, 11 * 100 / 2)))
+        page2.add_component(new PDFExportBounds("in", 1 / 100))
+        page2.add_component(new RectShapeObject())
+        page2.add_component(new FilledShapeObject('white'))
         add_child_to_parent(page2, root)
 
-        let text2 = new TreeNodeImpl() as TreeNode
+        let text2 = new TreeNodeImpl()
         text2.title = "Text: Happy NY"
-        text2.components.push(new TextShapeObject("Happy NY", 30, "center", 'center'))
-        text2.components.push(new BoundedShapeObject(new Rect(0, 250, 8.5 * 100 / 2, 200)))
-        text2.components.push(new MovableBoundedShape(text2))
-        text2.components.push(new ResizableRectObject(text2))
-        text2.components.push(new FilledShapeObject('#00CC00'))
+        text2.add_component(new TextShapeObject("Happy NY", 30, "center", 'center'))
+        text2.add_component(new BoundedShapeObject(new Rect(0, 250, 8.5 * 100 / 2, 200)))
+        text2.add_component(new MovableBoundedShape(text2))
+        text2.add_component(new ResizableRectObject(text2))
+        text2.add_component(new FilledShapeObject('#00CC00'))
         add_child_to_parent(text2, page2)
 
         let img = make_image_node("https://vr.josh.earth/assets/2dimages/holly-leaves.png", state)
