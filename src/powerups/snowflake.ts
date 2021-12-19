@@ -63,13 +63,15 @@ class ParentDrawChildrenMarker implements ParentDrawChildren {
 export function make_std_snowflake():TreeNodeImpl {
     let group = new TreeNodeImpl()
     group.title = 'snowflake'
-    group.components.push(new SnowflakeObject(group,new Point(200, 200)))
+    group.add_component(new SnowflakeObject(group,new Point(200, 200)))
     group.add_component(new ParentDrawChildrenMarker())
-    // circle.components.push(new MovableCircleObject(circle))
+    // circle.add_component(new MovableCircleObject(circle))
     let circle = make_std_circle(new Point(0,0),10)
     add_child_to_parent(circle, group)
-    let rect = make_std_rect(new Rect(100,100,30,80))
-    add_child_to_parent(rect,group)
+    let rect1 = make_std_rect(new Rect(0,100,30,80))
+    add_child_to_parent(rect1,group)
+    let rect2 = make_std_rect(new Rect(100,100,30,30))
+    add_child_to_parent(rect2,group)
     return group
 }
 

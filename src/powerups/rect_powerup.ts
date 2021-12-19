@@ -204,11 +204,11 @@ export class RectJsonExporter implements JSONExporter {
 export function make_std_rect(bounds:Rect):TreeNodeImpl {
     let rect1 = new TreeNodeImpl()
     rect1.title = 'rect'
-    rect1.components.push(new RectShapeObject())
-    rect1.components.push(new BoundedShapeObject(bounds))
-    rect1.components.push(new FilledShapeObject("#ff0000"))
-    rect1.components.push(new MovableBoundedShape(rect1))
-    rect1.components.push(new ResizableRectObject(rect1))
+    rect1.add_component(new RectShapeObject())
+    rect1.add_component(new BoundedShapeObject(bounds))
+    rect1.add_component(new FilledShapeObject("#ff0000"))
+    rect1.add_component(new MovableBoundedShape(rect1))
+    rect1.add_component(new ResizableRectObject(rect1))
     return rect1
 
 }

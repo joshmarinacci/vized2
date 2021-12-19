@@ -231,7 +231,7 @@ export function make_std_circle(center:Point, radius:number):TreeNodeImpl {
     circle.add_component(shape)
     circle.add_component(new MovableCenterPosition(shape))
     circle.add_component(new RadiusSelectionCircleLike(shape))
-    circle.components.push(new FilledShapeObject("#ffcccc"))
+    circle.add_component(new FilledShapeObject("#ffcccc"))
     return circle
 }
 

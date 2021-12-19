@@ -224,7 +224,7 @@ class SpiralSVGExporter implements SVGExporter {
 export function make_std_spiral(center:Point, radius:number) {
     let node = new TreeNodeImpl()
     node.title = 'spiral'
-    node.components.push(new FilledShapeObject('#000000'))
+    node.add_component(new FilledShapeObject('#000000'))
     let shape = new SpiralShapeObject(center,radius)
     node.add_component(shape)
     node.add_component(new MovableCenterPosition(shape))

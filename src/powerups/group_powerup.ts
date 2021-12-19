@@ -205,9 +205,9 @@ const make_group: Action = {
     fun(node: TreeNode, state: GlobalState): void {
         let group = new TreeNodeImpl()
         group.title = 'group'
-        group.components.push(new GroupShapeObject(group, new Point(100,50)))
-        group.components.push(new GroupParentTranslate(group))
-        group.components.push(new MovableGroupShape(group))
+        group.add_component(new GroupShapeObject(group, new Point(100,50)))
+        group.add_component(new GroupParentTranslate(group))
+        group.add_component(new MovableGroupShape(group))
         add_child_to_parent(group, node)
         state.dispatch('object-changed', {})
     }
