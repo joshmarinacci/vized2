@@ -1,11 +1,9 @@
 import {
     forceDownloadBlob,
-    ParentTranslate,
-    ParentTranslateName,
     TreeNode,
     GlobalState,
     DefaultPowerup,
-    ParentDrawChildrenName
+    ParentDrawChildrenName, ParentLikeName, ParentLike
 } from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {Action} from "../actions";
@@ -15,9 +13,9 @@ function to_PNG(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalStat
     state.renderers.forEach(rend => rend.render(ctx,node,state))
     if(node.has_component(ParentDrawChildrenName)) return
     ctx.save()
-    if(node.has_component(ParentTranslateName)) {
-        let trans = node.get_component(ParentTranslateName) as ParentTranslate
-        let offset = trans.get_translation_point()
+    if(node.has_component(ParentLikeName)) {
+        let trans = node.get_component(ParentLikeName) as ParentLike
+        let offset = trans.get_position()
         ctx.translate(offset.x,offset.y)
     }
     node.children.forEach(ch => to_PNG(ctx, ch, state))

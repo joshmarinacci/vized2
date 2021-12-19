@@ -408,15 +408,13 @@ export interface RadiusSelection extends Component {
     get_handle():Handle
 }
 
-export const ParentTranslateName = "ParentTranslateName"
-export interface ParentTranslate extends Component {
-    get_translation_point(): Point;
+export const ParentLikeName = "ParentLikeName"
+export interface ParentLike extends CenterPosition {
+    get_child_bounds(): Rect
 }
 
 export const ParentDrawChildrenName = "ParentDrawChildrenName"
-export interface ParentDrawChildren extends Component {
-
-}
+export interface ParentDrawChildren extends Component {}
 
 
 export interface System {

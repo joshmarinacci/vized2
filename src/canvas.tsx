@@ -5,9 +5,7 @@ import {
     GlobalStateContext,
     Handle,
     Movable,
-    MovableName, ParentDrawChildrenName,
-    ParentTranslate,
-    ParentTranslateName,
+    MovableName, ParentDrawChildrenName, ParentLike, ParentLikeName,
     Point, RadiusSelection, RadiusSelectionName,
     Resizable,
     ResizableName,
@@ -26,7 +24,6 @@ import {
 } from "./actions";
 import {PopupContext, PopupContextImpl} from "./popup";
 import {BoundedShape, BoundedShapeName} from "./bounded_shape";
-import {GroupShape, GroupShapeName} from "./powerups/group";
 import {
     calc_total_min_bounds,
     fillRect,
@@ -44,9 +41,9 @@ function draw_node(state:GlobalState, ctx: CanvasRenderingContext2D, node: TreeN
     if(node.has_component(ParentDrawChildrenName)) return
     //get transform for children
     ctx.save()
-    if(node.has_component(ParentTranslateName)) {
-        let trans = node.get_component(ParentTranslateName) as ParentTranslate
-        let offset = trans.get_translation_point()
+    if(node.has_component(ParentLikeName)) {
+        let trans = node.get_component(ParentLikeName) as ParentLike
+        let offset = trans.get_position()
         ctx.translate(offset.x,offset.y)
     }
     node.children.forEach(ch => draw_node(state, ctx, ch))
@@ -55,8 +52,8 @@ function draw_node(state:GlobalState, ctx: CanvasRenderingContext2D, node: TreeN
 
 function draw_handles(state:GlobalState, ctx: CanvasRenderingContext2D, node:TreeNode) {
     let off = new Point(0,0)
-    if(node.has_component(ParentTranslateName)) {
-        let pt = (node.get_component(ParentTranslateName) as ParentTranslate).get_translation_point()
+    if(node.has_component(ParentLikeName)) {
+        let pt = (node.get_component(ParentLikeName) as ParentLike).get_position()
         off = pt
     }
     state.active_handles.forEach(hand => {
@@ -279,8 +276,8 @@ export function CanvasView(props:{}) {
         pt = pt.multiply(1/scale)
         pt = pt.add(min_bounds.position)
         let root = current_root
-        if(root.has_component(ParentTranslateName)) {
-            let off = (root.get_component(ParentTranslateName) as ParentTranslate).get_translation_point()
+        if(root.has_component(ParentLikeName)) {
+            let off = (root.get_component(ParentLikeName) as ParentLike).get_position()
             pt = pt.subtract(off)
         }
         return pt
@@ -291,10 +288,10 @@ export function CanvasView(props:{}) {
         return state.active_handles.find((hand:Handle) => hand.contains(pt))
     }
 
-    const over_group = (e:MouseEvent):TreeNode|null => {
+    const over_parent = (e:MouseEvent):TreeNode|null => {
         let pt = toRootPoint(e)
         for(let ch of current_root.children) {
-            if(ch.has_component(ParentTranslateName)) {
+            if(ch.has_component(ParentLikeName)) {
                 for(let pk of state.pickers) {
                     if(pk.pick_node(pt,ch)) {
                         return ch
@@ -329,9 +326,9 @@ export function CanvasView(props:{}) {
         draw_snaps(state,ctx,current_page)
         ctx.restore()
 
-        if(is_inset && current_root.has_component(GroupShapeName)) {
-            let group = current_root.get_component(GroupShapeName) as GroupShape
-            let child_bounds = group.get_child_bounds()
+        if(is_inset && current_root.has_component(ParentLikeName)) {
+            let parent = current_root.get_component(ParentLikeName) as ParentLike
+            let child_bounds = parent.get_child_bounds()
             strokeRect(ctx,child_bounds,'aqua')
             fillRectHole(ctx,min_bounds,child_bounds,'rgba(255,0,0,0.2)')
         }
@@ -423,7 +420,7 @@ export function CanvasView(props:{}) {
 
     // @ts-ignore
     const mousedouble = (e:MouseEvent<HTMLCanvasElement>) => {
-        let g = over_group(e)
+        let g = over_parent(e)
         if(g) enter_inset(g)
     }
 

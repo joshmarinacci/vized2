@@ -36,9 +36,6 @@ while in inset mode, children can be moved around appropriately
 
  */
 import {
-    CenterPosition,
-    ParentTranslate,
-    ParentTranslateName,
     PickingSystem,
     Point,
     Rect,
@@ -51,7 +48,7 @@ import {
     DefaultPowerup,
     MovableCenterPosition,
     MultiComp,
-    CenterPositionName
+    CenterPositionName, ParentLike, ParentLikeName
 } from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {SVGExporter, treenode_to_SVG} from "../exporters/svg";
@@ -60,20 +57,7 @@ import {Action} from "../actions";
 
 
 export const GroupShapeName = "GroupShapeName"
-export interface GroupShape extends CenterPosition {
-    get_child_bounds(): Rect
-}
-
-export class GroupParentTranslate implements ParentTranslate {
-    private group: TreeNodeImpl;
-    constructor(group1: TreeNodeImpl) {
-        this.group = group1
-        this.name = ParentTranslateName
-    }
-    name: string;
-    get_translation_point(): Point {
-        return (this.group.get_component(GroupShapeName) as GroupShape).get_position()
-    }
+export interface GroupShape extends ParentLike {
 }
 
 export class GroupShapeObject implements MultiComp, GroupShape {
@@ -106,7 +90,7 @@ export class GroupShapeObject implements MultiComp, GroupShape {
     }
 
     supports(): string[] {
-        return [GroupShapeName, CenterPositionName];
+        return [GroupShapeName, CenterPositionName, ParentLikeName];
     }
 
 }
@@ -204,7 +188,6 @@ export function make_std_group():TreeNodeImpl {
     group.title = 'group'
     let shape = new GroupShapeObject(group, new Point(100,50))
     group.add_component(shape)
-    group.add_component(new GroupParentTranslate(group))
     group.add_component(new MovableCenterPosition(shape))
     return group
 }
@@ -221,7 +204,6 @@ export class GroupPowerup extends DefaultPowerup{
     init(state: GlobalState) {
         state.pickers.push(new GroupPickSystem())
         state.renderers.push(new GroupRendererSystem())
-        // state.props_renderers.push(new ImagePropRendererSystem(state))
         state.svgexporters.push(new GroupSVGExporter())
         state.pdfexporters.push(new GroupPDFExporter())
     }

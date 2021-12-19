@@ -1,10 +1,10 @@
 import {
-    add_child_to_parent, CenterPosition, CenterPositionName,
+    add_child_to_parent, CenterPositionName,
     DefaultPowerup,
     GlobalState, MovableCenterPosition, MultiComp,
     PageName,
     ParentDrawChildren,
-    ParentDrawChildrenName,
+    ParentDrawChildrenName, ParentLike, ParentLikeName,
     PickingSystem,
     Point,
     Rect,
@@ -19,8 +19,7 @@ import {make_std_rect} from "./rect_powerup";
 import {SnowflakeEditor} from "./snowflake_editor";
 
 const SnowflakeName = "SnowflakeName"
-export interface Snowflake extends CenterPosition {
-    get_child_bounds(): Rect;
+export interface Snowflake extends ParentLike {
     fold_count():number
     set_fold_count(folds:number):void
 }
@@ -39,7 +38,7 @@ class SnowflakeObject implements MultiComp, Snowflake {
     }
 
     supports(): string[] {
-        return [SnowflakeName, CenterPositionName];
+        return [SnowflakeName, CenterPositionName, ParentLikeName];
     }
 
     get_child_bounds(): Rect {
