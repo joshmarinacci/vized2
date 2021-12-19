@@ -343,6 +343,10 @@ export class Rect {
 export interface Component {
     name: string,
 }
+export interface MultiComp {
+    isMulti():boolean
+    supports():string[]
+}
 
 export type TreeNode = {
     id: string,
@@ -432,26 +436,33 @@ export class TreeNodeImpl implements TreeNode {
     parent: TreeNode
     children: TreeNode[]
     components: Component[]
+    private comps:Map<string,Component>
     title: string
     constructor() {
         this.id = "tree_node_" + Math.floor(Math.random() * 1000000)
         this.title = "unnamed"
         this.children = []
         this.components = []
+        this.comps = new Map<string, Component>()
     }
-    add_component(comp:Component, name?:string) {
+    add_component(comp:Component) {
         this.components.push(comp)
+        this.comps.set(comp.name,comp)
+        // @ts-ignore
+        if(typeof comp.isMulti !== "undefined") {
+            (comp as unknown as MultiComp).supports().forEach(name => {
+                this.comps.set(name,comp)
+            })
+        }
     }
 
     get_component(name:string): Component {
         // @ts-ignore
-        return this.components.find(comp => comp && comp.name === name)
+        return this.comps.get(name)
     }
 
     has_component(name:string): boolean {
-        let comps = this.components.find(comp => comp && comp.name === name)
-        if (comps) return true
-        return false
+        return this.comps.has(name)
     }
 }
 

@@ -7,7 +7,7 @@ import {
     FilledShapeObject,
     GlobalState, Handle,
     Movable,
-    MovableName,
+    MovableName, MultiComp,
     PageName,
     PDFExporter,
     PickingSystem,
@@ -21,7 +21,6 @@ import {JSONExporter} from "../exporters/json";
 import {cssToPdfColor} from "../exporters/pdf";
 import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
-import {SpiralShapeName, SpiralShapeObject} from "./spiral";
 
 export const CircleShapeName = "CircleShapeName"
 export interface CircleShape extends Component {
@@ -29,14 +28,26 @@ export interface CircleShape extends Component {
     get_radius():number
     set_radius(v:number): void;
 }
-export class CircleShapeObject implements CircleShape {
+const CenterPositionName = "CenterPositionName"
+interface CenterPosition extends Component {}
+
+export class CircleShapeObject implements MultiComp, CircleShape, Movable, CenterPosition, RadiusSelection {
     name: string;
     private pos: Point;
     private radius: number;
+    private handle: RadiusHandle;
     constructor(pos:Point, radius:number) {
         this.name = CircleShapeName
         this.pos = pos
         this.radius = radius
+        this.handle = new RadiusHandle(this)
+    }
+
+    isMulti(): boolean {
+        return true
+    }
+    supports(): string[] {
+        return [CircleShapeName, MovableName, CenterPositionName, RadiusSelectionName]
     }
 
     get_position(): Point {
@@ -49,6 +60,15 @@ export class CircleShapeObject implements CircleShape {
 
     set_radius(v:number) {
         this.radius = v
+    }
+
+    get_handle(): Handle {
+        return this.handle
+    }
+
+    moveBy(pt: Point): void {
+        this.get_position().x += pt.x
+        this.get_position().y += pt.y
     }
 
 }
@@ -103,19 +123,6 @@ export class CirclePickSystem implements PickingSystem {
 }
 
 
-export class MovableCircleObject implements Movable {
-    name: string;
-    private readonly node: TreeNode;
-    constructor(node:TreeNode) {
-        this.node = node
-        this.name = MovableName
-    }
-    moveBy(pt: Point): void {
-        let circle = this.node.get_component(CircleShapeName) as CircleShape
-        circle.get_position().x += pt.x
-        circle.get_position().y += pt.y
-    }
-}
 
 
 export class CircleSVGExporter implements SVGExporter {
@@ -170,24 +177,16 @@ export class CirclePDFExporter implements PDFExporter {
 }
 
 class RadiusHandle extends Handle {
-    private node: TreeNode;
+    private circle: CircleShapeObject;
 
-    constructor(node: TreeNode) {
+    constructor(circle:CircleShapeObject) {
         super(0, 0);
-        this.node = node
+        this.circle = circle
     }
 
     update_from_node() {
-        if(this.node.has_component(CircleShapeName)) {
-            let circle = this.node.get_component(CircleShapeName) as CircleShape
-            this.x = circle.get_position().x + circle.get_radius() - 5
-            this.y = circle.get_position().y - 5
-        }
-        if(this.node.has_component(SpiralShapeName)) {
-            let circle = this.node.get_component(SpiralShapeName) as SpiralShapeObject
-            this.x = circle.get_position().x + circle.get_radius() - 5
-            this.y = circle.get_position().y - 5
-        }
+        this.x = this.circle.get_position().x + this.circle.get_radius() - 5
+        this.y = this.circle.get_position().y - 5
     }
 
     override moveBy(diff: Point) {
@@ -197,44 +196,18 @@ class RadiusHandle extends Handle {
     }
 
     private update_to_node() {
-        if(this.node.has_component(CircleShapeName)) {
-            let circ = this.node.get_component(CircleShapeName) as CircleShape
-            let rad = this.x + 5 - circ.get_position().x
-            if (rad < 1) rad = 1
-            circ.set_radius(rad)
-        }
-        if(this.node.has_component(SpiralShapeName)) {
-            let circ = this.node.get_component(SpiralShapeName) as SpiralShapeObject
-            let rad = this.x + 5 - circ.get_position().x
-            if (rad < 1) rad = 1
-            circ.set_radius(rad)
-        }
+        let rad = this.x + 5 - this.circle.get_position().x
+        if (rad < 1) rad = 1
+        this.circle.set_radius(rad)
     }
 }
 
-export class CircleLikeRadiusSelection implements RadiusSelection {
-    name: string;
-    private node: TreeNode;
-    private handle: RadiusHandle;
-
-    constructor(circle: TreeNode) {
-        this.node = circle
-        this.name = RadiusSelectionName
-        this.handle = new RadiusHandle(this.node)
-    }
-
-    get_handle(): Handle {
-        return this.handle
-    }
-}
 
 export function make_std_circle(center:Point, radius:number):TreeNodeImpl {
     let circle = new TreeNodeImpl()
     circle.title = 'circle'
-    circle.components.push(new CircleShapeObject(center, radius))
-    circle.components.push(new FilledShapeObject("#ff00ff"))
-    circle.components.push(new MovableCircleObject(circle))
-    circle.components.push(new CircleLikeRadiusSelection(circle))
+    circle.add_component(new CircleShapeObject(center, radius))
+    circle.components.push(new FilledShapeObject("#ffcccc"))
     return circle
 }
 
@@ -282,7 +255,7 @@ export class CircleShapeJSONExporter implements JSONExporter {
     }
 
     fromJSON(obj: any, node:TreeNode): Component {
-        if(obj.name === MovableName) return new MovableCircleObject(node)
+        // if(obj.name === MovableName) return new MovableCircleObject(node)
         if(obj.name === CircleShapeName) return new CircleShapeObject((new Point(0,0)).from_object(obj.position),obj.radius)
         throw new Error(`cannot export json for ${obj.name}`)
     }
