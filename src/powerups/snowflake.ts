@@ -1,6 +1,5 @@
 import {
     add_child_to_parent, CenterPosition, CenterPositionName,
-    Component,
     DefaultPowerup,
     GlobalState, MovableCenterPosition, MultiComp,
     PageName,
@@ -17,21 +16,26 @@ import {Action} from "../actions";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {make_std_circle} from "./circle";
 import {make_std_rect} from "./rect_powerup";
+import {SnowflakeEditor} from "./snowflake_editor";
 
 const SnowflakeName = "SnowflakeName"
-export interface Snowflake extends CenterPosition{
+export interface Snowflake extends CenterPosition {
     get_child_bounds(): Rect;
+    fold_count():number
+    set_fold_count(folds:number):void
 }
 
 class SnowflakeObject implements MultiComp, Snowflake {
     private position: Point;
     name: string;
     private node: TreeNodeImpl;
+    private _fold_count: number;
 
     constructor(node: TreeNodeImpl, position: Point) {
         this.node = node
         this.position = position
         this.name = SnowflakeName
+        this._fold_count = 8
     }
 
     supports(): string[] {
@@ -55,6 +59,14 @@ class SnowflakeObject implements MultiComp, Snowflake {
 
     isMulti(): boolean {
         return true
+    }
+
+    fold_count(): number {
+        return this._fold_count
+    }
+
+    set_fold_count(folds: number): void {
+        this._fold_count = folds
     }
 }
 
@@ -138,8 +150,8 @@ export class SnowflakeRendererSystem implements RenderingSystem {
         ctx.save()
         let pos = flake.get_position()
         ctx.translate(pos.x,pos.y)
-        for(let i=0; i<6; i++) {
-            ctx.rotate(Math.PI*2/6)
+        for(let i=0; i<flake.fold_count(); i++) {
+            ctx.rotate(Math.PI*2/flake.fold_count())
             node.children.forEach(ch => this.draw_node(ctx, ch, state))
         }
         ctx.restore()
@@ -159,9 +171,6 @@ export class SnowflakePowerup extends DefaultPowerup{
     init(state: GlobalState) {
         state.pickers.push(new SnowflakePickSystem())
         state.renderers.push(new SnowflakeRendererSystem())
-        // state.svgexporters.push(new CircleSVGExporter())
-        // state.pdfexporters.push(new CirclePDFExporter())
-        // state.jsonexporters.push(new CircleShapeJSONExporter())
     }
 
     child_options(node: TreeNode): Action[] {
@@ -169,6 +178,14 @@ export class SnowflakePowerup extends DefaultPowerup{
             return [make_snowflake_action]
         }
         return [];
+    }
+    override can_edit_by_name(comp: string): boolean {
+        if(comp === SnowflakeName) return true
+        return false
+    }
+    override get_editor_by_name(name: string, state: GlobalState): any {
+        if(name === SnowflakeName) return SnowflakeEditor
+        return null
     }
 
 }

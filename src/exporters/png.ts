@@ -4,7 +4,8 @@ import {
     ParentTranslateName,
     TreeNode,
     GlobalState,
-    DefaultPowerup
+    DefaultPowerup,
+    ParentDrawChildrenName
 } from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {Action} from "../actions";
@@ -12,6 +13,7 @@ import {Action} from "../actions";
 function to_PNG(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState) {
     //draw the current node
     state.renderers.forEach(rend => rend.render(ctx,node,state))
+    if(node.has_component(ParentDrawChildrenName)) return
     ctx.save()
     if(node.has_component(ParentTranslateName)) {
         let trans = node.get_component(ParentTranslateName) as ParentTranslate
