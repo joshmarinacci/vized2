@@ -22,16 +22,20 @@ import {cssToPdfColor} from "../exporters/pdf";
 import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
 
-export const CircleShapeName = "CircleShapeName"
-export interface CircleShape extends Component {
+export const CircleLikeShapeName = "CircleLikeShape"
+export interface CircleLikeShape extends Component {
     get_position():Point
     get_radius():number
     set_radius(v:number): void;
 }
-const CenterPositionName = "CenterPositionName"
-interface CenterPosition extends Component {}
 
-export class CircleShapeObject implements MultiComp, CircleShape, Movable, CenterPosition, RadiusSelection {
+export const CircleShapeName = "CircleShapeName"
+export interface CircleShape extends CircleLikeShape {
+}
+export const CenterPositionName = "CenterPositionName"
+export interface CenterPosition extends Component {}
+
+export class CircleShapeObject implements MultiComp,CircleLikeShape, CircleShape, Movable, CenterPosition, RadiusSelection {
     name: string;
     private pos: Point;
     private radius: number;
@@ -47,7 +51,7 @@ export class CircleShapeObject implements MultiComp, CircleShape, Movable, Cente
         return true
     }
     supports(): string[] {
-        return [CircleShapeName, MovableName, CenterPositionName, RadiusSelectionName]
+        return [CircleLikeShapeName, CircleShapeName, MovableName, CenterPositionName, RadiusSelectionName]
     }
 
     get_position(): Point {
@@ -176,10 +180,10 @@ export class CirclePDFExporter implements PDFExporter {
     }
 }
 
-class RadiusHandle extends Handle {
-    private circle: CircleShapeObject;
+export class RadiusHandle extends Handle {
+    private circle: CircleLikeShape
 
-    constructor(circle:CircleShapeObject) {
+    constructor(circle:CircleLikeShape) {
         super(0, 0);
         this.circle = circle
     }
