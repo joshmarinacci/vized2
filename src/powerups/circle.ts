@@ -26,7 +26,7 @@ import {
 import {JSONExporter} from "../exporters/json";
 import {cssToPdfColor} from "../exporters/pdf";
 import {Action} from "../actions";
-import {GroupShapeName} from "./group_powerup";
+import {GroupShapeName} from "./group";
 
 export const CircleLikeShapeName = "CircleLikeShape"
 export interface CircleLikeShape extends CenterPosition {

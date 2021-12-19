@@ -22,7 +22,7 @@ import {
 import {PDFExporter} from "../exporters/pdf";
 import {SVGExporter} from "../exporters/svg";
 import {Action} from "../actions";
-import {GroupShapeName} from "./group_powerup";
+import {GroupShapeName} from "./group";
 import {make_image_file} from "./image_from_file";
 
 const ImageShapeName = "ImageShapeName"

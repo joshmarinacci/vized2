@@ -29,12 +29,7 @@ import {FilledShapeJSONExporter, JSONPowerup} from "./exporters/json";
 import {PDFExportBounds, PDFPowerup} from "./exporters/pdf";
 import {SVGPowerup} from "./exporters/svg";
 import {PNGPowerup} from "./exporters/png";
-import {
-    GroupParentTranslate,
-    GroupPowerup,
-    GroupShapeObject,
-    MovableGroupShape
-} from "./powerups/group_powerup";
+import {GroupPowerup, make_std_group} from "./powerups/group";
 import {
     ImagePowerup
 } from "./powerups/image_powerup";
@@ -67,11 +62,7 @@ export function make_default_tree(state: GlobalState) {
     root.add_component(new FilledShapeObject('white'))
 
 
-    let group1 = new TreeNodeImpl()
-    group1.title = 'group'
-    group1.add_component(new GroupShapeObject(group1, new Point(100,50)))
-    group1.add_component(new GroupParentTranslate(group1))
-    group1.add_component(new MovableGroupShape(group1))
+    let group1 = make_std_group()
     add_child_to_parent(group1,root)
 
     {

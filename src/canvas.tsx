@@ -26,7 +26,7 @@ import {
 } from "./actions";
 import {PopupContext, PopupContextImpl} from "./popup";
 import {BoundedShape, BoundedShapeName} from "./bounded_shape";
-import {GroupShape, GroupShapeName} from "./powerups/group_powerup";
+import {GroupShape, GroupShapeName} from "./powerups/group";
 import {
     calc_total_min_bounds,
     fillRect,

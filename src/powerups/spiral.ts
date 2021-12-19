@@ -21,7 +21,7 @@ import {
 import {JSONExporter} from "../exporters/json";
 import {cssToPdfColor} from "../exporters/pdf";
 import {Action} from "../actions";
-import {GroupShapeName} from "./group_powerup";
+import {GroupShapeName} from "./group";
 import {SpiralEditor} from "./spiral_editor";
 import {
     CircleLikeShape, CircleLikeShapeName,

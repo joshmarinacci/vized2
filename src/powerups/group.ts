@@ -36,13 +36,22 @@ while in inset mode, children can be moved around appropriately
 
  */
 import {
-    Component,
-    Movable, MovableName, ParentTranslate, ParentTranslateName,
+    CenterPosition,
+    ParentTranslate,
+    ParentTranslateName,
     PickingSystem,
     Point,
-    Rect, RenderingSystem, TreeNode,
+    Rect,
+    RenderingSystem,
+    TreeNode,
     TreeNodeImpl,
-    GlobalState, PageName, add_child_to_parent, DefaultPowerup
+    GlobalState,
+    PageName,
+    add_child_to_parent,
+    DefaultPowerup,
+    MovableCenterPosition,
+    MultiComp,
+    CenterPositionName
 } from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {SVGExporter, treenode_to_SVG} from "../exporters/svg";
@@ -51,9 +60,8 @@ import {Action} from "../actions";
 
 
 export const GroupShapeName = "GroupShapeName"
-export interface GroupShape extends Component {
-    get_position():Point
-    get_child_bounds(): Rect;
+export interface GroupShape extends CenterPosition {
+    get_child_bounds(): Rect
 }
 
 export class GroupParentTranslate implements ParentTranslate {
@@ -68,7 +76,7 @@ export class GroupParentTranslate implements ParentTranslate {
     }
 }
 
-export class GroupShapeObject implements GroupShape {
+export class GroupShapeObject implements MultiComp, GroupShape {
     name: string;
     private node: TreeNode;
     private position: Point;
@@ -93,24 +101,16 @@ export class GroupShapeObject implements GroupShape {
         return this.position
     }
 
-}
-
-export class MovableGroupShape implements Movable {
-    name: string;
-    private group: TreeNodeImpl;
-    constructor(group1: TreeNodeImpl) {
-        this.name = MovableName
-        this.group = group1
+    isMulti(): boolean {
+        return true
     }
 
-
-    moveBy(pt: Point): void {
-        let group:GroupShape = this.group.get_component(GroupShapeName) as GroupShape
-        group.get_position().x += pt.x
-        group.get_position().y += pt.y
+    supports(): string[] {
+        return [GroupShapeName, CenterPositionName];
     }
 
 }
+
 
 const GroupRendererSystemName = 'GroupRendererSystemName'
 export class GroupRendererSystem implements RenderingSystem {
@@ -199,16 +199,20 @@ class GroupPDFExporter implements PDFExporter {
     }
 }
 
+export function make_std_group():TreeNodeImpl {
+    let group = new TreeNodeImpl()
+    group.title = 'group'
+    let shape = new GroupShapeObject(group, new Point(100,50))
+    group.add_component(shape)
+    group.add_component(new GroupParentTranslate(group))
+    group.add_component(new MovableCenterPosition(shape))
+    return group
+}
 const make_group: Action = {
     use_gui: false,
     title: "add group",
     fun(node: TreeNode, state: GlobalState): void {
-        let group = new TreeNodeImpl()
-        group.title = 'group'
-        group.add_component(new GroupShapeObject(group, new Point(100,50)))
-        group.add_component(new GroupParentTranslate(group))
-        group.add_component(new MovableGroupShape(group))
-        add_child_to_parent(group, node)
+        add_child_to_parent(make_std_group(), node)
         state.dispatch('object-changed', {})
     }
 }

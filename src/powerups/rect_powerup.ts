@@ -26,7 +26,7 @@ import {
 } from "../bounded_shape";
 import {JSONExporter} from "../exporters/json";
 import {Action} from "../actions";
-import {GroupShapeName} from "./group_powerup";
+import {GroupShapeName} from "./group";
 import {jsPDF, PatternData, TilingPattern} from "jspdf";
 
 const RectShapeName = "RectShape"
