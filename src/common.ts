@@ -363,7 +363,6 @@ export type TreeNode = {
     title:string,
     parent: TreeNode,
     children: TreeNode[],
-    //components: Component[],
     has_component(name:string):boolean
     get_component(name:string):Component
 }
@@ -415,6 +414,11 @@ export interface ParentLike extends CenterPosition {
 
 export const ParentDrawChildrenName = "ParentDrawChildrenName"
 export interface ParentDrawChildren extends Component {}
+
+export const RenderBoundsName = "RenderBoundsName"
+export interface RenderBounds extends Component {
+    get_bounds():Rect
+}
 
 
 export interface System {

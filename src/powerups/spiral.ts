@@ -9,10 +9,10 @@ import {
     MovableCenterPosition,
     MovableName,
     MultiComp,
-    PageName,
+    PageName, ParentLikeName,
     PDFExporter,
     PickingSystem,
-    Point,
+    Point, Rect, RenderBounds, RenderBoundsName,
     RenderingSystem,
     SVGExporter,
     TreeNode,
@@ -21,7 +21,6 @@ import {
 import {JSONExporter} from "../exporters/json";
 import {cssToPdfColor} from "../exporters/pdf";
 import {Action} from "../actions";
-import {GroupShapeName} from "./group";
 import {SpiralEditor} from "./spiral_editor";
 import {
     CircleLikeShape, CircleLikeShapeName,
@@ -29,7 +28,7 @@ import {
 } from "./circle";
 
 export const SpiralShapeName = "SpiralShape"
-export class SpiralShapeObject implements Component, MultiComp, CircleLikeShape {
+export class SpiralShapeObject implements Component, MultiComp, CircleLikeShape, RenderBounds {
     private radius: number;
     private pos: Point;
     private wrap: number;
@@ -40,7 +39,7 @@ export class SpiralShapeObject implements Component, MultiComp, CircleLikeShape 
         this.wrap = 5
     }
     supports(): string[] {
-        return [this.name, CircleLikeShapeName, CenterPositionName];
+        return [this.name, CircleLikeShapeName, CenterPositionName, RenderBoundsName];
     }
     name: string;
     get_radius() {
@@ -61,6 +60,15 @@ export class SpiralShapeObject implements Component, MultiComp, CircleLikeShape 
 
     isMulti(): boolean {
         return true
+    }
+
+    get_bounds(): Rect {
+        return new Rect(
+            this.pos.x - this.radius,
+            this.pos.y - this.radius,
+            this.radius*2,
+            this.radius*2
+        )
     }
 }
 
@@ -277,7 +285,7 @@ export class SpiralPowerup extends DefaultPowerup{
     }
 
     child_options(node: TreeNode): Action[] {
-        if(node.has_component(GroupShapeName) || node.has_component(PageName)) return [make_spiral]
+        if(node.has_component(ParentLikeName) || node.has_component(PageName)) return [make_spiral]
         return [];
     }
 }

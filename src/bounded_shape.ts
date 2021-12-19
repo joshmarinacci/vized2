@@ -2,10 +2,10 @@ import {
     Component, DefaultPowerup, GlobalState,
     Handle,
     Movable,
-    MovableName,
+    MovableName, MultiComp,
     PickingSystem,
     Point,
-    Rect,
+    Rect, RenderBounds, RenderBoundsName,
     Resizable,
     ResizableName,
     TreeNode
@@ -13,10 +13,10 @@ import {
 import {Action} from "./actions";
 
 export const BoundedShapeName = "BoundedShapeName";
-export interface BoundedShape extends Component {
+export interface BoundedShape extends Component, RenderBounds {
     get_bounds(): Rect
 }
-export class BoundedShapeObject implements BoundedShape {
+export class BoundedShapeObject implements MultiComp, BoundedShape, RenderBounds {
     name: string;
     private readonly rect: Rect;
 
@@ -27,6 +27,14 @@ export class BoundedShapeObject implements BoundedShape {
 
     get_bounds(): Rect {
         return this.rect
+    }
+
+    isMulti(): boolean {
+        return true;
+    }
+
+    supports(): string[] {
+        return [BoundedShapeName, RenderBoundsName];
     }
 
 }

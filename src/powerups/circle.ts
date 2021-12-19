@@ -12,12 +12,12 @@ import {
     MovableCenterPosition,
     MovableName,
     MultiComp,
-    PageName,
+    PageName, ParentLikeName,
     PDFExporter,
     PickingSystem,
     Point,
     RadiusSelection,
-    RadiusSelectionName,
+    RadiusSelectionName, Rect, RenderBounds, RenderBoundsName,
     RenderingSystem,
     SVGExporter,
     TreeNode,
@@ -26,7 +26,6 @@ import {
 import {JSONExporter} from "../exporters/json";
 import {cssToPdfColor} from "../exporters/pdf";
 import {Action} from "../actions";
-import {GroupShapeName} from "./group";
 
 export const CircleLikeShapeName = "CircleLikeShape"
 export interface CircleLikeShape extends CenterPosition {
@@ -54,7 +53,7 @@ export class RadiusSelectionCircleLike implements RadiusSelection {
 
 }
 
-export class CircleShapeObject implements MultiComp, CircleLikeShape, CircleShape, CenterPosition {
+export class CircleShapeObject implements MultiComp, CircleLikeShape, CircleShape, CenterPosition, RenderBounds {
     name: string;
     private pos: Point;
     private radius: number;
@@ -68,7 +67,7 @@ export class CircleShapeObject implements MultiComp, CircleLikeShape, CircleShap
         return true
     }
     supports(): string[] {
-        return [CircleLikeShapeName, CircleShapeName, CenterPositionName]
+        return [CircleLikeShapeName, CircleShapeName, CenterPositionName, RenderBoundsName]
     }
 
     get_position(): Point {
@@ -81,6 +80,15 @@ export class CircleShapeObject implements MultiComp, CircleLikeShape, CircleShap
 
     set_radius(v:number) {
         this.radius = v
+    }
+
+    get_bounds(): Rect {
+        return new Rect(
+            this.pos.x - this.radius,
+            this.pos.y - this.radius,
+            this.radius*2,
+            this.radius*2
+        )
     }
 }
 
@@ -244,7 +252,7 @@ export class CirclePowerup extends DefaultPowerup{
     }
 
     child_options(node: TreeNode): Action[] {
-        if(node.has_component(GroupShapeName) || node.has_component(PageName)) {
+        if(node.has_component(ParentLikeName) || node.has_component(PageName)) {
             return [make_circle]
         }
         return [];

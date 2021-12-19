@@ -4,7 +4,7 @@ import {
     DefaultPowerup,
     GlobalState,
     Handle, ImageReference,
-    PageName,
+    PageName, ParentLikeName,
     Point,
     Rect,
     RenderingSystem,
@@ -22,7 +22,6 @@ import {
 import {PDFExporter} from "../exporters/pdf";
 import {SVGExporter} from "../exporters/svg";
 import {Action} from "../actions";
-import {GroupShapeName} from "./group";
 import {make_image_file} from "./image_from_file";
 
 const ImageShapeName = "ImageShapeName"
@@ -226,7 +225,7 @@ export class ImagePowerup extends DefaultPowerup {
     }
 
     child_options(node: TreeNode): Action[] {
-        if(node.has_component(GroupShapeName) || node.has_component(PageName)) {
+        if(node.has_component(ParentLikeName) || node.has_component(PageName)) {
             return [make_image, make_image_file]
         }
         return [];

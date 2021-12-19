@@ -7,7 +7,7 @@ import {
     FilledShapeObject,
     GlobalState,
     MovableName,
-    PageName,
+    PageName, ParentLikeName,
     PDFExporter,
     Rect,
     RenderingSystem,
@@ -26,7 +26,6 @@ import {
 } from "../bounded_shape";
 import {JSONExporter} from "../exporters/json";
 import {Action} from "../actions";
-import {GroupShapeName} from "./group";
 import {jsPDF, PatternData, TilingPattern} from "jspdf";
 
 const RectShapeName = "RectShape"
@@ -231,7 +230,7 @@ export class RectPowerup extends DefaultPowerup {
     }
 
     child_options(node: TreeNode): Action[] {
-        if(node.has_component(GroupShapeName) || node.has_component(PageName)) {
+        if(node.has_component(ParentLikeName) || node.has_component(PageName)) {
             return [make_rectangle]
         }
         return [];

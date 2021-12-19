@@ -7,13 +7,12 @@ import {
     ParentDrawChildrenName, ParentLike, ParentLikeName,
     PickingSystem,
     Point,
-    Rect,
+    Rect, RenderBounds, RenderBoundsName,
     RenderingSystem,
     TreeNode,
     TreeNodeImpl
 } from "../common";
 import {Action} from "../actions";
-import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {make_std_circle} from "./circle";
 import {make_std_rect} from "./rect_powerup";
 import {SnowflakeEditor} from "./snowflake_editor";
@@ -24,7 +23,7 @@ export interface Snowflake extends ParentLike {
     set_fold_count(folds:number):void
 }
 
-class SnowflakeObject implements MultiComp, Snowflake {
+class SnowflakeObject implements MultiComp, Snowflake, RenderBounds {
     private position: Point;
     name: string;
     private node: TreeNodeImpl;
@@ -44,8 +43,8 @@ class SnowflakeObject implements MultiComp, Snowflake {
     get_child_bounds(): Rect {
         let rect = new Rect(0,0,0,0).makeEmpty()
         this.node.children.forEach(ch => {
-            if(ch.has_component(BoundedShapeName)) {
-                let bds = ch.get_component(BoundedShapeName) as BoundedShape
+            if(ch.has_component(RenderBoundsName)) {
+                let bds = ch.get_component(RenderBoundsName) as RenderBounds
                 rect = rect.add(bds.get_bounds())
             }
         })
@@ -66,6 +65,10 @@ class SnowflakeObject implements MultiComp, Snowflake {
 
     set_fold_count(folds: number): void {
         this._fold_count = folds
+    }
+
+    get_bounds(): Rect {
+        return this.get_child_bounds()
     }
 }
 
@@ -173,7 +176,7 @@ export class SnowflakePowerup extends DefaultPowerup{
     }
 
     child_options(node: TreeNode): Action[] {
-        if(node.has_component(SnowflakeName) || node.has_component(PageName)) {
+        if(node.has_component(ParentLikeName) || node.has_component(PageName)) {
             return [make_snowflake_action]
         }
         return [];

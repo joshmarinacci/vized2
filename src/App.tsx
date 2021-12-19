@@ -83,6 +83,10 @@ export function make_default_tree(state: GlobalState) {
         add_child_to_parent(rect2, group1)
     }
     {
+        let circ1 = make_std_circle(new Point(100,100),10)
+        add_child_to_parent(circ1,group1)
+    }
+    {
         let rect3 = new TreeNodeImpl()
         rect3.title = 'rect'
         rect3.add_component(new RectShapeObject())

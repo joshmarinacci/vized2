@@ -48,9 +48,8 @@ import {
     DefaultPowerup,
     MovableCenterPosition,
     MultiComp,
-    CenterPositionName, ParentLike, ParentLikeName
+    CenterPositionName, ParentLike, ParentLikeName, RenderBoundsName, RenderBounds
 } from "../common";
-import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {SVGExporter, treenode_to_SVG} from "../exporters/svg";
 import {cssToPdfColor, PDFExporter, treenode_to_PDF} from "../exporters/pdf";
 import {Action} from "../actions";
@@ -60,7 +59,7 @@ export const GroupShapeName = "GroupShapeName"
 export interface GroupShape extends ParentLike {
 }
 
-export class GroupShapeObject implements MultiComp, GroupShape {
+export class GroupShapeObject implements MultiComp, GroupShape, RenderBounds {
     name: string;
     private node: TreeNode;
     private position: Point;
@@ -73,8 +72,8 @@ export class GroupShapeObject implements MultiComp, GroupShape {
     get_child_bounds(): Rect {
         let rect = new Rect(0,0,0,0).makeEmpty()
         this.node.children.forEach(ch => {
-            if(ch.has_component(BoundedShapeName)) {
-                let bds = ch.get_component(BoundedShapeName) as BoundedShape
+            if(ch.has_component(RenderBoundsName)) {
+                let bds = ch.get_component(RenderBoundsName) as RenderBounds
                 rect = rect.add(bds.get_bounds())
             }
         })
@@ -90,7 +89,11 @@ export class GroupShapeObject implements MultiComp, GroupShape {
     }
 
     supports(): string[] {
-        return [GroupShapeName, CenterPositionName, ParentLikeName];
+        return [GroupShapeName, CenterPositionName, ParentLikeName, RenderBoundsName];
+    }
+
+    get_bounds(): Rect {
+        return this.get_child_bounds()
     }
 
 }
