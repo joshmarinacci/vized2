@@ -8,7 +8,6 @@ import {
     GlobalState,
     Movable,
     MovableName, PageName,
-    PDFExporter,
     Point,
     Rect,
     RenderingSystem,
@@ -24,7 +23,7 @@ import {
     MovableBoundedShape,
     ResizableRectObject
 } from "../bounded_shape";
-import {cssToPdfColor} from "../exporters/pdf";
+import {cssToPdfColor, PDFExporter} from "../exporters/pdf";
 import {JSONExporter} from "../exporters/json";
 import {Action} from "../actions";
 import {TextShapeEditor} from "./text_editor";

@@ -4,16 +4,17 @@ import {
     TreeNode,
     GlobalState,
     PageName,
-    DefaultPowerup
+    DefaultPowerup, Point
 } from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {jsPDF} from "jspdf"
 import {Action} from "../actions";
+import {Matrix} from "./pdf_types";
 
 
 export interface PDFExporter extends System {
     canExport(node:TreeNode):boolean
-    toPDF(node:TreeNode, state:GlobalState, doc:any, scale:number):void
+    toPDF(node:TreeNode, state:GlobalState, doc:any, scale:number, translate:Point):void
 }
 
 const PDFExportBoundsName = "PDFExportBoundsName"
@@ -29,7 +30,7 @@ export class PDFExportBounds implements Component {
 }
 
 export function cssToPdfColor(color:string):number[] {
-    console.log(`converting color: ${color}`)
+    // console.log(`converting color: ${color}`)
     if(!color.startsWith('#')) {
         console.error(`we can't convert color ${color}`)
         return [0,0,0]
@@ -40,12 +41,12 @@ export function cssToPdfColor(color:string):number[] {
     let g = (hex>>8)&(0xFF)
     let b = (hex>>0)&(0xFF)
     let arr = [r,g,b]
-    console.info("generated color array",arr)
+    // console.info("generated color array",arr)
     return arr
 }
-export function treenode_to_PDF(node: TreeNode, state: GlobalState,doc:any, scale:number) {
+export function treenode_to_PDF(node: TreeNode, state: GlobalState,doc:any, scale:number, translate:Point) {
     let exp = state.pdfexporters.find(exp => exp.canExport(node))
-    return exp ? exp.toPDF(node,state,doc,scale) : ""
+    return exp ? exp.toPDF(node,state,doc,scale, translate) : ""
 }
 
 function find_pages(root: TreeNode):TreeNode[] {
@@ -55,7 +56,33 @@ function find_pages(root: TreeNode):TreeNode[] {
 
 function render_pdf_page(pageNumber:number, pg: TreeNode, state: GlobalState, doc: jsPDF, scale: number) {
     if(pageNumber > 0) doc.addPage();
-    pg.children.forEach(ch => treenode_to_PDF(ch, state,doc,scale))
+    //to do two up, we need to scale by half and translate
+    let width = doc.internal.pageSize.getWidth();
+    let height = doc.internal.pageSize.getHeight();
+    console.log(`w=${width} height=${height} scale=${scale}`)
+    // @ts-ignore
+    //doc.setCurrentTransformationMatrix(`1 0 0 1 ${width/2.0/scale} ${height/2.0/scale}`);
+
+    function draw_page(sc,tx,ty) {
+        doc.saveGraphicsState()
+        let identity = new Matrix(1,0,0,1,0,0)
+        let tmat = identity.clone()
+        tmat.tx = (width/2)*tx/scale * sc
+        tmat.ty = -(height/2)*ty/scale * (sc/2)
+        tmat.sx = sc
+        tmat.sy = sc
+        let mat1 = identity.multiply(tmat)
+        doc.setCurrentTransformationMatrix(mat1 as any)
+        pg.children.forEach(ch => treenode_to_PDF(ch, state,doc,scale/2, new Point(0,0)))
+        doc.restoreGraphicsState()
+    }
+    draw_page(0.5,0,0)
+    draw_page(0.5,0.5,0)
+
+    draw_page(0.5,0.0,0.5)
+    draw_page(0.5,0.5,0.5)
+
+
 }
 
 export function export_PDF(root:TreeNode, state:GlobalState) {

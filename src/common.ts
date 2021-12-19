@@ -1,6 +1,7 @@
 import {JSONExporter} from "./exporters/json";
 import {Action} from "./actions";
 import React from "react";
+import {PDFExporter} from "./exporters/pdf";
 
 export const DIAG_HATCH_IMAGE = new Image()
 // DIAG_HATCH_IMAGE.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAD0lEQVQImWNgQAX/yeAAAIHCA/0RE2WAAAAAAElFTkSuQmCC"
@@ -572,10 +573,6 @@ export function forceDownloadBlob(title:string, blob:Blob) {
     document.body.removeChild(a)
 }
 
-export interface PDFExporter extends System {
-    canExport(node:TreeNode):boolean
-    toPDF(node:TreeNode,state:GlobalState,doc:any,scale:number):void
-}
 
 export function add_child_to_parent(child: TreeNode, parent: TreeNode): void {
     parent.children.push(child)

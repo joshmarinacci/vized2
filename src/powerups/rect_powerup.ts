@@ -8,7 +8,6 @@ import {
     GlobalState,
     MovableName,
     PageName, ParentLikeName,
-    PDFExporter,
     Rect,
     RenderingSystem,
     ResizableName,
@@ -16,7 +15,7 @@ import {
     TreeNode,
     TreeNodeImpl
 } from "../common";
-import {cssToPdfColor} from "../exporters/pdf";
+import {cssToPdfColor, PDFExporter} from "../exporters/pdf";
 import {
     BoundedShape,
     BoundedShapeName,

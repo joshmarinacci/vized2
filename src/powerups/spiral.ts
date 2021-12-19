@@ -10,7 +10,6 @@ import {
     MovableName,
     MultiComp,
     PageName, ParentLikeName,
-    PDFExporter,
     PickingSystem,
     Point, Rect, RenderBounds, RenderBoundsName,
     RenderingSystem,
@@ -19,7 +18,7 @@ import {
     TreeNodeImpl
 } from "../common";
 import {JSONExporter} from "../exporters/json";
-import {cssToPdfColor} from "../exporters/pdf";
+import {cssToPdfColor, PDFExporter} from "../exporters/pdf";
 import {Action} from "../actions";
 import {SpiralEditor} from "./spiral_editor";
 import {

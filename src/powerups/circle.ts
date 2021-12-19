@@ -13,7 +13,6 @@ import {
     MovableName,
     MultiComp,
     PageName, ParentLikeName,
-    PDFExporter,
     PickingSystem,
     Point,
     RadiusSelection,
@@ -24,7 +23,7 @@ import {
     TreeNodeImpl
 } from "../common";
 import {JSONExporter} from "../exporters/json";
-import {cssToPdfColor} from "../exporters/pdf";
+import {cssToPdfColor, PDFExporter} from "../exporters/pdf";
 import {Action} from "../actions";
 
 export const CircleLikeShapeName = "CircleLikeShape"
@@ -179,7 +178,7 @@ export class CirclePDFExporter implements PDFExporter {
         return node.has_component(CircleShapeName)
     }
 
-    toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
+    toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number, translate:Point): void {
         let circle: CircleShape = node.get_component(CircleShapeName) as CircleShape
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
 

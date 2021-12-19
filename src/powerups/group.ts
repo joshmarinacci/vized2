@@ -170,7 +170,7 @@ class GroupPDFExporter implements PDFExporter {
         return node.has_component(GroupShapeName)
     }
 
-    toPDF(node: TreeNode, state:GlobalState, doc: any, scale: number): void {
+    toPDF(node: TreeNode, state:GlobalState, doc: any, scale: number, translate:Point): void {
         let group:GroupShape = node.get_component(GroupShapeName) as GroupShapeObject
         let rect = group.get_child_bounds().scale(scale)
         doc.saveGraphicsState()
@@ -181,7 +181,7 @@ class GroupPDFExporter implements PDFExporter {
         //[1, 0, 0, 1, tx, ty]
         //what units are tx and ty in?
         doc.setCurrentTransformationMatrix(`1 0 0 1 ${rect.x/scale} ${rect.y/scale}`);
-        node.children.forEach(ch => treenode_to_PDF(ch, state,doc,scale))
+        node.children.forEach(ch => treenode_to_PDF(ch, state,doc,scale, translate))
         doc.restoreGraphicsState()
     }
 }
