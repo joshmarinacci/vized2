@@ -3,7 +3,6 @@ import './App.css';
 import './fonts.css'
 import {
     add_child_to_parent,
-    DefaultPowerup,
     DocMarker,
     FilledShapeObject,
     GlobalState,
@@ -22,7 +21,7 @@ import {
     MovableBoundedShape,
     ResizableRectObject
 } from "./bounded_shape";
-import { CirclePowerup, make_std_circle} from "./powerups/circle";
+import {CirclePowerup, make_std_circle} from "./powerups/circle";
 import {TextPowerup, TextShapeObject} from "./powerups/text_powerup";
 import {make_std_spiral, SpiralPowerup} from "./powerups/spiral";
 import {FilledShapeJSONExporter, JSONPowerup} from "./exporters/json";
@@ -30,9 +29,7 @@ import {PDFExportBounds, PDFPowerup} from "./exporters/pdf";
 import {SVGPowerup} from "./exporters/svg";
 import {PNGPowerup} from "./exporters/png";
 import {GroupPowerup, make_std_group} from "./powerups/group";
-import {
-    ImagePowerup
-} from "./powerups/image_powerup";
+import {ImagePowerup} from "./powerups/image_powerup";
 import {Toolbar} from "./comps";
 import {TreeView} from "./treeview";
 import {PopupContainer, PopupContext, PopupContextImpl} from "./popup";
@@ -40,10 +37,11 @@ import {Action} from "./actions";
 import {GreetingCardPowerup} from "./powerups/greetingcard";
 import {PropSheet} from "./propsheet";
 import {make_image_file} from "./powerups/image_from_file";
-import {DialogContextImpl, DialogContext, DialogContainer} from "./dialog";
+import {DialogContainer, DialogContext, DialogContextImpl} from "./dialog";
 import {PresentationPowerup} from "./powerups/presentation";
 import {BookmarkPowerup} from "./powerups/bookmark";
 import {SnowflakePowerup} from "./powerups/snowflake";
+import {StandardPowerup} from "./powerups/standard";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -122,32 +120,6 @@ export function make_default_tree(state: GlobalState) {
     return root
 }
 
-
-function make_empty_doc(state: GlobalState):TreeNodeImpl {
-    let root = new TreeNodeImpl()
-    root.title = 'root'
-    root.add_component(new DocMarker())
-    root.add_component(new PageMarker())
-    root.add_component(new BoundedShapeObject(new Rect(0,0,4*100,5*100)))
-    root.add_component(new PDFExportBounds("in",1/100))
-    root.add_component(new RectShapeObject())
-    root.add_component(new FilledShapeObject('white'))
-    return root
-}
-
-class StandardPowerup extends DefaultPowerup {
-    override new_doc_actions(): Action[] {
-        let action:Action = {
-            use_gui: false,
-            title:"new empty one page doc",
-            fun(node:TreeNode, state:GlobalState):any {
-                return make_empty_doc(state)
-            }
-        }
-        return [action]
-    }
-
-}
 
 export function setup_state():GlobalState {
     let state:GlobalState = new GlobalState()

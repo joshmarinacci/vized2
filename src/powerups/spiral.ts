@@ -1,5 +1,5 @@
 import {
-    add_child_to_parent,
+    add_child_to_parent, CenterPositionName,
     Component,
     DefaultPowerup,
     FilledShape,
@@ -40,7 +40,7 @@ export class SpiralShapeObject implements Component, MultiComp, CircleLikeShape 
         this.wrap = 5
     }
     supports(): string[] {
-        return [this.name, CircleLikeShapeName];
+        return [this.name, CircleLikeShapeName, CenterPositionName];
     }
     name: string;
     get_radius() {
@@ -253,7 +253,6 @@ const make_spiral: Action = {
 
 export class SpiralPowerup extends DefaultPowerup{
     init(state: GlobalState) {
-        // state.props_renderers.push(new SpiralPropRendererSystem(state))
         state.pickers.push(new SpiralPickSystem())
         state.renderers.push(new SpiralRendererSystem())
         state.svgexporters.push(new SpiralSVGExporter())
@@ -261,12 +260,20 @@ export class SpiralPowerup extends DefaultPowerup{
         state.jsonexporters.push(new SpiralJSONExporter())
     }
 
-    can_edit(comp:Component) {
+    override can_edit(comp:Component) {
         return comp.name === SpiralShapeName
+    }
+    override can_edit_by_name(comp: string): boolean {
+        if(comp === SpiralShapeName) return true
+        return false
     }
 
     get_editor(comp:Component, node:TreeNode, state:GlobalState):any {
         return SpiralEditor
+    }
+    override get_editor_by_name(name: string, state: GlobalState): any {
+        if(name === SpiralShapeName) return SpiralEditor
+        return null
     }
 
     child_options(node: TreeNode): Action[] {

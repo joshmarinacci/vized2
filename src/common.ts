@@ -195,7 +195,9 @@ export interface Powerup {
     new_doc_actions():Action[]
     export_actions():Action[]
     can_edit(comp:Component):boolean
+    can_edit_by_name(comp:string):boolean
     get_editor(comp:Component, node:TreeNode, state:GlobalState):any
+    get_editor_by_name(name: string, state: GlobalState): any;
 }
 
 export class DefaultPowerup implements Powerup {
@@ -218,7 +220,15 @@ export class DefaultPowerup implements Powerup {
         return false;
     }
 
+    can_edit_by_name(comp: string): boolean {
+        return false;
+    }
+
     get_editor(comp: Component, node: TreeNode, state: GlobalState): any {
+        return undefined
+    }
+
+    get_editor_by_name(name: string, state: GlobalState): any {
         return undefined
     }
 
@@ -467,6 +477,9 @@ export class TreeNodeImpl implements TreeNode {
 
     all_components():Component[] {
         return this._components
+    }
+    all_component_names():string[] {
+        return Array.from(this.comps.keys())
     }
 }
 
