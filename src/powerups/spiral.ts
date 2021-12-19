@@ -2,11 +2,9 @@ import {
     add_child_to_parent,
     Component, DefaultPowerup,
     FilledShape,
-    FilledShapeName, FilledShapeObject, GlobalState, Handle,
-    Movable, MovableName, MultiComp, PageName,
+    FilledShapeName, FilledShapeObject, GlobalState, MovableName, MultiComp, PageName,
     PDFExporter,
-    PickingSystem, Point, RadiusSelection, RadiusSelectionName,
-    RenderingSystem,
+    PickingSystem, Point, RenderingSystem,
     SVGExporter,
     TreeNode, TreeNodeImpl
 } from "../common";
@@ -15,23 +13,25 @@ import {cssToPdfColor} from "../exporters/pdf";
 import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
 import {SpiralEditor} from "./spiral_editor";
-import {CenterPosition, CenterPositionName, RadiusHandle} from "./circle_powerup";
+import {
+    CircleLikeShape, CircleLikeShapeName,
+    MovableCenterPosition,
+    RadiusSelectionCircleLike
+} from "./circle_powerup";
 
 export const SpiralShapeName = "SpiralShape"
-export class SpiralShapeObject implements Component, MultiComp, Movable, CenterPosition, RadiusSelection {
+export class SpiralShapeObject implements Component, MultiComp, CircleLikeShape {
     private radius: number;
     private pos: Point;
     private wrap: number;
-    private handle: RadiusHandle;
     constructor(pos:Point, radius: number) {
         this.pos = pos
         this.radius = radius
         this.name = SpiralShapeName
         this.wrap = 5
-        this.handle = new RadiusHandle(this)
     }
     supports(): string[] {
-        return [this.name, MovableName, CenterPositionName, RadiusSelectionName];
+        return [this.name, CircleLikeShapeName];
     }
     name: string;
     get_radius() {
@@ -50,19 +50,9 @@ export class SpiralShapeObject implements Component, MultiComp, Movable, CenterP
         this.wrap = wrap
     }
 
-    get_handle(): Handle {
-        return this.handle
-    }
-
     isMulti(): boolean {
         return true
     }
-
-    moveBy(pt: Point): void {
-        this.get_position().x += pt.x
-        this.get_position().y += pt.y
-    }
-
 }
 
 class SpiralRendererSystem implements RenderingSystem {
@@ -127,20 +117,6 @@ export class SpiralPickSystem implements PickingSystem {
     }
 }
 
-export class MovableSpiralObject implements Movable {
-    name: string;
-    private readonly node: TreeNode;
-    constructor(node:TreeNode) {
-        this.node = node
-        this.name = MovableName
-    }
-    moveBy(pt: Point): void {
-        let shape = this.node.get_component(SpiralShapeName) as SpiralShapeObject
-        shape.get_position().x += pt.x
-        shape.get_position().y += pt.y
-    }
-}
-
 
 class SpiralJSONExporter implements JSONExporter {
     name: string;
@@ -163,7 +139,7 @@ class SpiralJSONExporter implements JSONExporter {
     }
 
     fromJSON(obj: any, node: TreeNode): Component {
-        if(obj.name === MovableName) return new MovableSpiralObject(node)
+        // if(obj.name === MovableName) return new MovableSpiralObject(node)
         if(obj.name === SpiralShapeName) return new SpiralShapeObject((new Point(0,0)).from_object(obj.position),obj.radius)
         throw new Error(`cannot export json for ${obj.name}`)
     }
@@ -245,16 +221,22 @@ class SpiralSVGExporter implements SVGExporter {
         return `<polyline fill="none" points="${points.join(",")}" stroke-width="1" stroke="${color.get_fill()}"/>`
     }
 }
+export function make_std_spiral(center:Point, radius:number) {
+    let node = new TreeNodeImpl()
+    node.title = 'spiral'
+    node.components.push(new FilledShapeObject('#000000'))
+    let shape = new SpiralShapeObject(center,radius)
+    node.add_component(shape)
+    node.add_component(new MovableCenterPosition(shape))
+    node.add_component(new RadiusSelectionCircleLike(shape))
+    return node
+}
 const make_spiral: Action = {
     use_gui: false,
     title: "add spiral",
     fun(node: TreeNode, state: GlobalState): void {
-        let shape = new TreeNodeImpl()
-        shape.title = 'spiral'
-        shape.components.push(new FilledShapeObject('#000000'))
-        shape.components.push(new SpiralShapeObject(new Point(100,200),15))
-        // shape.components.push(new MovableSpiralObject(shape))
-        add_child_to_parent(shape, node)
+        let circle = make_std_spiral(new Point(100,200),15)
+        add_child_to_parent(circle, node)
         state.dispatch('object-changed', {})
     }
 }

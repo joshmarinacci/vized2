@@ -24,7 +24,7 @@ import {
 } from "./bounded_shape";
 import { CirclePowerup, make_std_circle} from "./powerups/circle_powerup";
 import {TextPowerup, TextShapeObject} from "./powerups/text_powerup";
-import {MovableSpiralObject, SpiralPowerup, SpiralShapeObject} from "./powerups/spiral";
+import {make_std_spiral, SpiralPowerup} from "./powerups/spiral";
 import {FilledShapeJSONExporter, JSONPowerup} from "./exporters/json";
 import {PDFExportBounds, PDFPowerup} from "./exporters/pdf";
 import {SVGPowerup} from "./exporters/svg";
@@ -108,12 +108,7 @@ export function make_default_tree(state: GlobalState) {
         add_child_to_parent(circ1, root)
     }
     {
-        let spiral = new TreeNodeImpl()
-        spiral.title = 'spiral'
-        spiral.add_component(new FilledShapeObject('#000000'))
-        spiral.add_component(new SpiralShapeObject(new Point(100,200),15))
-        spiral.add_component(new MovableSpiralObject(spiral))
-        // spiral.add_component(new CircleLikeRadiusSelection(spiral))
+        let spiral = make_std_spiral(new Point(100,200),15)
         add_child_to_parent(spiral,root)
     }
 /*

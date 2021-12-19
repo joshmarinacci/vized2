@@ -22,36 +22,63 @@ import {cssToPdfColor} from "../exporters/pdf";
 import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
 
-export const CircleLikeShapeName = "CircleLikeShape"
-export interface CircleLikeShape extends Component {
+export const CenterPositionName = "CenterPositionName"
+export interface CenterPosition extends Component {
     get_position():Point
+}
+
+export const CircleLikeShapeName = "CircleLikeShape"
+export interface CircleLikeShape extends CenterPosition {
     get_radius():number
     set_radius(v:number): void;
 }
 
 export const CircleShapeName = "CircleShapeName"
-export interface CircleShape extends CircleLikeShape {
-}
-export const CenterPositionName = "CenterPositionName"
-export interface CenterPosition extends Component {}
+export interface CircleShape extends CircleLikeShape { }
 
-export class CircleShapeObject implements MultiComp,CircleLikeShape, CircleShape, Movable, CenterPosition, RadiusSelection {
+export class MovableCenterPosition implements Movable {
+    name: string;
+    private circle: CircleLikeShape;
+    constructor(circle:CircleLikeShape) {
+        this.name = MovableName
+        this.circle = circle
+    }
+    moveBy(pt: Point): void {
+        this.circle.get_position().x += pt.x
+        this.circle.get_position().y += pt.y
+    }
+}
+export class RadiusSelectionCircleLike implements RadiusSelection {
+    name: string;
+    private circle: CircleLikeShape;
+    private handle: RadiusHandle;
+    constructor(circle:CircleLikeShape) {
+        this.name = RadiusSelectionName
+        this.circle = circle
+        this.handle = new RadiusHandle(circle)
+    }
+
+    get_handle(): Handle {
+        return this.handle
+    }
+
+}
+
+export class CircleShapeObject implements MultiComp, CircleLikeShape, CircleShape, CenterPosition {
     name: string;
     private pos: Point;
     private radius: number;
-    private handle: RadiusHandle;
     constructor(pos:Point, radius:number) {
         this.name = CircleShapeName
         this.pos = pos
         this.radius = radius
-        this.handle = new RadiusHandle(this)
     }
 
     isMulti(): boolean {
         return true
     }
     supports(): string[] {
-        return [CircleLikeShapeName, CircleShapeName, MovableName, CenterPositionName, RadiusSelectionName]
+        return [CircleLikeShapeName, CircleShapeName, CenterPositionName]
     }
 
     get_position(): Point {
@@ -65,16 +92,6 @@ export class CircleShapeObject implements MultiComp,CircleLikeShape, CircleShape
     set_radius(v:number) {
         this.radius = v
     }
-
-    get_handle(): Handle {
-        return this.handle
-    }
-
-    moveBy(pt: Point): void {
-        this.get_position().x += pt.x
-        this.get_position().y += pt.y
-    }
-
 }
 
 export const CircleRendererSystemName = 'CircleRendererSystemName'
@@ -210,7 +227,10 @@ export class RadiusHandle extends Handle {
 export function make_std_circle(center:Point, radius:number):TreeNodeImpl {
     let circle = new TreeNodeImpl()
     circle.title = 'circle'
-    circle.add_component(new CircleShapeObject(center, radius))
+    let shape = new CircleShapeObject(center, radius)
+    circle.add_component(shape)
+    circle.add_component(new MovableCenterPosition(shape))
+    circle.add_component(new RadiusSelectionCircleLike(shape))
     circle.components.push(new FilledShapeObject("#ffcccc"))
     return circle
 }
