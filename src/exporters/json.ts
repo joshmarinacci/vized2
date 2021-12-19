@@ -26,7 +26,7 @@ export function treenode_to_POJO(root: TreeNode, state: GlobalState):any {
             return
         }
         if(key === 'components') {
-            obj[key] = (root as TreeNodeImpl).components.map(comp => {
+            obj[key] = (root as TreeNodeImpl).all_components().map(comp => {
                 let exp = state.jsonexporters.find(exp => exp.canHandleToJSON(comp,root))
                 // if(!exp) throw new Error(`cannot export component ${comp.name}`)
                 if(!exp) console.warn(`cannot export component ${comp.name}`)
@@ -49,10 +49,10 @@ export function POJO_to_treenode(obj: any, state: GlobalState):TreeNode {
     node.children = obj.children.map((ch:any) => {
         return POJO_to_treenode(ch,state)
     })
-    node.components = obj.components.map((comp:any) => {
+    obj.components.forEach((comp:any) => {
         console.log("comp is",comp)
         let exp = state.jsonexporters.find(exp => exp.canHandleFromJSON(comp,node))
-        if(exp) return exp.fromJSON(comp,node)
+        if(exp) return node.add_component(exp.fromJSON(comp,node))
         console.warn(`cannot import component ${comp.name}`)
         return null
     })

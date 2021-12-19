@@ -435,18 +435,18 @@ export class TreeNodeImpl implements TreeNode {
     // @ts-ignore
     parent: TreeNode
     children: TreeNode[]
-    components: Component[]
+    private _components: Component[]
     private comps:Map<string,Component>
     title: string
     constructor() {
         this.id = "tree_node_" + Math.floor(Math.random() * 1000000)
         this.title = "unnamed"
         this.children = []
-        this.components = []
+        this._components = []
         this.comps = new Map<string, Component>()
     }
     add_component(comp:Component) {
-        this.components.push(comp)
+        this._components.push(comp)
         this.comps.set(comp.name,comp)
         // @ts-ignore
         if(typeof comp.isMulti !== "undefined") {
@@ -463,6 +463,10 @@ export class TreeNodeImpl implements TreeNode {
 
     has_component(name:string): boolean {
         return this.comps.has(name)
+    }
+
+    all_components():Component[] {
+        return this._components
     }
 }
 
