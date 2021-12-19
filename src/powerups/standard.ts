@@ -17,7 +17,7 @@ import {BoundedShapeEditor} from "./bounded_shape_editor";
 import {FilledShapeEditor} from "./filled_shape_editor";
 import {CenterPositionEditor} from "./position_editor";
 
-function make_empty_doc(state: GlobalState): TreeNodeImpl {
+export function make_empty_doc(state: GlobalState): TreeNodeImpl {
     let root = new TreeNodeImpl()
     root.title = 'root'
     root.add_component(new DocMarker())

@@ -347,3 +347,7 @@ export class Matrix {
         return new Matrix(sx, shy, shx, sy, tx, ty);
     }
 }
+
+export function make_identity() {
+    return new Matrix(1,0,0,1,0,0)
+}

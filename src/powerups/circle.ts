@@ -221,14 +221,14 @@ export class RadiusHandle extends Handle {
 }
 
 
-export function make_std_circle(center:Point, radius:number):TreeNodeImpl {
+export function make_std_circle(center:Point, radius:number, color?:string):TreeNodeImpl {
     let circle = new TreeNodeImpl()
     circle.title = 'circle'
     let shape = new CircleShapeObject(center, radius)
     circle.add_component(shape)
     circle.add_component(new MovableCenterPosition(shape))
     circle.add_component(new RadiusSelectionCircleLike(shape))
-    circle.add_component(new FilledShapeObject("#ffcccc"))
+    circle.add_component(new FilledShapeObject(color?color:"#ffcccc"))
     return circle
 }
 

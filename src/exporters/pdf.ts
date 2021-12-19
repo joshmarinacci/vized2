@@ -4,12 +4,15 @@ import {
     TreeNode,
     GlobalState,
     PageName,
-    DefaultPowerup, Point
+    DefaultPowerup, Point, add_child_to_parent, Rect
 } from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {jsPDF} from "jspdf"
 import {Action} from "../actions";
-import {Matrix} from "./pdf_types";
+import {make_identity, Matrix} from "./pdf_types";
+import {make_empty_doc} from "../powerups/standard";
+import {make_std_circle} from "../powerups/circle";
+import {make_std_rect} from "../powerups/rect_powerup";
 
 
 export interface PDFExporter extends System {
@@ -59,28 +62,24 @@ function render_pdf_page(pageNumber:number, pg: TreeNode, state: GlobalState, do
     //to do two up, we need to scale by half and translate
     let width = doc.internal.pageSize.getWidth();
     let height = doc.internal.pageSize.getHeight();
-    console.log(`w=${width} height=${height} scale=${scale}`)
-    // @ts-ignore
-    //doc.setCurrentTransformationMatrix(`1 0 0 1 ${width/2.0/scale} ${height/2.0/scale}`);
-
-    function draw_page(sc,tx,ty) {
+    function draw_page(sc:number,tx:number,ty:number) {
         doc.saveGraphicsState()
-        let identity = new Matrix(1,0,0,1,0,0)
-        let tmat = identity.clone()
-        tmat.tx = (width/2)*tx/scale * sc
-        tmat.ty = -(height/2)*ty/scale * (sc/2)
-        tmat.sx = sc
-        tmat.sy = sc
-        let mat1 = identity.multiply(tmat)
-        doc.setCurrentTransformationMatrix(mat1 as any)
-        pg.children.forEach(ch => treenode_to_PDF(ch, state,doc,scale/2, new Point(0,0)))
+        let trans = make_identity()
+        trans.tx = width*tx/scale
+        trans.ty = -height*ty/scale
+        let sca = make_identity()
+        sca.sx = sc
+        sca.sy = sc
+        doc.setCurrentTransformationMatrix(trans.multiply(sca) as any)
+        pg.children.forEach(ch => treenode_to_PDF(ch, state,doc,scale, new Point(0,0)))
         doc.restoreGraphicsState()
     }
-    draw_page(0.5,0,0)
-    draw_page(0.5,0.5,0)
+    // draw_page(1,0,0) // identity
+    draw_page(0.4,0,0)
+    draw_page(0.4,0,-0.33)
+    draw_page(0.4,0.33,0)
+    draw_page(0.4,0.33,-0.33)
 
-    draw_page(0.5,0.0,0.5)
-    draw_page(0.5,0.5,0.5)
 
 
 }
@@ -118,6 +117,20 @@ export function export_PDF(root:TreeNode, state:GlobalState) {
 }
 
 
+function make_pdf_test(state: GlobalState) {
+    let root = make_empty_doc(state)
+    add_child_to_parent(make_std_rect(new Rect(1,1,398,498)),root)
+    add_child_to_parent(make_std_circle(new Point(20,10),10,'#ff0000'),root)
+    add_child_to_parent(make_std_circle(new Point(30,20),10,'#00ff00'),root)
+    add_child_to_parent(make_std_circle(new Point(40,30),10),root)
+    add_child_to_parent(make_std_circle(new Point(30,300),10,'#ccff33'),root)
+    add_child_to_parent(make_std_circle(new Point(100,300),10,'#ccff33'),root)
+    add_child_to_parent(make_std_circle(new Point(200,300),10,'#ccff33'),root)
+    add_child_to_parent(make_std_circle(new Point(300,300),10,'#ccff33'),root)
+    add_child_to_parent(make_std_circle(new Point(400-10,500-10),10,'#cc33ff'),root)
+    return root
+}
+
 export class PDFPowerup extends DefaultPowerup {
     override export_actions(): Action[] {
         let action:Action = {
@@ -125,6 +138,16 @@ export class PDFPowerup extends DefaultPowerup {
             title: "export PDF",
             fun(node: TreeNode, state: GlobalState): void {
                 export_PDF(node,state)
+            }
+        }
+        return [action]
+    }
+    override new_doc_actions(): Action[] {
+        let action:Action = {
+            use_gui: false,
+            title:"new pdf test",
+            fun(node:TreeNode, state:GlobalState):any {
+                return make_pdf_test(state)
             }
         }
         return [action]
