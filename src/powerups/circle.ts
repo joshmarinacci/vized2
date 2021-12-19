@@ -1,17 +1,23 @@
 import {
     add_child_to_parent,
+    CenterPosition,
+    CenterPositionName,
     Component,
     DefaultPowerup,
     FilledShape,
     FilledShapeName,
     FilledShapeObject,
-    GlobalState, Handle,
-    Movable,
-    MovableName, MultiComp,
+    GlobalState,
+    Handle,
+    MovableCenterPosition,
+    MovableName,
+    MultiComp,
     PageName,
     PDFExporter,
     PickingSystem,
-    Point, RadiusSelection, RadiusSelectionName,
+    Point,
+    RadiusSelection,
+    RadiusSelectionName,
     RenderingSystem,
     SVGExporter,
     TreeNode,
@@ -22,11 +28,6 @@ import {cssToPdfColor} from "../exporters/pdf";
 import {Action} from "../actions";
 import {GroupShapeName} from "./group_powerup";
 
-export const CenterPositionName = "CenterPositionName"
-export interface CenterPosition extends Component {
-    get_position():Point
-}
-
 export const CircleLikeShapeName = "CircleLikeShape"
 export interface CircleLikeShape extends CenterPosition {
     get_radius():number
@@ -36,18 +37,7 @@ export interface CircleLikeShape extends CenterPosition {
 export const CircleShapeName = "CircleShapeName"
 export interface CircleShape extends CircleLikeShape { }
 
-export class MovableCenterPosition implements Movable {
-    name: string;
-    private circle: CircleLikeShape;
-    constructor(circle:CircleLikeShape) {
-        this.name = MovableName
-        this.circle = circle
-    }
-    moveBy(pt: Point): void {
-        this.circle.get_position().x += pt.x
-        this.circle.get_position().y += pt.y
-    }
-}
+
 export class RadiusSelectionCircleLike implements RadiusSelection {
     name: string;
     private circle: CircleLikeShape;

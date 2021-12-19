@@ -1,12 +1,22 @@
 import {
     add_child_to_parent,
-    Component, DefaultPowerup,
+    Component,
+    DefaultPowerup,
     FilledShape,
-    FilledShapeName, FilledShapeObject, GlobalState, MovableName, MultiComp, PageName,
+    FilledShapeName,
+    FilledShapeObject,
+    GlobalState,
+    MovableCenterPosition,
+    MovableName,
+    MultiComp,
+    PageName,
     PDFExporter,
-    PickingSystem, Point, RenderingSystem,
+    PickingSystem,
+    Point,
+    RenderingSystem,
     SVGExporter,
-    TreeNode, TreeNodeImpl
+    TreeNode,
+    TreeNodeImpl
 } from "../common";
 import {JSONExporter} from "../exporters/json";
 import {cssToPdfColor} from "../exporters/pdf";
@@ -15,9 +25,8 @@ import {GroupShapeName} from "./group_powerup";
 import {SpiralEditor} from "./spiral_editor";
 import {
     CircleLikeShape, CircleLikeShapeName,
-    MovableCenterPosition,
     RadiusSelectionCircleLike
-} from "./circle_powerup";
+} from "./circle";
 
 export const SpiralShapeName = "SpiralShape"
 export class SpiralShapeObject implements Component, MultiComp, CircleLikeShape {

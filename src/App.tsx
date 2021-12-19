@@ -22,7 +22,7 @@ import {
     MovableBoundedShape,
     ResizableRectObject
 } from "./bounded_shape";
-import { CirclePowerup, make_std_circle} from "./powerups/circle_powerup";
+import { CirclePowerup, make_std_circle} from "./powerups/circle";
 import {TextPowerup, TextShapeObject} from "./powerups/text_powerup";
 import {make_std_spiral, SpiralPowerup} from "./powerups/spiral";
 import {FilledShapeJSONExporter, JSONPowerup} from "./exporters/json";

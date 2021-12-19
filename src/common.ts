@@ -566,3 +566,24 @@ export function add_child_to_parent(child: TreeNode, parent: TreeNode): void {
     parent.children.push(child)
     child.parent = parent
 }
+
+export const CenterPositionName = "CenterPositionName"
+
+export interface CenterPosition extends Component {
+    get_position(): Point
+}
+
+export class MovableCenterPosition implements Movable {
+    name: string;
+    private shape: CenterPosition;
+
+    constructor(shape: CenterPosition) {
+        this.name = MovableName
+        this.shape = shape
+    }
+
+    moveBy(pt: Point): void {
+        this.shape.get_position().x += pt.x
+        this.shape.get_position().y += pt.y
+    }
+}

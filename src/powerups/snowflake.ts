@@ -1,8 +1,8 @@
 import {
-    add_child_to_parent,
+    add_child_to_parent, CenterPosition, CenterPositionName,
     Component,
     DefaultPowerup,
-    GlobalState,
+    GlobalState, MovableCenterPosition, MultiComp,
     PageName,
     ParentDrawChildren,
     ParentDrawChildrenName,
@@ -15,16 +15,15 @@ import {
 } from "../common";
 import {Action} from "../actions";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
-import {make_std_circle} from "./circle_powerup";
+import {make_std_circle} from "./circle";
 import {make_std_rect} from "./rect_powerup";
 
 const SnowflakeName = "SnowflakeName"
-export interface Snowflake extends Component {
-    get_position():Point
+export interface Snowflake extends CenterPosition{
     get_child_bounds(): Rect;
 }
 
-class SnowflakeObject implements Snowflake {
+class SnowflakeObject implements MultiComp, Snowflake {
     private position: Point;
     name: string;
     private node: TreeNodeImpl;
@@ -33,6 +32,10 @@ class SnowflakeObject implements Snowflake {
         this.node = node
         this.position = position
         this.name = SnowflakeName
+    }
+
+    supports(): string[] {
+        return [SnowflakeName, CenterPositionName];
     }
 
     get_child_bounds(): Rect {
@@ -50,6 +53,9 @@ class SnowflakeObject implements Snowflake {
         return this.position
     }
 
+    isMulti(): boolean {
+        return true
+    }
 }
 
 
@@ -63,9 +69,10 @@ class ParentDrawChildrenMarker implements ParentDrawChildren {
 export function make_std_snowflake():TreeNodeImpl {
     let group = new TreeNodeImpl()
     group.title = 'snowflake'
-    group.add_component(new SnowflakeObject(group,new Point(200, 200)))
+    let shape = new SnowflakeObject(group,new Point(200, 200))
+    group.add_component(shape)
     group.add_component(new ParentDrawChildrenMarker())
-    // circle.add_component(new MovableCircleObject(circle))
+    group.add_component(new MovableCenterPosition(shape))
     let circle = make_std_circle(new Point(0,0),10)
     add_child_to_parent(circle, group)
     let rect1 = make_std_rect(new Rect(0,100,30,80))
