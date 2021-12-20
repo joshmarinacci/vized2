@@ -23,10 +23,11 @@ import {
     MovableBoundedShape,
     ResizableRectObject
 } from "../bounded_shape";
-import {cssToPdfColor, PDFExporter} from "../exporters/pdf";
+import {cssToPdfColor, hex_to_pdfrgbf, PDFContext, PDFExporter} from "../exporters/pdf";
 import {JSONExporter} from "../exporters/json";
 import {Action} from "../actions";
 import {TextShapeEditor} from "./text_editor";
+import {PDFFont, PDFPage} from "pdf-lib";
 
 export const TextShapeName = "TextShapeName"
 interface TextShape extends Component {
@@ -173,30 +174,51 @@ class CanvasRenderingSurface implements RenderingSurface {
 }
 
 class PDFRenderingSurface implements RenderingSurface {
-    private doc: any;
-    constructor(doc: any) {
-        this.doc = doc
+    private ctx: PDFContext
+    constructor(ctx:PDFContext) {
+        this.ctx = ctx
     }
 
     fillText(text: string, x: number, y: number, fill: any, size: number, family: string): void {
-        this.doc.setFillColor(...cssToPdfColor(fill))
-        this.doc.setFontSize(size)
-        this.doc.text(text,x,y)
+        let opts = {
+            x, y, size, color: hex_to_pdfrgbf(fill)
+        }
+        if (this.ctx.fonts.has(family)) {
+            // @ts-ignore
+            opts.font = this.ctx.fonts.get(family) as PDFFont
+        }
+        this.ctx.currentPage.drawText(text, opts)
     }
 
+
     measureText(text: string, size: number, fontfamily: string): TextMetrics {
-        this.doc.setFontSize(size)
-        let dim = this.doc.getTextDimensions(text)
+        // this.ctx.currentPage.setFontSize(size)
+        // console.log("measureing",text,size,fontfamily)
+        if(this.ctx.fonts.has(fontfamily)) {
+            let fnt = this.ctx.fonts.get(fontfamily) as PDFFont
             return {
-                w:dim.w,
-                h:dim.h
+                w:fnt.widthOfTextAtSize(text,size),
+                h:fnt.heightAtSize(size),
             }
         }
+        console.log("font not found",fontfamily)
+        return {
+            w:50,
+            h:20,
+        }
+    }
 
     strokeRect(rect: Rect, fill: string): void {
-        this.doc.setLineWidth(0.01)
-        this.doc.setFillColor(...cssToPdfColor(fill))
-        this.doc.rect(rect.x, rect.y, rect.w, rect.h, "D")
+        this.ctx.currentPage.drawRectangle({
+            x:rect.x,
+            y:rect.y,
+            width:rect.w,
+            height:rect.h,
+            color:hex_to_pdfrgbf(fill),
+        })
+        // this.doc.setLineWidth(0.01)
+        // this.doc.setFillColor(...cssToPdfColor(fill))
+        // this.doc.rect(rect.x, rect.y, rect.w, rect.h, "D")
     }
 }
 
@@ -328,12 +350,12 @@ class TextPDFExporter implements PDFExporter {
         return node.has_component(TextShapeName)
     }
 
-    toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
+    toPDF(ctx:PDFContext, node: TreeNode, state:GlobalState): void {
         let ts: TextShape = node.get_component(TextShapeName) as TextShape
         let bounds: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
-        let rect = bounds.get_bounds().scale(scale)
+        let rect = bounds.get_bounds()
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
-        let surf:RenderingSurface = new PDFRenderingSurface(doc)
+        let surf:RenderingSurface = new PDFRenderingSurface(ctx)
         render_text(surf,rect,ts,color)
     }
 }

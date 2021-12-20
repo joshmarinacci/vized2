@@ -1,23 +1,38 @@
 import {
+    add_child_to_parent,
     Component,
-    System,
-    TreeNode,
+    DefaultPowerup,
+    forceDownloadBlob,
     GlobalState,
     PageName,
-    DefaultPowerup, Point, add_child_to_parent, Rect
+    Point,
+    Rect,
+    System,
+    TreeNode
 } from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
-import {jsPDF} from "jspdf"
 import {Action} from "../actions";
-import {make_identity, Matrix} from "./pdf_types";
 import {make_empty_doc} from "../powerups/standard";
 import {make_std_circle} from "../powerups/circle";
 import {make_std_rect} from "../powerups/rect_powerup";
+import {PDFDocument, PDFFont, PDFPage, rgb, StandardFonts} from "pdf-lib";
 
 
+export class PDFContext {
+    doc:PDFDocument
+    currentPage:PDFPage
+    scale:number
+    fonts: Map<string, PDFFont>;
+    constructor(doc:PDFDocument, page:PDFPage) {
+        this.doc = doc
+        this.scale = 1.0
+        this.currentPage = page
+        this.fonts = new Map<string,PDFFont>()
+    }
+}
 export interface PDFExporter extends System {
     canExport(node:TreeNode):boolean
-    toPDF(node:TreeNode, state:GlobalState, doc:any, scale:number, translate:Point):void
+    toPDF(ctx:PDFContext, node:TreeNode, state:GlobalState):void
 }
 
 const PDFExportBoundsName = "PDFExportBoundsName"
@@ -47,9 +62,9 @@ export function cssToPdfColor(color:string):number[] {
     // console.info("generated color array",arr)
     return arr
 }
-export function treenode_to_PDF(node: TreeNode, state: GlobalState,doc:any, scale:number, translate:Point) {
+export function treenode_to_PDF(ctx:PDFContext, node: TreeNode, state: GlobalState) {
     let exp = state.pdfexporters.find(exp => exp.canExport(node))
-    return exp ? exp.toPDF(node,state,doc,scale, translate) : ""
+    return exp ? exp.toPDF(ctx,node,state) : ""
 }
 
 function find_pages(root: TreeNode):TreeNode[] {
@@ -57,34 +72,12 @@ function find_pages(root: TreeNode):TreeNode[] {
     return root.children.map(ch => find_pages(ch)).flat()
 }
 
-function render_pdf_page(pageNumber:number, pg: TreeNode, state: GlobalState, doc: jsPDF, scale: number) {
-    if(pageNumber > 0) doc.addPage();
-    //to do two up, we need to scale by half and translate
-    let width = doc.internal.pageSize.getWidth();
-    let height = doc.internal.pageSize.getHeight();
-    function draw_page(sc:number,tx:number,ty:number) {
-        doc.saveGraphicsState()
-        let trans = make_identity()
-        trans.tx = width*tx/scale
-        trans.ty = -height*ty/scale
-        let sca = make_identity()
-        sca.sx = sc
-        sca.sy = sc
-        doc.setCurrentTransformationMatrix(trans.multiply(sca) as any)
-        pg.children.forEach(ch => treenode_to_PDF(ch, state,doc,scale, new Point(0,0)))
-        doc.restoreGraphicsState()
-    }
-    // draw_page(1,0,0) // identity
-    draw_page(0.4,0,0)
-    draw_page(0.4,0,-0.33)
-    draw_page(0.4,0.33,0)
-    draw_page(0.4,0.33,-0.33)
-
-
-
+function render_pdf_page(ctx:PDFContext, pageNumber: number, pg: TreeNode, state: GlobalState) {
+    ctx.currentPage = ctx.doc.addPage([350,400])
+    pg.children.forEach(ch => treenode_to_PDF(ctx, ch, state))
 }
 
-export function export_PDF(root:TreeNode, state:GlobalState) {
+export async function export_PDF(root:TreeNode, state:GlobalState) {
     let bds = {
         w:500,
         h:500,
@@ -111,9 +104,15 @@ export function export_PDF(root:TreeNode, state:GlobalState) {
     }
     console.log("using the settings",settings)
     // @ts-ignore
-    let doc = new jsPDF(settings)
-    pages.forEach((pg,i) => render_pdf_page(i,pg, state, doc, scale))
-    doc.save("output.pdf");
+    const pdfDoc = await PDFDocument.create()
+    const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman)
+    // @ts-ignore
+    let ctx = new PDFContext(pdfDoc,null)
+    ctx.fonts.set("serif",timesRomanFont)
+
+    pages.forEach((pg,i) => render_pdf_page(ctx,i,pg,state))
+    let blob = new Blob([await pdfDoc.save()], { type: 'application/pdf' })
+    forceDownloadBlob('test.pdf',blob)
 }
 
 
@@ -137,7 +136,7 @@ export class PDFPowerup extends DefaultPowerup {
             use_gui: false,
             title: "export PDF",
             fun(node: TreeNode, state: GlobalState): void {
-                export_PDF(node,state)
+                export_PDF(node,state).then(()=>console.log("done exporting pdf"))
             }
         }
         return [action]
@@ -152,4 +151,16 @@ export class PDFPowerup extends DefaultPowerup {
         }
         return [action]
     }
+}
+
+export function hex_to_pdfrgbf(fill: string) {
+    if (fill.startsWith('#')) {
+        fill = fill.substring(1)
+    }
+    // console.log("fill is", fill)
+    let r = parseInt(fill.substring(0, 2), 16)
+    let g = parseInt(fill.substring(2, 4), 16)
+    let b = parseInt(fill.substring(4, 6), 16)
+    // console.log("colors", r, g, b)
+    return rgb(r / 255, g / 255, b / 255)
 }

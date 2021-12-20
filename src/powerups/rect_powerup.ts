@@ -7,7 +7,8 @@ import {
     FilledShapeObject,
     GlobalState,
     MovableName,
-    PageName, ParentLikeName,
+    PageName,
+    ParentLikeName,
     Rect,
     RenderingSystem,
     ResizableName,
@@ -15,7 +16,7 @@ import {
     TreeNode,
     TreeNodeImpl
 } from "../common";
-import {cssToPdfColor, PDFExporter} from "../exporters/pdf";
+import {hex_to_pdfrgbf, PDFContext, PDFExporter} from "../exporters/pdf";
 import {
     BoundedShape,
     BoundedShapeName,
@@ -25,7 +26,7 @@ import {
 } from "../bounded_shape";
 import {JSONExporter} from "../exporters/json";
 import {Action} from "../actions";
-import {jsPDF, PatternData, TilingPattern} from "jspdf";
+import {PDFPage} from "pdf-lib";
 
 const RectShapeName = "RectShape"
 interface RectShape extends Component {
@@ -108,17 +109,24 @@ export class RectPDFExporter implements PDFExporter {
         return node.has_component(BoundedShapeName) && node.has_component(RectShapeName)
     }
 
-    toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
+    toPDF(ctx:PDFContext, node: TreeNode, state:GlobalState): void {
+        let page = ctx.currentPage
         let bd = (node.get_component(BoundedShapeName) as BoundedShape)
-        let rect = bd.get_bounds().scale(scale)
+        let rect = bd.get_bounds()//.scale(scale)
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
         let obj = {
             x:rect.x,
             y:rect.y,
             width:rect.w,
             height:rect.w,
-            fill:color.get_fill()
+            fill:hex_to_pdfrgbf(color.get_fill())
         }
+//rgb(0,0,0.5)
+        console.log('fill is',color.get_fill())
+        // color: rgb(0, 0.53, 0.71),
+        page.drawRectangle({x:obj.x,y:obj.y,width:obj.width,height:obj.height, color:obj.fill})
+
+        /*
         if(obj.fill instanceof Image) {
             console.log('doing a pattern')
             doc.advancedAPI((doc:jsPDF) => {
@@ -144,7 +152,7 @@ export class RectPDFExporter implements PDFExporter {
         } else {
             doc.setFillColor(...cssToPdfColor(obj.fill))
             doc.rect(obj.x,obj.y,obj.width,obj.height,"F")
-        }
+        }*/
     }
 
 }

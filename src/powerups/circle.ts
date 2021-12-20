@@ -23,8 +23,9 @@ import {
     TreeNodeImpl
 } from "../common";
 import {JSONExporter} from "../exporters/json";
-import {cssToPdfColor, PDFExporter} from "../exporters/pdf";
+import {cssToPdfColor, hex_to_pdfrgbf, PDFContext, PDFExporter} from "../exporters/pdf";
 import {Action} from "../actions";
+import {PDFPage} from "pdf-lib";
 
 export const CircleLikeShapeName = "CircleLikeShape"
 export interface CircleLikeShape extends CenterPosition {
@@ -178,10 +179,12 @@ export class CirclePDFExporter implements PDFExporter {
         return node.has_component(CircleShapeName)
     }
 
-    toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number, translate:Point): void {
+    toPDF(ctx:PDFContext, node: TreeNode, state:GlobalState): void {
+        let page = ctx.currentPage
         let circle: CircleShape = node.get_component(CircleShapeName) as CircleShape
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
-
+        page.drawCircle({x:circle.get_position().x,y:circle.get_position().y,size:circle.get_radius(),color:hex_to_pdfrgbf(color.get_fill())})
+        /*
         let obj = {
             cx:circle.get_position().x * scale,
             cy:circle.get_position().y * scale,
@@ -191,6 +194,7 @@ export class CirclePDFExporter implements PDFExporter {
         let pdf_color = cssToPdfColor(obj.fill)
         doc.setFillColor(...pdf_color)
         doc.circle(obj.cx,obj.cy, obj.r, "F");
+         */
     }
 }
 

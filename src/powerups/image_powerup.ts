@@ -19,7 +19,7 @@ import {
     BoundedShapeObject,
     MovableBoundedShape
 } from "../bounded_shape";
-import {PDFExporter} from "../exporters/pdf";
+import {PDFContext, PDFExporter} from "../exporters/pdf";
 import {SVGExporter} from "../exporters/svg";
 import {Action} from "../actions";
 import {make_image_file} from "./image_from_file";
@@ -150,10 +150,10 @@ export class ImagePDFExporter implements PDFExporter {
         return node.has_component(BoundedShapeName) && node.has_component(ImageShapeName)
     }
 
-    toPDF(node: TreeNode, state:GlobalState, doc: any,scale:number): void {
+    toPDF(ctx:PDFContext, node: TreeNode, state:GlobalState): void {
         let bd: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
         let img:ImageShapeObject = node.get_component(ImageShapeName) as ImageShapeObject
-        let rect = bd.get_bounds().scale(scale)
+        let rect = bd.get_bounds().scale(ctx.scale)
         let obj = {
             x:rect.x,
             y:rect.y,
@@ -164,7 +164,7 @@ export class ImagePDFExporter implements PDFExporter {
         // doc.setFillColor(...pdf_color)
         // doc.rect(obj.x,obj.y,obj.width,obj.height,"FD")
         if(state.image_ready(img.imageid)) {
-            doc.addImage(state.get_DomImage(img.imageid), 'JPEG', obj.x, obj.y, obj.width, obj.height, null, 0)
+            // ctx.currentPage.addImage(state.get_DomImage(img.imageid), 'JPEG', obj.x, obj.y, obj.width, obj.height, null, 0)
         }
     }
 

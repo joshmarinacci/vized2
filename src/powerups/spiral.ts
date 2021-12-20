@@ -18,13 +18,14 @@ import {
     TreeNodeImpl
 } from "../common";
 import {JSONExporter} from "../exporters/json";
-import {cssToPdfColor, PDFExporter} from "../exporters/pdf";
+import {cssToPdfColor, hex_to_pdfrgbf, PDFContext, PDFExporter} from "../exporters/pdf";
 import {Action} from "../actions";
 import {SpiralEditor} from "./spiral_editor";
 import {
     CircleLikeShape, CircleLikeShapeName,
     RadiusSelectionCircleLike
 } from "./circle";
+import {PDFPage} from "pdf-lib";
 
 export const SpiralShapeName = "SpiralShape"
 export class SpiralShapeObject implements Component, MultiComp, CircleLikeShape, RenderBounds {
@@ -183,29 +184,24 @@ export class SpiralPDFExporter implements PDFExporter {
         return node.has_component(SpiralShapeName)
     }
 
-    toPDF(node: TreeNode, state:GlobalState, doc:any, scale:number ): void {
+    toPDF(ctx:PDFContext, node: TreeNode, state:GlobalState): void {
+        let page = ctx.currentPage
         let spiral:SpiralShapeObject = node.get_component(SpiralShapeName) as SpiralShapeObject
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
-        let pdf_color = cssToPdfColor(color.get_fill())
-        doc.setFillColor(...pdf_color)
         let times = 5*Math.PI*2
         let radius = spiral.get_radius() / times
         let ox = spiral.get_position().x
         let oy = spiral.get_position().y
-        const path = [];
+        let prev = {x:0,y:0}
         for(let th=0; th<times; th+=0.1) {
-            let x = (Math.sin(th)*radius*th + ox) * scale
-            let y = (Math.cos(th)*radius*th + oy) * scale
-            if(th === 0) {
-                path.push({op:'m',c:[x,y]})
-            } else {
-                path.push({op:'l',c:[x,y]})
+            let cur = {x:0,y:0}
+            cur.x = (Math.sin(th)*radius*th + ox)
+            cur.y = (Math.cos(th)*radius*th + oy)
+            if(th !== 0) {
+                page.drawLine({start:prev,end:cur, color:hex_to_pdfrgbf(color.get_fill())})
             }
+            prev = cur
         }
-        path.push({op: "h", c: []})
-        doc.setLineWidth(1*scale)
-        doc.path(path);
-        doc.stroke()
     }
 }
 
