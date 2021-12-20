@@ -23,9 +23,9 @@ import {
     TreeNodeImpl
 } from "../common";
 import {JSONExporter} from "../exporters/json";
-import {cssToPdfColor, hex_to_pdfrgbf, PDFContext, PDFExporter} from "../exporters/pdf";
+import {hex_to_pdfrgbf, PDFContext, PDFExporter} from "../exporters/pdf";
 import {Action} from "../actions";
-import {PDFPage} from "pdf-lib";
+import {CircleLikeEditor} from "./circle_shape_editor";
 
 export const CircleLikeShapeName = "CircleLikeShape"
 export interface CircleLikeShape extends CenterPosition {
@@ -243,6 +243,15 @@ export class CirclePowerup extends DefaultPowerup{
         state.svgexporters.push(new CircleSVGExporter())
         state.pdfexporters.push(new CirclePDFExporter())
         state.jsonexporters.push(new CircleShapeJSONExporter())
+    }
+
+    override can_edit_by_name(comp: string): boolean {
+        if(comp === CircleLikeShapeName) return true
+        return false
+    }
+    override get_editor_by_name(name: string, state: GlobalState): any {
+        if(name === CircleLikeShapeName) return CircleLikeEditor
+        return null
     }
 
     child_options(node: TreeNode): Action[] {

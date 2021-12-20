@@ -52,6 +52,16 @@ function file_to_DataURL(file: File):Promise<string> {
     })
 }
 
+
+const BASIC_COLORS = {
+    title:"basic",
+    colors:['#ff0000','#00ff00','#0000ff','#000000','#ffffff']
+}
+const GRAYSCALE = {
+    title:"grayscale",
+    colors:["#000000","#333333","#444444","#888888","#a0a0a0","#bbbbbb","#dddddd",'#ffffff']
+}
+
 export class GlobalState {
     renderers: RenderingSystem[]
     jsonexporters:JSONExporter[]
@@ -94,17 +104,11 @@ export class GlobalState {
         this.listeners = new Map<string, Callback[]>()
         // @ts-ignore
         this.root = null
-        this.palettes = []
+        this.palettes = [BASIC_COLORS, GRAYSCALE]
         fetch(PALETTE_URL)
-            .then(r => r.json()).then(d => this.palettes = d.data.items)
+            .then(r => r.json()).then(d =>  d.data.items.forEach((it:any) => this.palettes.push(it)))
             .catch(e => {
                 console.log("error loading remote color palettes. just use defaults")
-                this.palettes = [
-                    {
-                        title:"backup",
-                        colors:['red','green','blue','black','white']
-                    }
-                ]
             })
         this.patterns = [
             DIAG_HATCH_IMAGE,

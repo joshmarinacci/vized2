@@ -414,6 +414,13 @@ export class TextPowerup extends DefaultPowerup{
         return []
     }
 
+    override can_edit_by_name(comp: string): boolean {
+        return comp === TextShapeName
+    }
+    override get_editor_by_name(name: string, state: GlobalState): any {
+        return TextShapeEditor
+    }
+
     override can_edit(comp: Component): boolean {
         return comp.name === TextShapeName
     }
