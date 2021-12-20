@@ -171,21 +171,11 @@ class GroupPDFExporter implements PDFExporter {
     }
 
     toPDF(ctx:PDFContext, node: TreeNode, state:GlobalState): void {
-        /*
         let group:GroupShape = node.get_component(GroupShapeName) as GroupShapeObject
-        let rect = group.get_child_bounds().scale(scale)
-        doc.saveGraphicsState()
-        let pdf_color = cssToPdfColor('#ff00ff')
-        doc.setFillColor(...pdf_color)
-        doc.rect(rect.x,rect.y,rect.w,rect.h,"FD")
-        // const matrix = new jsPDF.Matrix(1,0,0,1,rect.x,rect.y)
-        //[1, 0, 0, 1, tx, ty]
-        //what units are tx and ty in?
-        doc.setCurrentTransformationMatrix(`1 0 0 1 ${rect.x/scale} ${rect.y/scale}`);
-        node.children.forEach(ch => treenode_to_PDF(ch, state,doc,scale, translate))
-        doc.restoreGraphicsState()
-
-         */
+        let pos = group.get_position()
+        ctx.currentPage.translateContent(pos.x,pos.y)
+        node.children.forEach(ch => treenode_to_PDF(ctx, ch, state))
+        ctx.currentPage.translateContent(-pos.x,-pos.y)
     }
 }
 
