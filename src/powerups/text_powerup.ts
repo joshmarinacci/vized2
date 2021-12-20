@@ -27,7 +27,7 @@ import {cssToPdfColor, hex_to_pdfrgbf, PDFContext, PDFExporter} from "../exporte
 import {JSONExporter} from "../exporters/json";
 import {Action} from "../actions";
 import {TextShapeEditor} from "./text_editor";
-import {PDFFont, PDFPage} from "pdf-lib";
+import {PDFFont, PDFPage, popGraphicsState, pushGraphicsState, scale, translate} from "pdf-lib";
 
 export const TextShapeName = "TextShapeName"
 interface TextShape extends Component {
@@ -181,13 +181,19 @@ class PDFRenderingSurface implements RenderingSurface {
 
     fillText(text: string, x: number, y: number, fill: any, size: number, family: string): void {
         let opts = {
-            x, y, size, color: hex_to_pdfrgbf(fill)
+            x:0, y:0, size, color: hex_to_pdfrgbf(fill),
         }
         if (this.ctx.fonts.has(family)) {
             // @ts-ignore
             opts.font = this.ctx.fonts.get(family) as PDFFont
         }
+        this.ctx.currentPage.pushOperators(
+            pushGraphicsState(),
+            translate(x,y),
+            scale(1,-1)
+        )
         this.ctx.currentPage.drawText(text, opts)
+        this.ctx.currentPage.pushOperators(popGraphicsState())
     }
 
 

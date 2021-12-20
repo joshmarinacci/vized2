@@ -53,6 +53,7 @@ import {
 import {SVGExporter, treenode_to_SVG} from "../exporters/svg";
 import {cssToPdfColor, PDFContext, PDFExporter, treenode_to_PDF} from "../exporters/pdf";
 import {Action} from "../actions";
+import {popGraphicsState, pushGraphicsState, translate} from "pdf-lib";
 
 
 export const GroupShapeName = "GroupShapeName"
@@ -173,9 +174,9 @@ class GroupPDFExporter implements PDFExporter {
     toPDF(ctx:PDFContext, node: TreeNode, state:GlobalState): void {
         let group:GroupShape = node.get_component(GroupShapeName) as GroupShapeObject
         let pos = group.get_position()
-        ctx.currentPage.translateContent(pos.x,pos.y)
+        ctx.currentPage.pushOperators(pushGraphicsState(),translate(pos.x,pos.y))
         node.children.forEach(ch => treenode_to_PDF(ctx, ch, state))
-        ctx.currentPage.translateContent(-pos.x,-pos.y)
+        ctx.currentPage.pushOperators(popGraphicsState())
     }
 }
 

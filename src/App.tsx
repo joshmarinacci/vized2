@@ -114,7 +114,7 @@ export function make_default_tree(state: GlobalState) {
     {
         let text1 = new TreeNodeImpl()
         text1.title = 'text1'
-        text1.add_component(new TextShapeObject("Jesse is a\nsilly head", 20, "center",'center'))
+        text1.add_component(new TextShapeObject("Greetings Earthling!", 20, "center",'center'))
         text1.add_component(new BoundedShapeObject(new Rect(50,150,150,100)))
         text1.add_component(new MovableBoundedShape(text1))
         text1.add_component(new ResizableRectObject(text1))

@@ -15,7 +15,15 @@ import {Action} from "../actions";
 import {make_empty_doc} from "../powerups/standard";
 import {make_std_circle} from "../powerups/circle";
 import {make_std_rect} from "../powerups/rect_powerup";
-import {PDFDocument, PDFFont, PDFPage, rgb, StandardFonts} from "pdf-lib";
+import {
+    PDFDocument,
+    PDFFont,
+    PDFPage, popGraphicsState,
+    pushGraphicsState,
+    rgb, scale,
+    StandardFonts,
+    translate
+} from "pdf-lib";
 
 
 export class PDFContext {
@@ -23,11 +31,13 @@ export class PDFContext {
     currentPage:PDFPage
     scale:number
     fonts: Map<string, PDFFont>;
+    pixel_bounds: Rect
     constructor(doc:PDFDocument, page:PDFPage) {
         this.doc = doc
         this.scale = 1.0
         this.currentPage = page
         this.fonts = new Map<string,PDFFont>()
+        this.pixel_bounds = new Rect(0,0,10,10)
     }
 }
 export interface PDFExporter extends System {
@@ -73,33 +83,33 @@ function find_pages(root: TreeNode):TreeNode[] {
 }
 
 function render_pdf_page(ctx:PDFContext, pageNumber: number, pg: TreeNode, state: GlobalState) {
-    ctx.currentPage = ctx.doc.addPage([350,400])
+    ctx.currentPage = ctx.doc.addPage([ctx.pixel_bounds.w,ctx.pixel_bounds.h])
+    ctx.currentPage.pushOperators(
+        pushGraphicsState(),
+        scale(1,-1),
+        translate(0,-ctx.currentPage.getHeight())
+    )
     pg.children.forEach(ch => treenode_to_PDF(ctx, ch, state))
+    ctx.currentPage.pushOperators(popGraphicsState())
 }
 
 export async function export_PDF(root:TreeNode, state:GlobalState) {
-    let bds = {
-        w:500,
-        h:500,
-    }
+    let bounds = new Rect(0,0,500,500)
     let scale = 1
     let pages:TreeNode[] = find_pages(root)
     let firstpage = pages[0]
     if(firstpage.has_component(BoundedShapeName)) {
-        let bounds = firstpage.get_component(BoundedShapeName) as BoundedShape
-        let rect = bounds.get_bounds()
-        bds.w = rect.w
-        bds.h = rect.h
+        bounds = (firstpage.get_component(BoundedShapeName) as BoundedShape).get_bounds()
     }
     let settings = {
         unit:'pt',
-        format:[bds.w,bds.h],
+        format:[bounds.w,bounds.h],
     }
     if(firstpage.has_component(PDFExportBoundsName)) {
         let pdb = firstpage.get_component(PDFExportBoundsName) as PDFExportBounds
         console.log('pdb',pdb)
         settings.unit = pdb.unit
-        settings.format = [bds.w*pdb.scale,bds.h*pdb.scale]
+        settings.format = [bounds.w*pdb.scale,bounds.h*pdb.scale]
         scale = pdb.scale
     }
     console.log("using the settings",settings)
@@ -108,6 +118,7 @@ export async function export_PDF(root:TreeNode, state:GlobalState) {
     const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman)
     // @ts-ignore
     let ctx = new PDFContext(pdfDoc,null)
+    ctx.pixel_bounds = bounds
     ctx.fonts.set("serif",timesRomanFont)
 
     pages.forEach((pg,i) => render_pdf_page(ctx,i,pg,state))

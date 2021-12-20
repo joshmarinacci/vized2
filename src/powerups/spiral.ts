@@ -86,6 +86,7 @@ class SpiralRendererSystem implements RenderingSystem {
 
             ctx.save()
             ctx.translate(spiral.get_position().x,spiral.get_position().y)
+            ctx.beginPath()
             if (node.has_component(FilledShapeName)) {
                 let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
                 ctx.strokeStyle = color.get_fill()

@@ -112,47 +112,14 @@ export class RectPDFExporter implements PDFExporter {
     toPDF(ctx:PDFContext, node: TreeNode, state:GlobalState): void {
         let page = ctx.currentPage
         let bd = (node.get_component(BoundedShapeName) as BoundedShape)
-        let rect = bd.get_bounds()//.scale(scale)
+        let rect = bd.get_bounds()
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
-        let obj = {
+        page.drawRectangle({
             x:rect.x,
             y:rect.y,
             width:rect.w,
-            height:rect.w,
-            fill:hex_to_pdfrgbf(color.get_fill())
-        }
-//rgb(0,0,0.5)
-        console.log('fill is',color.get_fill())
-        // color: rgb(0, 0.53, 0.71),
-        page.drawRectangle({x:obj.x,y:obj.y,width:obj.width,height:obj.height, color:obj.fill})
-
-        /*
-        if(obj.fill instanceof Image) {
-            console.log('doing a pattern')
-            doc.advancedAPI((doc:jsPDF) => {
-                var pattern = new TilingPattern([0, 0, 1, 1], 0, 0);
-                doc.beginTilingPattern(pattern);
-                doc.setFillColor(255, 0, 0);
-                doc.circle(0.5, 0.5, 0.1, "F");
-                doc.endTilingPattern("dots", pattern);
-                console.log("the pattern is",pattern)
-                let pd:PatternData = {
-                    //key:"dots",
-                    // @ts-ignore
-                    key:pattern.id,
-                    matrix:undefined,
-                    boundingBox:[obj.x,obj.y,obj.x+obj.width,obj.y+obj.height],
-                    xStep:1,
-                    yStep:1
-                }
-                console.log("pattern data",pd)
-                doc.fill(pd); // I don't know how to reference patterns.
-                doc.rect(obj.x,obj.y,obj.width,obj.height,"F")
-            })
-        } else {
-            doc.setFillColor(...cssToPdfColor(obj.fill))
-            doc.rect(obj.x,obj.y,obj.width,obj.height,"F")
-        }*/
+            height:rect.h,
+            color:hex_to_pdfrgbf(color.get_fill())})
     }
 
 }

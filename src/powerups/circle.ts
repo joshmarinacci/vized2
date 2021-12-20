@@ -110,6 +110,7 @@ export class CircleRendererSystem implements RenderingSystem {
             }
             ctx.beginPath()
             ctx.arc(shape.get_position().x, shape.get_position().y,shape.get_radius(),0,Math.PI*2)
+            ctx.closePath()
             ctx.fill()
             if(state.selection.has(node)) {
                 ctx.strokeStyle = 'magenta'
@@ -183,18 +184,8 @@ export class CirclePDFExporter implements PDFExporter {
         let page = ctx.currentPage
         let circle: CircleShape = node.get_component(CircleShapeName) as CircleShape
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
-        page.drawCircle({x:circle.get_position().x,y:circle.get_position().y,size:circle.get_radius(),color:hex_to_pdfrgbf(color.get_fill())})
-        /*
-        let obj = {
-            cx:circle.get_position().x * scale,
-            cy:circle.get_position().y * scale,
-            r:circle.get_radius() * scale,
-            fill:color.get_fill()
-        }
-        let pdf_color = cssToPdfColor(obj.fill)
-        doc.setFillColor(...pdf_color)
-        doc.circle(obj.cx,obj.cy, obj.r, "F");
-         */
+        let pos = circle.get_position()
+        page.drawCircle({x:pos.x,y:pos.y,size:circle.get_radius(),color:hex_to_pdfrgbf(color.get_fill())})
     }
 }
 
