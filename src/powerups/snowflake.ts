@@ -16,6 +16,9 @@ import {Action} from "../actions";
 import {make_std_circle} from "./circle";
 import {make_std_rect} from "./rect_powerup";
 import {SnowflakeEditor} from "./snowflake_editor";
+import {PDFContext, PDFExporter, treenode_to_PDF} from "../exporters/pdf";
+import {GroupShape, GroupShapeName, GroupShapeObject} from "./group";
+import {popGraphicsState, pushGraphicsState, rotateRadians, translate} from "pdf-lib";
 
 const SnowflakeName = "SnowflakeName"
 export interface Snowflake extends ParentLike {
@@ -169,10 +172,33 @@ export class SnowflakeRendererSystem implements RenderingSystem {
     }
 }
 
+class SnowflakePDFExporter implements PDFExporter {
+    name: string;
+    constructor() {
+        this.name = 'SnowflakePDFExporter'
+    }
+
+    canExport(node: TreeNode): boolean {
+        return node.has_component(SnowflakeName)
+    }
+
+    toPDF(ctx: PDFContext, node: TreeNode, state: GlobalState): void {
+        let flake = node.get_component(SnowflakeName) as Snowflake
+        let pos = flake.get_position()
+        ctx.currentPage.pushOperators(pushGraphicsState(),translate(pos.x,pos.y))
+        for(let i=0; i<flake.fold_count(); i++) {
+            ctx.currentPage.pushOperators(rotateRadians(Math.PI*2/flake.fold_count()))
+            node.children.forEach(ch => treenode_to_PDF(ctx, ch, state))
+        }
+        ctx.currentPage.pushOperators(popGraphicsState())
+    }
+
+}
 export class SnowflakePowerup extends DefaultPowerup{
     init(state: GlobalState) {
         state.pickers.push(new SnowflakePickSystem())
         state.renderers.push(new SnowflakeRendererSystem())
+        state.pdfexporters.push(new SnowflakePDFExporter())
     }
 
     child_options(node: TreeNode): Action[] {
