@@ -11,7 +11,7 @@ import {
 import {Action} from "../actions";
 
 export interface JSONExporter extends Component {
-    canHandleToJSON(comp:any, node:TreeNode):boolean
+    canHandleToJSON(comp:Component, node:TreeNode):boolean
     canHandleFromJSON(obj:any, node:TreeNode):boolean
     toJSON(component:Component,node:TreeNode):any
     fromJSON(obj:any,node:TreeNode):Component
@@ -21,14 +21,15 @@ export function treenode_to_POJO(root: TreeNode, state: GlobalState):any {
     let obj:any = {}
     Object.keys(root).forEach(key => {
         if (key === 'parent') return
+        if (key === 'comps') return
         if (key === 'children') {
             obj[key] = root.children.map(ch => treenode_to_POJO(ch, state))
             return
         }
         if(key === 'components') {
-            obj[key] = (root as TreeNodeImpl).all_components().map(comp => {
+            obj[key] = (root as TreeNodeImpl).all_components().map((comp:Component) => {
                 let exp = state.jsonexporters.find(exp => exp.canHandleToJSON(comp,root))
-                // if(!exp) throw new Error(`cannot export component ${comp.name}`)
+                //if(!exp) throw new Error(`cannot export component ${comp.name}`)
                 if(!exp) console.warn(`cannot export component ${comp.name}`)
                 if(exp) return exp.toJSON(comp,root)
                 return {missing:true, name:comp.name}
@@ -95,7 +96,8 @@ export class FilledShapeJSONExporter implements JSONExporter {
         return obj.name === FilledShapeName
     }
 
-    canHandleToJSON(comp: any, node: TreeNode): boolean {
+    canHandleToJSON(comp: Component, node: TreeNode): boolean {
+        console.log("comp is",comp)
         return comp.name === FilledShapeName
     }
 

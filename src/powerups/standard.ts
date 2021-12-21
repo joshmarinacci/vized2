@@ -1,10 +1,10 @@
 import {
-    CenterPositionName,
+    CenterPositionName, Component,
     DefaultPowerup,
     DocMarker, FilledShapeName,
     FilledShapeObject,
     GlobalState,
-    PageMarker,
+    PageMarker, PageName,
     Rect,
     TreeNode,
     TreeNodeImpl
@@ -16,6 +16,7 @@ import {Action} from "../actions";
 import {BoundedShapeEditor} from "./bounded_shape_editor";
 import {FilledShapeEditor} from "./filled_shape_editor";
 import {CenterPositionEditor} from "./position_editor";
+import {JSONExporter} from "../exporters/json";
 
 export function make_empty_doc(state: GlobalState): TreeNodeImpl {
     let root = new TreeNodeImpl()
@@ -29,7 +30,52 @@ export function make_empty_doc(state: GlobalState): TreeNodeImpl {
     return root
 }
 
+class StandardJSONExporter implements JSONExporter {
+    constructor() {
+        this.name = "StandardJSONExporter"
+    }
+    name: string;
+
+    canHandleFromJSON(obj: any, node: TreeNode): boolean {
+        return false;
+    }
+
+    canHandleToJSON(comp: Component, node: TreeNode): boolean {
+        console.log("checking node",comp)
+        if(comp instanceof PageMarker) return true
+        if(comp instanceof BoundedShapeObject) return true
+        return false;
+    }
+
+    fromJSON(obj: any, node: TreeNode): Component {
+        // @ts-ignore
+        return undefined;
+    }
+
+    toJSON(component: Component, node: TreeNode): any {
+        if(component instanceof PageMarker) {
+            return {name:PageName, missing:false}
+        }
+        if(component instanceof BoundedShapeObject) {
+            let bd = (component as BoundedShapeObject)
+            let rect = bd.get_bounds()
+            return {
+                name:BoundedShapeName,
+                x:rect.x,
+                y:rect.y,
+                w:rect.w,
+                h:rect.h
+            }
+        }
+        console.log("converting. bounded shape?",component)
+    }
+}
+
 export class StandardPowerup extends DefaultPowerup {
+    init(state: GlobalState) {
+        state.jsonexporters.push(new StandardJSONExporter())
+    }
+
     override new_doc_actions(): Action[] {
         let action: Action = {
             use_gui: false,
