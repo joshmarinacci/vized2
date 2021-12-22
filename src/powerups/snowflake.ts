@@ -21,17 +21,18 @@ import {GroupShape, GroupShapeName, GroupShapeObject} from "./group";
 import {popGraphicsState, pushGraphicsState, rotateRadians, translate} from "pdf-lib";
 
 const SnowflakeName = "SnowflakeName"
+export type SnowflakeMode = "normal"|"clipped"|"mirror"|"mirror-clipped"
 export interface Snowflake extends ParentLike {
     fold_count():number
     set_fold_count(folds:number):void
-    get_mode():string
-    set_mode(mode:string):void
+    get_mode():SnowflakeMode
+    set_mode(mode:SnowflakeMode):void
 }
 
 class SnowflakeObject implements MultiComp, Snowflake, RenderBounds {
     private position: Point;
     name: string;
-    private mode:string
+    private mode:SnowflakeMode
     private node: TreeNodeImpl;
     private _fold_count: number;
 
@@ -40,7 +41,7 @@ class SnowflakeObject implements MultiComp, Snowflake, RenderBounds {
         this.position = position
         this.name = SnowflakeName
         this._fold_count = 8
-        this.mode = "none"
+        this.mode = "normal"
     }
 
     supports(): string[] {
@@ -78,11 +79,11 @@ class SnowflakeObject implements MultiComp, Snowflake, RenderBounds {
         return this.get_child_bounds()
     }
 
-    get_mode(): string {
+    get_mode(): SnowflakeMode {
         return this.mode
     }
 
-    set_mode(mode: string): void {
+    set_mode(mode: SnowflakeMode): void {
         this.mode = mode
     }
 }
@@ -147,7 +148,6 @@ export class SnowflakeRendererSystem implements RenderingSystem {
             let ctx = surf.ctx
             // this.log('drawing flake bounds')
             let flake = node.get_component(SnowflakeName) as Snowflake
-            let pos = flake.get_position()
             let rect = flake.get_child_bounds()
             ctx.fillStyle = 'rgba(255,0,0,0.5)'
             ctx.save()
@@ -172,7 +172,7 @@ export class SnowflakeRendererSystem implements RenderingSystem {
         for(let i=0; i<count; i++) {
             surf.selectionEnabled = (i===0)
             let theta = Math.PI*2/count
-            const draw_clipped = (surf:CanvasRenderSurface,node:TreeNode,theta:number) => {
+            const draw_clipped = (surf:CanvasRenderSurface,node:TreeNode,theta:number, clip:boolean) => {
                 let len = 500
                 surf.ctx.strokeStyle = 'black'
                 surf.ctx.beginPath()
@@ -180,24 +180,42 @@ export class SnowflakeRendererSystem implements RenderingSystem {
                 surf.ctx.lineTo(Math.sin(theta) * len, Math.cos(theta) * len)
                 surf.ctx.lineTo(0, len)
                 if(surf.inset && surf.selectionEnabled)surf.ctx.fill()
-                if(!surf.inset || !surf.selectionEnabled) surf.ctx.clip()
+                if(clip && (!surf.inset || !surf.selectionEnabled)) surf.ctx.clip()
                 node.children.forEach(ch => this.draw_node(surf, ch, state))
             }
 
+            if(flake.get_mode() === "normal") {
+                surf.ctx.save()
+                surf.ctx.rotate(i * theta)
+                draw_clipped(surf,node,theta,false)
+                surf.ctx.restore()
+            }
+            if(flake.get_mode() === "clipped") {
+                surf.ctx.save()
+                surf.ctx.rotate(i * theta)
+                draw_clipped(surf,node,theta,true)
+                surf.ctx.restore()
+            }
             if(flake.get_mode() === 'mirror') {
                 surf.ctx.save()
                 surf.ctx.rotate(i * theta)
-                draw_clipped(surf,node,theta/2)
+                draw_clipped(surf,node,theta/2,false)
                 surf.ctx.restore()
                 surf.ctx.save()
                 surf.ctx.rotate(i * theta)
                 surf.ctx.scale(-1,1)
-                draw_clipped(surf,node,theta/2)
+                draw_clipped(surf,node,theta/2,false)
                 surf.ctx.restore()
-            } else {
+            }
+            if(flake.get_mode() === 'mirror-clipped') {
                 surf.ctx.save()
                 surf.ctx.rotate(i * theta)
-                draw_clipped(surf,node,theta)
+                draw_clipped(surf,node,theta/2,true)
+                surf.ctx.restore()
+                surf.ctx.save()
+                surf.ctx.rotate(i * theta)
+                surf.ctx.scale(-1,1)
+                draw_clipped(surf,node,theta/2,true)
                 surf.ctx.restore()
             }
 
