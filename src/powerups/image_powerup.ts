@@ -3,10 +3,10 @@ import {
     Component,
     DefaultPowerup,
     GlobalState,
-    Handle, ImageReference,
+    Handle, ImageReference, Movable, MovableName, MultiComp,
     PageName, ParentLikeName,
     Point,
-    Rect,
+    Rect, RenderBounds, RenderBoundsName,
     RenderingSystem,
     Resizable,
     ResizableName,
@@ -15,9 +15,7 @@ import {
 } from "../common"
 import {
     BoundedShape,
-    BoundedShapeName,
-    BoundedShapeObject,
-    MovableBoundedShape
+    BoundedShapeName
 } from "../bounded_shape";
 import {PDFContext, PDFExporter} from "../exporters/pdf";
 import {SVGExporter} from "../exporters/svg";
@@ -29,40 +27,50 @@ export interface ImageShape extends Component {
     get_aspect_ratio():number
 }
 
-export class ImageShapeObject implements ImageShape {
+export class ImageShapeObject implements MultiComp, ImageShape, BoundedShape, RenderBounds, Movable {
     name: string;
-    private ow: number;
-    private oh: number;
-    aspect_ratio: number;
-    imageid: string | null;
-    url:string | null
+    private position:Point
+    img: ImageReference
+    private scale:number
     constructor() {
         this.name = ImageShapeName
-        this.ow = 0
-        this.oh = 0
-        this.imageid = null
-        this.aspect_ratio = 0
-        this.url = null
+        this.position = new Point(0,0)
+        this.scale = 1
+        // @ts-ignore
+        this.img = null
     }
 
-    get_size():Point {
-        return new Point(this.ow,this.oh)
+    //multi
+    isMulti(): boolean {
+        return true
+    }
+    supports(): string[] {
+        return [ImageShapeName, BoundedShapeName, RenderBoundsName, MovableName]
     }
 
+    // image
+    setImage(img: ImageReference) {
+        this.img = img
+        this.scale = 0.1
+    }
     get_aspect_ratio(): number {
-        return this.aspect_ratio;
+        return this.img.width/this.img.height
     }
 
-    get_url() {
-        return this.url
+    //bounded & render bounds
+    get_bounds(): Rect {
+        if(!this.img) return new Rect(this.position.x,this.position.y,10,10)
+        return new Rect(this.position.x,this.position.y,this.img.width*this.scale,this.img.height*this.scale)
     }
 
-    sync(img: ImageReference) {
-        this.imageid = img.id
-        this.ow = img.width
-        this.oh = img.height
-        this.aspect_ratio = this.ow/this.oh
-        this.url = img.url
+    //movable
+    moveBy(pt: Point): void {
+        console.log("Moving",pt)
+        this.position = this.position.add(pt)
+    }
+
+    set_scale(scale: number) {
+        this.scale = scale
     }
 }
 
@@ -78,19 +86,16 @@ export class ImageShapeHandle extends Handle {
         this.update_to_node()
     }
     update_from_node() {
-        let bd: BoundedShape = this.node.get_component(BoundedShapeName) as BoundedShape
-        this.x = bd.get_bounds().x + bd.get_bounds().w - 5
-        this.y = bd.get_bounds().y + bd.get_bounds().h - 5
+        let bd = (this.node.get_component(ImageShapeName) as ImageShapeObject).get_bounds()
+        this.x = bd.x + bd.w - 5
+        this.y = bd.y + bd.h - 5
     }
 
     private update_to_node() {
-        let bd: BoundedShape = this.node.get_component(BoundedShapeName) as BoundedShape
-        let bdd = bd.get_bounds()
-        bdd.w = this.x - bdd.x + this.w / 2
-        bdd.h = this.y - bdd.y + this.h / 2
-        let img = this.node.get_component(ImageShapeName) as ImageShape
-        let rat = img.get_aspect_ratio()
-        bdd.w = bdd.h*rat
+        let iso = this.node.get_component(ImageShapeName) as ImageShapeObject
+        let w = this.x - iso.get_bounds().x
+        let scale = w/iso.img.width
+        iso.set_scale(scale)
     }
 }
 
@@ -119,14 +124,12 @@ export class ImageRendererSystem implements RenderingSystem {
 
     render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void {
         if (node.has_component(BoundedShapeName) && node.has_component(ImageShapeName)) {
-            let bd: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
-            let rect = bd.get_bounds()
-
-            let img:ImageShapeObject = node.get_component(ImageShapeName) as ImageShapeObject
+            let img = node.get_component(ImageShapeName) as ImageShapeObject
+            let rect = img.get_bounds()
             ctx.fillStyle = 'magenta'
             // ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
-            if(state.image_ready(img.imageid)) {
-                ctx.drawImage(state.get_DomImage(img.imageid), rect.x, rect.y, rect.w, rect.h)
+            if(img.img && state.image_ready(img.img.id)) {
+                ctx.drawImage(state.get_DomImage(img.img.id), rect.x, rect.y, rect.w, rect.h)
             }
             // console.log('aspect ratio',img.aspect_ratio)
             if (state.selection.has(node)) {
@@ -154,18 +157,18 @@ export class ImagePDFExporter implements PDFExporter {
         let bd: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
         let img:ImageShapeObject = node.get_component(ImageShapeName) as ImageShapeObject
         let rect = bd.get_bounds().scale(ctx.scale)
-        let obj = {
-            x:rect.x,
-            y:rect.y,
-            width:rect.w,
-            height:rect.h,
-        }
+        // let obj = {
+        //     x:rect.x,
+        //     y:rect.y,
+        //     width:rect.w,
+        //     height:rect.h,
+        // }
         // let pdf_color = cssToPdfColor('#ff00ff')
         // doc.setFillColor(...pdf_color)
         // doc.rect(obj.x,obj.y,obj.width,obj.height,"FD")
-        if(state.image_ready(img.imageid)) {
+        // if(state.image_ready(img.imageid)) {
             // ctx.currentPage.addImage(state.get_DomImage(img.imageid), 'JPEG', obj.x, obj.y, obj.width, obj.height, null, 0)
-        }
+        // }
     }
 
 }
@@ -185,8 +188,7 @@ class ImageSVGExporter implements SVGExporter {
         let img:ImageShapeObject = node.get_component(ImageShapeName) as ImageShapeObject
         let bd: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
         let rect = bd.get_bounds()
-
-        return `<image x="${rect.x}" y="${rect.y}" width="${rect.w}" height="${rect.h}" href="${img.get_url()}"/>`
+        return `<image x="${rect.x}" y="${rect.y}" width="${rect.w}" height="${rect.h}" href="${img.img.url}"/>`
     }
 }
 
@@ -194,15 +196,8 @@ export function make_image_node(url: string, state:GlobalState): TreeNode {
     let image = new TreeNodeImpl()
     image.title = 'image'
     let iso = new ImageShapeObject()
-    let bds = new BoundedShapeObject(new Rect(100, 100, 200, 200))
-    state.add_image_from_url(url).then(img => {
-        iso.sync(img)
-        bds.get_bounds().w = img.width
-        bds.get_bounds().h = img.height
-    })
+    state.add_image_from_url(url).then(img => iso.setImage(img))
     image.add_component(iso)
-    image.add_component(bds)
-    image.add_component(new MovableBoundedShape(image))
     image.add_component(new ResizableImageObject(image))
     return image
 }

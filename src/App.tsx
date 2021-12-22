@@ -29,7 +29,7 @@ import {PDFExportBounds, PDFPowerup} from "./exporters/pdf";
 import {SVGPowerup} from "./exporters/svg";
 import {PNGPowerup} from "./exporters/png";
 import {GroupPowerup, make_std_group} from "./powerups/group";
-import {ImagePowerup} from "./powerups/image_powerup";
+import {ImagePowerup, make_image_node} from "./powerups/image_powerup";
 import {Toolbar} from "./comps";
 import {TreeView} from "./treeview";
 import {PopupContainer, PopupContext, PopupContextImpl} from "./popup";
@@ -104,13 +104,13 @@ export function make_default_tree(state: GlobalState) {
         let spiral = make_std_spiral(new Point(100,200),15)
         add_child_to_parent(spiral,root)
     }
-/*
+
     {
         let url = "https://vr.josh.earth/assets/2dimages/saturnv.jpg"
         let image = make_image_node(url,state)
         add_child_to_parent(image,root)
     }
-*/
+
     {
         let text1 = new TreeNodeImpl()
         text1.title = 'text1'
