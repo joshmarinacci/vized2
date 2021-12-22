@@ -325,7 +325,8 @@ export function CanvasView(props:{}) {
         ctx.save()
         let surf:CanvasRenderSurface = {
             ctx: ctx,
-            selectionEnabled: true
+            selectionEnabled: true,
+            inset:is_inset,
         }
         draw_node(state,surf, current_page)
         draw_handles(state, ctx, current_page)

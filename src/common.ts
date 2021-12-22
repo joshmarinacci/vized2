@@ -432,6 +432,7 @@ export interface System {
 export interface CanvasRenderSurface {
     ctx:CanvasRenderingContext2D,
     selectionEnabled:boolean
+    inset:boolean
 }
 
 export interface RenderingSystem extends System {

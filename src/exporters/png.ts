@@ -43,7 +43,8 @@ export function export_PNG(root: TreeNode, state: GlobalState) {
 
     let surf:CanvasRenderSurface = {
         ctx: ctx,
-        selectionEnabled: true
+        selectionEnabled: true,
+        inset:false
     }
     root.children.forEach(ch => to_PNG(surf, ch, state))
 
