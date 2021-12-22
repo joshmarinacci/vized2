@@ -7,7 +7,7 @@ import {
     Handle,
     Movable,
     MovableName, ParentDrawChildrenName, ParentLike, ParentLikeName,
-    Point, RadiusSelection, RadiusSelectionName,
+    Point, RadiusSelection, RadiusSelectionName, Rect, RenderBounds, RenderBoundsName,
     Resizable,
     ResizableName,
     TreeNode
@@ -93,14 +93,23 @@ export interface MouseGestureDelegate {
 class MouseMoveDelegate implements MouseGestureDelegate {
     press_point: Point | null
     private state: GlobalState;
+    private movables: TreeNode[];
+    private start_bounds: Rect[]
+    private start_offsets: Point[]
+    private start_point: Point | null;
 
     constructor(state: GlobalState) {
         this.state = state
         this.press_point = null
+        this.movables = []
+        this.start_offsets = []
+        this.start_bounds = []
+        this.start_point = null
     }
 
     press(e: MouseEvent, pt:Point, root:TreeNode) {
         this.press_point = pt
+        this.start_point = pt
         let picked:TreeNode|null = null
         root.children.forEach((ch:TreeNode) => {
             this.state.pickers.forEach(pk => {
@@ -116,43 +125,53 @@ class MouseMoveDelegate implements MouseGestureDelegate {
         } else {
             this.state.selection.clear()
         }
+        this.movables = this.state.selection.get().filter(sh => sh.has_component(MovableName) && sh.has_component(RenderBoundsName))
+        this.start_bounds = this.movables.map(nd => ((nd.get_component(RenderBoundsName) as RenderBounds).get_bounds().clone()))
+        this.start_offsets = this.start_bounds.map(bd => pt.subtract(bd.position))
         this.refresh_handles(this.state.selection.get())
         this.state.dispatch('selection-change',{})
     }
 
     move(e: MouseEvent, pt:Point, root:TreeNode) {
         if (!this.press_point) return
-        let drag_point = pt
-        let diff = drag_point.subtract(this.press_point)
-        this.press_point = drag_point
-        let movables: TreeNode[] = this.state.selection.get().filter(sh => sh.has_component(MovableName))
-        movables.forEach(node => {
-            let mov: Movable = node.get_component(MovableName) as Movable
-            mov.moveBy(diff)
-        })
-        //if bounds of selection is near a snap area, draw the snap, then jump to that spot
-        let bs = this.state.selection.get().filter(sh => sh.has_component(BoundedShapeName))
-        if(bs.length >= 1) {
-            let bds = (bs[0].get_component(BoundedShapeName) as BoundedShape).get_bounds()
-            let page = find_page_for_node(bs[0])
-            this.state.active_v_snap = -1
-            this.state.active_h_snap = -1
-            if(page) {
+        if (!this.start_point) return
+        for(let i=0; i<this.movables.length; i++) {
+            let node = this.movables[i]
+            let mov = this.movables[i].get_component(MovableName) as Movable
+            let start_off = this.start_offsets[i]
+            let should_off = pt.subtract(start_off)
+            mov.moveTo(should_off.clone())
+            let page = find_page_for_node(node)
+            if(page && node.has_component(BoundedShapeName)) {
                 let page_bounds = (page.get_component(BoundedShapeName) as BoundedShape).get_bounds()
-                let off = new Point(0,0)
-                if(Math.abs(bds.center().x - page_bounds.center().x) < 10) {
-                    this.state.active_v_snap = page_bounds.center().x
-                    off.x = page_bounds.center().x - bds.center().x
+                let node_bounds = (node.get_component(BoundedShapeName) as BoundedShape).get_bounds()
+
+                const check_v_snap = (mov:Movable, x1:number, x2:number, state:GlobalState) => {
+                    let ob = x1-x2
+                    if(Math.abs(ob) < 20){
+                        state.active_v_snap = x1
+                        let pos = mov.position().clone()
+                        mov.moveTo(new Point(pos.x+ob,pos.y))
+                    }
                 }
-                if(Math.abs(bds.center().y - page_bounds.center().y) < 10) {
-                    this.state.active_h_snap = page_bounds.center().y
-                    off.y = page_bounds.center().y - bds.center().y
+                const check_h_snap = (mov:Movable, y1:number, y2:number, state:GlobalState) => {
+                    let ob = y1-y2
+                    if(Math.abs(ob) < 20){
+                        state.active_h_snap = y1
+                        let pos = mov.position().clone()
+                        mov.moveTo(new Point(pos.x,pos.y+ob))
+                    }
                 }
-                movables.forEach(node => (node.get_component(MovableName) as Movable).moveBy(off))
+
+                check_v_snap(mov, page_bounds.x,node_bounds.x,this.state)
+                check_v_snap(mov,page_bounds.center().x,node_bounds.center().x,this.state)
+                check_v_snap(mov,page_bounds.x2,node_bounds.x2,this.state)
+
+                check_h_snap(mov,page_bounds.y,node_bounds.y,this.state)
+                check_h_snap(mov,page_bounds.center().y,node_bounds.center().y,this.state)
+                check_h_snap(mov,page_bounds.y2,node_bounds.y2,this.state)
             }
         }
-
-
         this.state.active_handles.forEach(h => h.update_from_node())
         this.state.dispatch('refresh', {})
     }

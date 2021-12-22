@@ -267,6 +267,10 @@ export class Point {
     multiply(scale: number) {
         return new Point(this.x*scale,this.y*scale)
     }
+
+    clone() {
+        return new Point(this.x,this.y)
+    }
 }
 
 export class Rect {
@@ -350,7 +354,7 @@ export class Rect {
         return new Point(this.x+this.w/2, this.y + this.h/2)
     }
 
-    private clone() {
+    clone() {
         return new Rect(this.x,this.y,this.w,this.h)
     }
 }
@@ -400,6 +404,8 @@ export class PageMarker implements Page {
 export const MovableName = "MovableName"
 export interface Movable extends Component {
     moveBy(pt:Point):void
+    moveTo(pt:Point):void
+    position():Point
 }
 
 export const ResizableName = "ResizableName"
@@ -606,5 +612,14 @@ export class MovableCenterPosition implements Movable {
     moveBy(pt: Point): void {
         this.shape.get_position().x += pt.x
         this.shape.get_position().y += pt.y
+    }
+
+    moveTo(pt: Point): void {
+        this.shape.get_position().x = pt.x
+        this.shape.get_position().y = pt.y
+    }
+
+    position(): Point {
+        return this.shape.get_position()
     }
 }

@@ -53,6 +53,15 @@ export class MovableBoundedShape implements Movable {
         bd.get_bounds().x += pt.x
         bd.get_bounds().y += pt.y
     }
+
+    moveTo(pt: Point): void {
+        let bd: BoundedShape = this.node.get_component(BoundedShapeName) as BoundedShape
+        bd.get_bounds().x = pt.x
+        bd.get_bounds().y = pt.y
+    }
+    position(): Point {
+        return (this.node.get_component(BoundedShapeName) as BoundedShape).get_bounds().position
+    }
 }
 
 export class BoundedShapeHandle extends Handle {

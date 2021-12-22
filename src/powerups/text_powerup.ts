@@ -292,6 +292,17 @@ export class MovableTextObject implements Movable {
         bd.get_bounds().x += pt.x
         bd.get_bounds().y += pt.y
     }
+
+    moveTo(pt: Point): void {
+        let bd:BoundedShape = this.node.get_component(BoundedShapeName) as BoundedShape
+        bd.get_bounds().x = pt.x
+        bd.get_bounds().y = pt.y
+    }
+
+    position(): Point {
+        let bd:BoundedShape = this.node.get_component(BoundedShapeName) as BoundedShape
+        return bd.get_bounds().position
+    }
 }
 
 class TextJSONExporter implements JSONExporter {

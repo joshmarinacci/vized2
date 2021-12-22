@@ -29,12 +29,12 @@ export interface ImageShape extends Component {
 
 export class ImageShapeObject implements MultiComp, ImageShape, BoundedShape, RenderBounds, Movable {
     name: string;
-    private position:Point
+    private _position:Point
     img: ImageReference
     private scale:number
     constructor() {
         this.name = ImageShapeName
-        this.position = new Point(0,0)
+        this._position = new Point(0,0)
         this.scale = 1
         // @ts-ignore
         this.img = null
@@ -58,17 +58,25 @@ export class ImageShapeObject implements MultiComp, ImageShape, BoundedShape, Re
 
     //bounded & render bounds
     get_bounds(): Rect {
-        if(!this.img) return new Rect(this.position.x,this.position.y,10,10)
-        return new Rect(this.position.x,this.position.y,this.img.width*this.scale,this.img.height*this.scale)
+        if(!this.img) return new Rect(this._position.x,this._position.y,10,10)
+        return new Rect(this._position.x,this._position.y,this.img.width*this.scale,this.img.height*this.scale)
     }
 
     //movable
     moveBy(pt: Point): void {
-        this.position = this.position.add(pt)
+        this._position = this._position.add(pt)
+    }
+
+    moveTo(pt: Point): void {
+        this._position = pt.clone()
     }
 
     set_scale(scale: number) {
         this.scale = scale
+    }
+
+    position(): Point {
+        return this._position
     }
 }
 
