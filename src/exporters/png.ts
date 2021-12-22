@@ -3,23 +3,23 @@ import {
     TreeNode,
     GlobalState,
     DefaultPowerup,
-    ParentDrawChildrenName, ParentLikeName, ParentLike
+    ParentDrawChildrenName, ParentLikeName, ParentLike, CanvasRenderSurface
 } from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {Action} from "../actions";
 
-function to_PNG(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState) {
+function to_PNG(surf:CanvasRenderSurface, node: TreeNode, state: GlobalState) {
     //draw the current node
-    state.renderers.forEach(rend => rend.render(ctx,node,state))
+    state.renderers.forEach(rend => rend.render(surf,node,state))
     if(node.has_component(ParentDrawChildrenName)) return
-    ctx.save()
+    surf.ctx.save()
     if(node.has_component(ParentLikeName)) {
         let trans = node.get_component(ParentLikeName) as ParentLike
         let offset = trans.get_position()
-        ctx.translate(offset.x,offset.y)
+        surf.ctx.translate(offset.x,offset.y)
     }
-    node.children.forEach(ch => to_PNG(ctx, ch, state))
-    ctx.restore()
+    node.children.forEach(ch => to_PNG(surf, ch, state))
+    surf.ctx.restore()
 }
 
 export function export_PNG(root: TreeNode, state: GlobalState) {
@@ -41,7 +41,11 @@ export function export_PNG(root: TreeNode, state: GlobalState) {
     ctx.fillStyle = 'white'
     ctx.fillRect(0,0,canvas.width,canvas.height)
 
-    root.children.forEach(ch => to_PNG(ctx, ch, state))
+    let surf:CanvasRenderSurface = {
+        ctx: ctx,
+        selectionEnabled: true
+    }
+    root.children.forEach(ch => to_PNG(surf, ch, state))
 
     function canvasToPNGBlob(canvas:HTMLCanvasElement):Promise<Blob> {
         return new Promise((res,rej)=>{

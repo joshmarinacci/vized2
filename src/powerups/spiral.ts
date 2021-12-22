@@ -1,5 +1,5 @@
 import {
-    add_child_to_parent, CenterPositionName,
+    add_child_to_parent, CanvasRenderSurface, CenterPositionName,
     Component,
     DefaultPowerup,
     FilledShape,
@@ -78,12 +78,13 @@ class SpiralRendererSystem implements RenderingSystem {
         this.name = "SpiralRendererSystem"
     }
 
-    render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void {
+    render(surf:CanvasRenderSurface, node: TreeNode, state: GlobalState): void {
         if(node.has_component(SpiralShapeName)) {
             let spiral:SpiralShapeObject = node.get_component(SpiralShapeName) as SpiralShapeObject
             let times = spiral.get_wrap()*Math.PI*2
             let radius = spiral.get_radius() / times
 
+            let ctx = surf.ctx
             ctx.save()
             ctx.translate(spiral.get_position().x,spiral.get_position().y)
             ctx.beginPath()

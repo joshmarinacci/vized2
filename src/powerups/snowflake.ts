@@ -1,5 +1,5 @@
 import {
-    add_child_to_parent, CenterPositionName,
+    add_child_to_parent, CanvasRenderSurface, CenterPositionName,
     DefaultPowerup,
     GlobalState, MovableCenterPosition, MultiComp,
     PageName,
@@ -130,15 +130,16 @@ export class SnowflakeRendererSystem implements RenderingSystem {
         this.name = SnowflakeRendererSystemName
     }
 
-    render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void {
+    render(surf:CanvasRenderSurface, node: TreeNode, state: GlobalState): void {
         if (node.has_component(SnowflakeName)) {
+            let ctx = surf.ctx
             // this.log('drawing flake bounds')
             let flake = node.get_component(SnowflakeName) as Snowflake
             let pos = flake.get_position()
             let rect = flake.get_child_bounds()
             ctx.fillStyle = 'rgba(255,0,0,0.5)'
             ctx.save()
-            this.draw_children(ctx,node,state)
+            this.draw_children(surf,node,state)
             if (state.selection.has(node)) {
                 ctx.strokeStyle = 'magenta'
                 ctx.lineWidth = 3.5
@@ -150,21 +151,23 @@ export class SnowflakeRendererSystem implements RenderingSystem {
 
     name: string;
 
-    private draw_children(ctx: CanvasRenderingContext2D, node: TreeNode, state:GlobalState) {
+    private draw_children(surf: CanvasRenderSurface, node: TreeNode, state: GlobalState) {
         let flake = node.get_component(SnowflakeName) as Snowflake
-        ctx.save()
+        surf.ctx.save()
         let pos = flake.get_position()
-        ctx.translate(pos.x,pos.y)
+        surf.ctx.translate(pos.x,pos.y)
         for(let i=0; i<flake.fold_count(); i++) {
-            ctx.rotate(Math.PI*2/flake.fold_count())
-            node.children.forEach(ch => this.draw_node(ctx, ch, state))
+            surf.selectionEnabled = (i===(flake.fold_count()-1))
+            surf.ctx.rotate(Math.PI*2/flake.fold_count())
+            node.children.forEach(ch => this.draw_node(surf, ch, state))
         }
-        ctx.restore()
+        surf.selectionEnabled = true
+        surf.ctx.restore()
     }
 
-    private draw_node(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState) {
+    private draw_node(surf:CanvasRenderSurface, node: TreeNode, state: GlobalState) {
         // this.log("drawing child node",node)
-        state.renderers.forEach((rend) => rend.render(ctx, node, state))
+        state.renderers.forEach((rend) => rend.render(surf, node, state))
     }
 
     private log(...args: any) {

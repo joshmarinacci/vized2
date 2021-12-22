@@ -429,9 +429,13 @@ export interface RenderBounds extends Component {
 export interface System {
     name: string
 }
+export interface CanvasRenderSurface {
+    ctx:CanvasRenderingContext2D,
+    selectionEnabled:boolean
+}
 
 export interface RenderingSystem extends System {
-    render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void
+    render(surf:CanvasRenderSurface, node: TreeNode, state: GlobalState): void
 }
 export interface PickingSystem extends System {
     pick_node(pt:Point, node:TreeNode): boolean

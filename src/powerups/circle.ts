@@ -1,5 +1,5 @@
 import {
-    add_child_to_parent,
+    add_child_to_parent, CanvasRenderSurface,
     CenterPosition,
     CenterPositionName,
     Component,
@@ -100,7 +100,8 @@ export class CircleRendererSystem implements RenderingSystem {
         this.name = CircleRendererSystemName
     }
 
-    render(ctx: CanvasRenderingContext2D, node: TreeNode, state:GlobalState): void {
+    render(surf: CanvasRenderSurface, node: TreeNode, state:GlobalState): void {
+        let ctx = surf.ctx
         if(node.has_component(CircleShapeName)) {
             let shape:CircleShape = node.get_component(CircleShapeName) as CircleShape
             if(node.has_component(FilledShapeName)) {
@@ -112,7 +113,7 @@ export class CircleRendererSystem implements RenderingSystem {
             ctx.arc(shape.get_position().x, shape.get_position().y,shape.get_radius(),0,Math.PI*2)
             ctx.closePath()
             ctx.fill()
-            if(state.selection.has(node)) {
+            if(surf.selectionEnabled && state.selection.has(node)) {
                 ctx.strokeStyle = 'magenta'
                 ctx.lineWidth = 3.5
                 ctx.stroke()

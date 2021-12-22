@@ -48,7 +48,12 @@ import {
     DefaultPowerup,
     MovableCenterPosition,
     MultiComp,
-    CenterPositionName, ParentLike, ParentLikeName, RenderBoundsName, RenderBounds
+    CenterPositionName,
+    ParentLike,
+    ParentLikeName,
+    RenderBoundsName,
+    RenderBounds,
+    CanvasRenderSurface
 } from "../common";
 import {SVGExporter, treenode_to_SVG} from "../exporters/svg";
 import {cssToPdfColor, PDFContext, PDFExporter, treenode_to_PDF} from "../exporters/pdf";
@@ -106,15 +111,16 @@ export class GroupRendererSystem implements RenderingSystem {
         this.name = GroupRendererSystemName
     }
 
-    render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void {
+    render(surf: CanvasRenderSurface, node: TreeNode, state: GlobalState): void {
         if (node.has_component(GroupShapeName)) {
             let group:GroupShape = node.get_component(GroupShapeName) as GroupShape
             let pos = group.get_position()
             let rect = group.get_child_bounds()
+            let ctx = surf.ctx
             ctx.fillStyle = 'rgba(255,0,0,0.5)'
             ctx.save()
             // ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
-            if (state.selection.has(node)) {
+            if (state.selection.has(node) && surf.selectionEnabled) {
                 ctx.strokeStyle = 'magenta'
                 ctx.lineWidth = 3.5
                 ctx.strokeRect(rect.x, rect.y, rect.w, rect.h)

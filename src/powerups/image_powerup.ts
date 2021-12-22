@@ -1,5 +1,5 @@
 import {
-    add_child_to_parent,
+    add_child_to_parent, CanvasRenderSurface,
     Component,
     DefaultPowerup,
     GlobalState,
@@ -120,8 +120,9 @@ export class ImageRendererSystem implements RenderingSystem {
         this.name = ImageRendererSystemName
     }
 
-    render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void {
+    render(surf:CanvasRenderSurface, node: TreeNode, state: GlobalState): void {
         if (node.has_component(BoundedShapeName) && node.has_component(ImageShapeName)) {
+            let ctx = surf.ctx
             let img = node.get_component(ImageShapeName) as ImageShapeObject
             let rect = img.get_bounds()
             ctx.fillStyle = 'magenta'

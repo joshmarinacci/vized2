@@ -1,5 +1,5 @@
 import {
-    add_child_to_parent,
+    add_child_to_parent, CanvasRenderSurface,
     Component,
     DefaultPowerup,
     FilledShape,
@@ -258,14 +258,15 @@ class TextRenderingSystem implements RenderingSystem {
         this.name = 'TextRenderingSystem'
     }
 
-    render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void {
+    render(can:CanvasRenderSurface, node: TreeNode, state: GlobalState): void {
         if(node.has_component(TextShapeName) && node.has_component(BoundedShapeName)) {
             let bs = node.get_component(BoundedShapeName) as BoundedShape
             let tn = node.get_component(TextShapeName) as TextShape
             let fill = node.get_component(FilledShapeName) as FilledShape
             let rect = bs.get_bounds()
 
-            let surf:RenderingSurface = new CanvasRenderingSurface(ctx)
+            let ctx = can.ctx
+            let surf:RenderingSurface = new CanvasRenderingSurface(can.ctx)
             render_text(surf,rect,tn,fill)
             if (state.selection.has(node)) {
                 ctx.save()

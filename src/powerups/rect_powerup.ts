@@ -1,5 +1,5 @@
 import {
-    add_child_to_parent,
+    add_child_to_parent, CanvasRenderSurface,
     Component,
     DefaultPowerup,
     FilledShape,
@@ -43,7 +43,8 @@ export class RectRendererSystem implements RenderingSystem {
         this.name = RectRendererSystemName
     }
 
-    render(ctx: CanvasRenderingContext2D, node: TreeNode, state: GlobalState): void {
+    render(surf:CanvasRenderSurface, node: TreeNode, state: GlobalState): void {
+        let ctx = surf.ctx
         if (node.has_component(BoundedShapeName) && node.has_component(RectShapeName)) {
             let bd: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
             let rect = bd.get_bounds()
@@ -59,7 +60,7 @@ export class RectRendererSystem implements RenderingSystem {
                 ctx.fillStyle = 'magenta'
             }
             ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
-            if (state.selection.has(node)) {
+            if (surf.selectionEnabled && state.selection.has(node)) {
                 ctx.strokeStyle = 'magenta'
                 ctx.lineWidth = 3.5
                 ctx.strokeRect(rect.x, rect.y, rect.w, rect.h)

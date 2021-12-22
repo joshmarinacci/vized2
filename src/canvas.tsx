@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
 import {
+    CanvasRenderSurface,
     DIAG_HATCH_IMAGE,
     GlobalState,
     GlobalStateContext,
@@ -34,19 +35,20 @@ import {
     strokeRect
 } from "./util";
 
-function draw_node(state:GlobalState, ctx: CanvasRenderingContext2D, node: TreeNode) {
+function draw_node(state:GlobalState, surf:CanvasRenderSurface, node: TreeNode) {
     //draw the current node
-    state.renderers.forEach((rend) => rend.render(ctx, node, state))
+    state.renderers.forEach((rend) => rend.render(surf, node, state))
     // don't draw children if the parent already did it
     if(node.has_component(ParentDrawChildrenName)) return
     //get transform for children
+    let ctx = surf.ctx
     ctx.save()
     if(node.has_component(ParentLikeName)) {
         let trans = node.get_component(ParentLikeName) as ParentLike
         let offset = trans.get_position()
         ctx.translate(offset.x,offset.y)
     }
-    node.children.forEach(ch => draw_node(state, ctx, ch))
+    node.children.forEach(ch => draw_node(state, surf, ch))
     ctx.restore()
 }
 
@@ -321,7 +323,11 @@ export function CanvasView(props:{}) {
         fillRect(ctx,min_bounds,ctx.createPattern(DIAG_HATCH_IMAGE,"repeat") as CanvasPattern)
 
         ctx.save()
-        draw_node(state,ctx, current_page)
+        let surf:CanvasRenderSurface = {
+            ctx: ctx,
+            selectionEnabled: true
+        }
+        draw_node(state,surf, current_page)
         draw_handles(state, ctx, current_page)
         draw_snaps(state,ctx,current_page)
         ctx.restore()
