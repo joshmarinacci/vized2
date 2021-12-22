@@ -107,7 +107,7 @@ export function make_default_tree(state: GlobalState) {
 
     {
         let url = "https://vr.josh.earth/assets/2dimages/saturnv.jpg"
-        let image = make_image_node(url,state)
+        let image = make_image_node(url,state, 0.2)
         add_child_to_parent(image,root)
     }
 

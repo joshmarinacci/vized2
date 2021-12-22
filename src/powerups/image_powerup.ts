@@ -51,7 +51,6 @@ export class ImageShapeObject implements MultiComp, ImageShape, BoundedShape, Re
     // image
     setImage(img: ImageReference) {
         this.img = img
-        this.scale = 0.1
     }
     get_aspect_ratio(): number {
         return this.img.width/this.img.height
@@ -65,7 +64,6 @@ export class ImageShapeObject implements MultiComp, ImageShape, BoundedShape, Re
 
     //movable
     moveBy(pt: Point): void {
-        console.log("Moving",pt)
         this.position = this.position.add(pt)
     }
 
@@ -192,10 +190,11 @@ class ImageSVGExporter implements SVGExporter {
     }
 }
 
-export function make_image_node(url: string, state:GlobalState): TreeNode {
+export function make_image_node(url: string, state:GlobalState, initalScale:number = 1.0): TreeNode {
     let image = new TreeNodeImpl()
     image.title = 'image'
     let iso = new ImageShapeObject()
+    iso.set_scale(initalScale)
     state.add_image_from_url(url).then(img => iso.setImage(img))
     image.add_component(iso)
     image.add_component(new ResizableImageObject(image))
@@ -206,7 +205,7 @@ export const make_image: Action = {
     use_gui: false,
     title: "add image",
     fun(node: TreeNode, state: GlobalState): void {
-        let image = make_image_node("https://vr.josh.earth/assets/2dimages/saturnv.jpg",state)
+        let image = make_image_node("https://vr.josh.earth/assets/2dimages/saturnv.jpg",state, 0.2)
         add_child_to_parent(image, node)
         state.dispatch('object-changed', {})
     }

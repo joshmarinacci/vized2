@@ -13,7 +13,7 @@ import {BoundedShapeObject, MovableBoundedShape, ResizableRectObject} from "../b
 import {PDFExportBounds} from "../exporters/pdf";
 import {RectShapeObject} from "./rect_powerup";
 import {TextShapeObject} from "./text_powerup";
-import {make_image_node} from "./image_powerup";
+import {ImageShapeObject, make_image_node} from "./image_powerup";
 
 function make_greeting_card_tree(state: GlobalState):TreeNode {
     let root = new TreeNodeImpl()
@@ -39,7 +39,7 @@ function make_greeting_card_tree(state: GlobalState):TreeNode {
         text1.add_component(new FilledShapeObject('#00CC00'))
         add_child_to_parent(text1, page1)
 
-        let img = make_image_node("https://vr.josh.earth/assets/2dimages/santa.png",state)
+        let img = make_image_node("https://vr.josh.earth/assets/2dimages/santa.png",state, 0.1)
         add_child_to_parent(img,page1)
 
     }
@@ -63,7 +63,7 @@ function make_greeting_card_tree(state: GlobalState):TreeNode {
         text2.add_component(new FilledShapeObject('#00CC00'))
         add_child_to_parent(text2, page2)
 
-        let img = make_image_node("https://vr.josh.earth/assets/2dimages/holly-leaves.png", state)
+        let img = make_image_node("https://vr.josh.earth/assets/2dimages/holly-leaves.png", state, 0.05)
         add_child_to_parent(img,page2)
     }
 
