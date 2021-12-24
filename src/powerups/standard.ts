@@ -3,7 +3,7 @@ import {
     DefaultPowerup,
     DocMarker, FilledShapeName,
     FilledShapeObject,
-    GlobalState,
+    GlobalState, MovableCenterPosition,
     PageMarker, PageName,
     Rect,
     TreeNode,
@@ -98,5 +98,46 @@ export class StandardPowerup extends DefaultPowerup {
         if(name === FilledShapeName) return FilledShapeEditor
         if(name === CenterPositionName) return CenterPositionEditor
         return null
+    }
+    override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
+        if(comp instanceof DocMarker) return true
+        if(comp instanceof PageMarker) return true
+        if(comp instanceof FilledShapeObject) return true
+        if(comp instanceof MovableCenterPosition) return true
+        return false
+    }
+    override serialize(comp: Component, node: TreeNode, state: GlobalState): any {
+        if(comp instanceof DocMarker) return { powerup:this.constructor.name, klass:comp.constructor.name }
+        if(comp instanceof PageMarker) return { powerup:this.constructor.name, klass:comp.constructor.name }
+        if(comp instanceof FilledShapeObject) {
+            let fso = comp as FilledShapeObject
+            return { powerup:this.constructor.name, klass:comp.constructor.name, fill: fso.get_fill(), fill_type:fso.get_fill_type()}
+        }
+        if(comp instanceof MovableCenterPosition) {
+            return { powerup:this.constructor.name, klass:comp.constructor.name}
+        }
+    }
+
+    override can_deserialize(obj: any, state: GlobalState): boolean {
+        if(obj && obj.powerup === this.constructor.name) return true
+        return false
+    }
+
+    override deserialize(obj: any, state: GlobalState): Component {
+        if(obj.klass === DocMarker.name) return new DocMarker()
+        if(obj.klass === PageMarker.name) return new PageMarker()
+        if(obj.klass === FilledShapeObject.name) return new FilledShapeObject(obj.fill)
+        if(obj.klass === MovableCenterPosition.name) {
+            // @ts-ignore
+            return new MovableCenterPosition(null)
+        }
+        // if(obj.klass === FilledShapeObject.name) return new FilledShapeObject()
+        console.log(obj)
+        throw new Error("DefaultPowerup couldn't deserialize " + obj)
+    }
+
+    fromJSON(obj:any) {
+        console.log("making a component from def",obj)
+        return  new DocMarker()
     }
 }

@@ -262,6 +262,40 @@ export class CirclePowerup extends DefaultPowerup{
         return [];
     }
 
+
+    override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
+        if(comp instanceof CircleShapeObject) return true
+        if(comp instanceof RadiusSelectionCircleLike) return true
+        return false
+    }
+
+    override serialize(comp: Component, node: TreeNode, state: GlobalState): any {
+        if(comp instanceof CircleShapeObject) {
+            let fso = comp as CircleShapeObject
+            return {
+                powerup: this.constructor.name,
+                klass: comp.constructor.name,
+                position: fso.get_position(),
+                radius: fso.get_radius(),
+            }
+        }
+        if(comp instanceof RadiusSelectionCircleLike) {
+            return { powerup: this.constructor.name, klass: comp.constructor.name  }
+        }
+    }
+
+    override can_deserialize(obj: any, state: GlobalState): boolean {
+        if(obj.powerup === this.constructor.name && obj.klass === CircleShapeObject.name) return true
+        return false
+    }
+    override deserialize(obj: any, state: GlobalState): Component {
+        if(obj.klass === CircleShapeObject.name) {
+            return new CircleShapeObject(new Point(obj.position.x,obj.position.y),obj.radius)
+        }
+        console.log(obj)
+        throw new Error("DefaultPowerup couldn't deserialize " + obj)
+    }
+
 }
 
 export class CircleShapeJSONExporter implements JSONExporter {

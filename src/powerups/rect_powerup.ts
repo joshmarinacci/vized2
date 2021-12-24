@@ -210,4 +210,26 @@ export class RectPowerup extends DefaultPowerup {
         }
         return [];
     }
+
+    override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
+        if(comp instanceof RectShapeObject) return true
+        return false
+    }
+    override serialize(comp: Component, node: TreeNode, state: GlobalState): any {
+        if(comp instanceof RectShapeObject) return { powerup:this.constructor.name, klass:comp.constructor.name }
+    }
+
+    override can_deserialize(obj: any, state: GlobalState): boolean {
+        if(obj.powerup === this.constructor.name && obj.klass === RectShapeObject.name) {
+            return true
+        }
+        return false
+    }
+
+    override deserialize(obj: any, state: GlobalState): Component {
+        if(obj.klass === RectShapeObject.name) {
+            return new RectShapeObject()
+        }
+        throw new Error("error deseriziing")
+    }
 }

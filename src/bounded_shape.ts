@@ -136,5 +136,30 @@ export class BoundedShapePowerup extends DefaultPowerup {
     child_options(node: TreeNode): Action[] {
         return [];
     }
+    override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
+        if(comp instanceof BoundedShapeObject) return true
+        return false
+    }
+    serialize(comp: Component, node: TreeNode, state: GlobalState): any {
+        if(comp instanceof BoundedShapeObject) {
+            let bso = comp as BoundedShapeObject
+            return {
+                powerup:this.constructor.name,
+                klass:comp.constructor.name,
+                bounds:bso.get_bounds().toJSON(),
+            }
+        }
+    }
+    override can_deserialize(obj: any, state: GlobalState): boolean {
+        if(obj.powerup === this.constructor.name && obj.klass === BoundedShapeObject.name) return true
+        return false
+    }
+    override deserialize(obj: any, state: GlobalState): Component {
+        if(obj.powerup === this.constructor.name && obj.klass === BoundedShapeObject.name) {
+            let b = obj.bounds
+            return new BoundedShapeObject(new Rect(b.x,b.y,b.w,b.h))
+        }
+        throw new Error("cant handle " + obj)
+    }
 }
 

@@ -162,6 +162,30 @@ export class PDFPowerup extends DefaultPowerup {
         }
         return [action]
     }
+    override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
+        if(comp instanceof PDFExportBounds) return true
+        return false
+    }
+    override serialize(comp: Component, node: TreeNode, state: GlobalState): any {
+        if(comp instanceof PDFExportBounds) return {
+            powerup:this.constructor.name,
+            klass:comp.constructor.name,
+            scale: (comp as PDFExportBounds).scale,
+            unit: (comp as PDFExportBounds).unit
+        }
+        throw new Error("can't deserialize")
+    }
+    override can_deserialize(obj: any, state: GlobalState): boolean {
+        if(obj.klass === PDFExportBounds.name) return true
+        return false
+    }
+    override deserialize(obj: any, state: GlobalState): Component {
+        if(obj.klass === PDFExportBounds.name) {
+            return new PDFExportBounds(obj.unit,obj.scale)
+        }
+        throw new Error("PDFExporter can't desierailze " + obj.klass)
+    }
+
 }
 
 export function hex_to_pdfrgbf(fill: string) {

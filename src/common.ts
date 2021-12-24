@@ -237,6 +237,22 @@ export class DefaultPowerup implements Powerup {
         return undefined
     }
 
+    can_serialize(comp:Component, node:TreeNode, state:GlobalState):boolean {
+        return false
+    }
+
+    serialize(comp:Component,node:TreeNode,state:GlobalState):any {
+
+    }
+
+    can_deserialize(obj:any, state:GlobalState):boolean {
+        return false
+    }
+
+    deserialize(obj:any, state:GlobalState):Component {
+        throw new Error("deserialize not implemented")
+    }
+
 }
 
 export class Point {
@@ -270,6 +286,12 @@ export class Point {
 
     clone() {
         return new Point(this.x,this.y)
+    }
+    toJSON() {
+        return {
+            x:this.x,
+            y:this.y,
+        }
     }
 }
 
@@ -356,6 +378,15 @@ export class Rect {
 
     clone() {
         return new Rect(this.x,this.y,this.w,this.h)
+    }
+
+    toJSON() {
+        return {
+            x:this.x,
+            y:this.y,
+            h:this.h,
+            w:this.w,
+        }
     }
 }
 
