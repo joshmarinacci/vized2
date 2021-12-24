@@ -22,7 +22,7 @@ function to_PNG(surf:CanvasRenderSurface, node: TreeNode, state: GlobalState) {
     surf.ctx.restore()
 }
 
-export function export_PNG(root: TreeNode, state: GlobalState) {
+export function export_PNG(root: TreeNode, state: GlobalState):HTMLCanvasElement {
     let bds = {
         w:500,
         h:500,
@@ -47,22 +47,23 @@ export function export_PNG(root: TreeNode, state: GlobalState) {
         inset:false
     }
     root.children.forEach(ch => to_PNG(surf, ch, state))
-
-    function canvasToPNGBlob(canvas:HTMLCanvasElement):Promise<Blob> {
-        return new Promise((res,rej)=>{
-            canvas.toBlob((blob)=> res(blob as Blob),'image/png')
-        })
-    }
-    canvasToPNGBlob(canvas).then((blob)=> forceDownloadBlob(`test.png`,blob))
-
+    return canvas
 }
+
+function canvasToPNGBlob(canvas:HTMLCanvasElement):Promise<Blob> {
+    return new Promise((res,rej)=>{
+        canvas.toBlob((blob)=> res(blob as Blob),'image/png')
+    })
+}
+
 export class PNGPowerup extends DefaultPowerup {
     override export_actions(): Action[] {
         let action:Action = {
             use_gui: false,
             title:"export PNG",
             fun(node: TreeNode, state: GlobalState): void {
-                export_PNG(node,state)
+                let can = export_PNG(node,state)
+                canvasToPNGBlob(can).then(blob => forceDownloadBlob(`test.png`,blob))
             }
         }
         return [action]

@@ -9,6 +9,8 @@ import {
     GlobalState, DefaultPowerup, add_child_to_parent
 } from "../common";
 import {Action} from "../actions";
+import {export_png} from "./exportutils";
+import {export_PNG} from "./png";
 
 export interface JSONExporter extends Component {
     canHandleToJSON(comp:Component, node:TreeNode):boolean
@@ -122,11 +124,19 @@ export class JSONPowerup extends DefaultPowerup {
                 state.set_root(new_node)
             }
         }
-        return [action, action2]
+        let export_embedded_PNG:Action = {
+            title:"export embedded PNG",
+            use_gui:false,
+            fun(node:TreeNode, state:GlobalState):void {
+                let obj = test_to_json(node as TreeNodeImpl,state)
+                let canvas = export_PNG(node,state)
+                export_png(canvas,obj,'filename.png').then(()=>{})
+                console.log("done exporting")
+            }
+        }
+        return [action, action2, export_embedded_PNG]
     }
 }
-
-
 export function test_to_json(root:TreeNodeImpl, state:GlobalState) {
     let obj:any = {
     }

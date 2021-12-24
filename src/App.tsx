@@ -42,6 +42,7 @@ import {PresentationPowerup} from "./powerups/presentation";
 import {BookmarkPowerup} from "./powerups/bookmark";
 import {SnowflakePowerup} from "./powerups/snowflake";
 import {StandardPowerup} from "./powerups/standard";
+import {import_embedded_png_action} from "./exporters/upload_embedded_png";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -193,7 +194,7 @@ function ImportActions(props: {}) {
     let dc = useContext(DialogContext)
     let state = useContext(GlobalStateContext)
     return <button onClick={(e)=>{
-        let actions:Action[] = [make_image_file]
+        let actions:Action[] = [make_image_file, import_embedded_png_action]
         let menu = <ul className={'menu'}>
             {actions.map((act,i)=>{
                 return <li key={i} className={'menu-item'} onClick={()=>{
