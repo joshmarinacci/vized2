@@ -212,7 +212,7 @@ export class RectPowerup extends DefaultPowerup {
         return [];
     }
 
-    override deserialize(obj: any, state: GlobalState): Component {
+    override deserialize(obj: any, node:TreeNode, state: GlobalState): Component {
         if(obj.klass === RectShapeObject.name) {
             return new RectShapeObject()
         }

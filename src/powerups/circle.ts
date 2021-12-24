@@ -41,10 +41,10 @@ export class RadiusSelectionCircleLike implements RadiusSelection {
     name: string;
     private circle: CircleLikeShape;
     private handle: RadiusHandle;
-    constructor(circle:CircleLikeShape) {
+    constructor(node:TreeNode) {
         this.name = RadiusSelectionName
-        this.circle = circle
-        this.handle = new RadiusHandle(circle)
+        this.circle = node.get_component(CircleLikeShapeName) as CircleLikeShape
+        this.handle = new RadiusHandle(this.circle)
     }
 
     get_handle(): Handle {
@@ -222,8 +222,8 @@ export function make_std_circle(center:Point, radius:number, color?:string):Tree
     circle.title = 'circle'
     let shape = new CircleShapeObject(center, radius)
     circle.add_component(shape)
-    circle.add_component(new MovableCenterPosition(shape))
-    circle.add_component(new RadiusSelectionCircleLike(shape))
+    circle.add_component(new MovableCenterPosition(circle))
+    circle.add_component(new RadiusSelectionCircleLike(circle))
     circle.add_component(new FilledShapeObject(color?color:"#ffcccc"))
     return circle
 }
@@ -244,7 +244,6 @@ export class CirclePowerup extends DefaultPowerup{
         state.svgexporters.push(new CircleSVGExporter())
         state.pdfexporters.push(new CirclePDFExporter())
         state.jsonexporters.push(new CircleShapeJSONExporter())
-        this.simple_comps.push(RadiusSelectionCircleLike)
     }
 
     override can_edit_by_name(comp: string): boolean {
@@ -266,6 +265,7 @@ export class CirclePowerup extends DefaultPowerup{
 
     override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
         if(comp instanceof CircleShapeObject) return true
+        if(comp instanceof RadiusSelectionCircleLike) return true
         return super.can_serialize(comp,node,state)
     }
 
@@ -279,16 +279,22 @@ export class CirclePowerup extends DefaultPowerup{
                 radius: fso.get_radius(),
             }
         }
+        if(comp instanceof RadiusSelectionCircleLike) {
+            return {
+                powerup: this.constructor.name,
+                klass: comp.constructor.name,
+            }
+        }
         return super.serialize(comp,node,state)
     }
 
-    override deserialize(obj: any, state: GlobalState): Component {
+    override deserialize(obj: any, node:TreeNode, state: GlobalState): Component {
         if(obj.klass === CircleShapeObject.name) {
             return new CircleShapeObject(new Point(obj.position.x,obj.position.y),obj.radius)
         }
         if(obj.klass === RadiusSelectionCircleLike.name) {
             // @ts-ignore
-            return new RadiusSelectionCircleLike(null)
+            return new RadiusSelectionCircleLike(node)
         }
         console.log(obj)
         throw new Error("CirclePowerup couldn't deserialize " + JSON.stringify(obj))

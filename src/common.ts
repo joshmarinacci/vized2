@@ -255,7 +255,7 @@ export class DefaultPowerup implements Powerup {
         return (obj && obj.powerup === this.constructor.name)
     }
 
-    deserialize(obj:any, state:GlobalState):Component {
+    deserialize(obj:any, node:TreeNode, state:GlobalState):Component {
         throw new Error("deserialize not implemented for " + JSON.stringify(obj))
     }
 
@@ -649,9 +649,9 @@ export class MovableCenterPosition implements Movable {
     name: string;
     private shape: CenterPosition;
 
-    constructor(shape: CenterPosition) {
+    constructor(node:TreeNode) {
         this.name = MovableName
-        this.shape = shape
+        this.shape = node.get_component(CenterPositionName) as CenterPosition
     }
 
     moveBy(pt: Point): void {

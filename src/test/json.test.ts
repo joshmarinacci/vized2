@@ -12,8 +12,7 @@ import {
 import {CirclePowerup, make_std_circle} from "../powerups/circle";
 import {PDFPowerup} from "../exporters/pdf";
 import assert from "assert";
-import * as util from "util";
-import {test_from_jsonobj, test_to_json} from "../exporters/json";
+import {test_from_json, test_to_json} from "../exporters/json";
 
 function local_make_empty_doc(state:GlobalState) {
     let root = make_empty_doc(state)
@@ -62,7 +61,7 @@ test('tojson',()=> {
     let obj = test_to_json(root1,state1)
     // console.log("obj is",util.inspect(obj,{depth:20}))
 
-    let root2 = test_from_jsonobj(obj, state1)
+    let root2 = test_from_json(obj, state1)
     // console.log("doc after",root2.children)
     compareNode(root1,root2)
 })

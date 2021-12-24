@@ -153,19 +153,19 @@ export class BoundedShapePowerup extends DefaultPowerup {
         }
         return super.serialize(comp,node,state)
     }
-    override deserialize(obj: any, state: GlobalState): Component {
+    override deserialize(obj: any, node:TreeNode, state: GlobalState): Component {
         if(obj.powerup === this.constructor.name && obj.klass === BoundedShapeObject.name) {
             return new BoundedShapeObject(Rect.fromJSON(obj.bounds))
         }
         if(obj.klass === MovableBoundedShape.name) {
             // @ts-ignore
-            return new MovableBoundedShape(null)
+            return new MovableBoundedShape(node)
         }
         if(obj.klass === ResizableRectObject.name) {
             // @ts-ignore
-            return new ResizableRectObject(null)
+            return new ResizableRectObject(node)
         }
-        return super.deserialize(obj,state)
+        return super.deserialize(obj,node,state)
     }
 }
 

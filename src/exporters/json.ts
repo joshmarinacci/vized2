@@ -6,7 +6,7 @@ import {
     forceDownloadBlob,
     TreeNode,
     TreeNodeImpl,
-    GlobalState, DefaultPowerup
+    GlobalState, DefaultPowerup, add_child_to_parent
 } from "../common";
 import {Action} from "../actions";
 
@@ -118,7 +118,7 @@ export class JSONPowerup extends DefaultPowerup {
                 let obj = test_to_json(node as TreeNodeImpl,state)
                 let str = JSON.stringify(obj, null, '  ')
                 let obj2 = JSON.parse(str)
-                let new_node = test_from_jsonobj(obj2,state)
+                let new_node = test_from_json(obj2,state)
                 state.set_root(new_node)
             }
         }
@@ -153,7 +153,7 @@ export function test_to_json(root:TreeNodeImpl, state:GlobalState) {
     return obj
 }
 
-export function test_from_jsonobj(obj:any, state:GlobalState):TreeNodeImpl {
+export function test_from_json(obj:any, state:GlobalState):TreeNodeImpl {
     let node = new TreeNodeImpl()
     node.id = obj.id
     node.title = obj.title
@@ -163,7 +163,7 @@ export function test_from_jsonobj(obj:any, state:GlobalState):TreeNodeImpl {
             if(pow instanceof DefaultPowerup) {
                 let dpow = pow as DefaultPowerup
                 if(dpow.can_deserialize(def,state)) {
-                    node.add_component(dpow.deserialize(def,state))
+                    node.add_component(dpow.deserialize(def,node,state))
                     return
                 }
             }
@@ -172,7 +172,9 @@ export function test_from_jsonobj(obj:any, state:GlobalState):TreeNodeImpl {
     })
     node.children = obj.children.map((ch:any) => {
         console.log("deserailzing child",ch)
-        return test_from_jsonobj(ch,state)
+        let chh = test_from_json(ch,state)
+        add_child_to_parent(chh,node)
+        return chh
     })
     return node
 }

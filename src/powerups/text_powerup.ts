@@ -462,10 +462,10 @@ export class TextPowerup extends DefaultPowerup{
         if(obj.name === TextShapeObject.name) return true
         return super.can_deserialize(obj, state);
     }
-    override deserialize(obj: any, state: GlobalState): Component {
+    override deserialize(obj: any, node:TreeNode, state: GlobalState): Component {
         if(obj.klass === TextShapeObject.name) {
             return new TextShapeObject(obj.content,obj.fontsize,obj.halign,obj.valign)
         }
-        return super.deserialize(obj, state);
+        return super.deserialize(obj, node, state);
     }
 }

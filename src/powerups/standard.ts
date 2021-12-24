@@ -114,13 +114,13 @@ export class StandardPowerup extends DefaultPowerup {
         return super.serialize(comp,node,state)
     }
 
-    override deserialize(obj: any, state: GlobalState): Component {
+    override deserialize(obj: any, node:TreeNode, state: GlobalState): Component {
         if(obj.klass === DocMarker.name) return new DocMarker()
         if(obj.klass === PageMarker.name) return new PageMarker()
         if(obj.klass === FilledShapeObject.name) return new FilledShapeObject(obj.fill)
         if(obj.klass === MovableCenterPosition.name) {
             // @ts-ignore
-            return new MovableCenterPosition(null)
+            return new MovableCenterPosition(node)
         }
         // if(obj.klass === FilledShapeObject.name) return new FilledShapeObject()
         console.log(obj)

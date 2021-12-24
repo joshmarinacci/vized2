@@ -102,7 +102,7 @@ export function make_std_snowflake():TreeNodeImpl {
     let shape = new SnowflakeObject(group,new Point(200, 200))
     group.add_component(shape)
     group.add_component(new ParentDrawChildrenMarker())
-    group.add_component(new MovableCenterPosition(shape))
+    group.add_component(new MovableCenterPosition(group))
     let circle = make_std_circle(new Point(0,0),10)
     add_child_to_parent(circle, group)
     let rect1 = make_std_rect(new Rect(0,100,30,80))
@@ -301,13 +301,13 @@ export class SnowflakePowerup extends DefaultPowerup{
         return super.can_deserialize(obj, state);
     }
 
-    override deserialize(obj: any, state: GlobalState): Component {
+    override deserialize(obj: any, node:TreeNode, state: GlobalState): Component {
         if(obj.klass === SnowflakeObject.name) {
             // @ts-ignore
-            return new SnowflakeObject(null, Point.fromJSON(obj.position))
+            return new SnowflakeObject(node, Point.fromJSON(obj.position))
         }
         if(obj.klass === ParentDrawChildrenMarker.name) return new ParentDrawChildrenMarker()
-        return super.deserialize(obj, state);
+        return super.deserialize(obj, node, state);
     }
 
 }

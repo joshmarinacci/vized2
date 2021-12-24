@@ -241,8 +241,8 @@ export function make_std_spiral(center:Point, radius:number) {
     node.add_component(new FilledShapeObject('#000000'))
     let shape = new SpiralShapeObject(center,radius)
     node.add_component(shape)
-    node.add_component(new MovableCenterPosition(shape))
-    node.add_component(new RadiusSelectionCircleLike(shape))
+    node.add_component(new MovableCenterPosition(node))
+    node.add_component(new RadiusSelectionCircleLike(node))
     return node
 }
 const make_spiral: Action = {
@@ -307,8 +307,8 @@ export class SpiralPowerup extends DefaultPowerup{
         if(obj.klass === SpiralShapeObject.name) return true
         return super.can_deserialize(obj, state);
     }
-    override deserialize(obj: any, state: GlobalState): Component {
+    override deserialize(obj: any, node:TreeNode, state: GlobalState): Component {
         if(obj.klass === SpiralShapeObject.name) return new SpiralShapeObject(Point.fromJSON(obj.point),obj.radius)
-        return super.deserialize(obj, state);
+        return super.deserialize(obj, node, state);
     }
 }
