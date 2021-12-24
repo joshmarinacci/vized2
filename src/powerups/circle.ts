@@ -279,21 +279,19 @@ export class CirclePowerup extends DefaultPowerup{
                 radius: fso.get_radius(),
             }
         }
-        if(comp instanceof RadiusSelectionCircleLike) {
-            return { powerup: this.constructor.name, klass: comp.constructor.name  }
-        }
+        if(comp instanceof RadiusSelectionCircleLike) return super.serialize(comp,node,state)
     }
 
-    override can_deserialize(obj: any, state: GlobalState): boolean {
-        if(obj.powerup === this.constructor.name && obj.klass === CircleShapeObject.name) return true
-        return false
-    }
     override deserialize(obj: any, state: GlobalState): Component {
         if(obj.klass === CircleShapeObject.name) {
             return new CircleShapeObject(new Point(obj.position.x,obj.position.y),obj.radius)
         }
+        if(obj.klass === RadiusSelectionCircleLike.name) {
+            // @ts-ignore
+            return new RadiusSelectionCircleLike(null)
+        }
         console.log(obj)
-        throw new Error("DefaultPowerup couldn't deserialize " + obj)
+        throw new Error("CirclePowerup couldn't deserialize " + JSON.stringify(obj))
     }
 
 }

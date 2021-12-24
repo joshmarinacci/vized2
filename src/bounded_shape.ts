@@ -150,10 +150,6 @@ export class BoundedShapePowerup extends DefaultPowerup {
             }
         }
     }
-    override can_deserialize(obj: any, state: GlobalState): boolean {
-        if(obj.powerup === this.constructor.name && obj.klass === BoundedShapeObject.name) return true
-        return false
-    }
     override deserialize(obj: any, state: GlobalState): Component {
         if(obj.powerup === this.constructor.name && obj.klass === BoundedShapeObject.name) {
             let b = obj.bounds

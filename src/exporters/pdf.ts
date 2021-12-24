@@ -173,11 +173,7 @@ export class PDFPowerup extends DefaultPowerup {
             scale: (comp as PDFExportBounds).scale,
             unit: (comp as PDFExportBounds).unit
         }
-        throw new Error("can't deserialize")
-    }
-    override can_deserialize(obj: any, state: GlobalState): boolean {
-        if(obj.klass === PDFExportBounds.name) return true
-        return false
+        throw new Error("can't serialize")
     }
     override deserialize(obj: any, state: GlobalState): Component {
         if(obj.klass === PDFExportBounds.name) {

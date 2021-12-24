@@ -107,20 +107,13 @@ export class StandardPowerup extends DefaultPowerup {
         return false
     }
     override serialize(comp: Component, node: TreeNode, state: GlobalState): any {
-        if(comp instanceof DocMarker) return { powerup:this.constructor.name, klass:comp.constructor.name }
-        if(comp instanceof PageMarker) return { powerup:this.constructor.name, klass:comp.constructor.name }
+        if(comp instanceof DocMarker) return super.serialize(comp,node,state)
+        if(comp instanceof PageMarker) return super.serialize(comp,node,state)
         if(comp instanceof FilledShapeObject) {
             let fso = comp as FilledShapeObject
             return { powerup:this.constructor.name, klass:comp.constructor.name, fill: fso.get_fill(), fill_type:fso.get_fill_type()}
         }
-        if(comp instanceof MovableCenterPosition) {
-            return { powerup:this.constructor.name, klass:comp.constructor.name}
-        }
-    }
-
-    override can_deserialize(obj: any, state: GlobalState): boolean {
-        if(obj && obj.powerup === this.constructor.name) return true
-        return false
+        if(comp instanceof MovableCenterPosition) return super.serialize(comp,node,state)
     }
 
     override deserialize(obj: any, state: GlobalState): Component {

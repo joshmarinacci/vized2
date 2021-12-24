@@ -12,6 +12,7 @@ import {
 import {CirclePowerup, make_std_circle} from "../powerups/circle";
 import {PDFPowerup} from "../exporters/pdf";
 import assert from "assert";
+import * as util from "util";
 
 function local_make_empty_doc(state:GlobalState) {
     let root = make_empty_doc(state)
@@ -32,7 +33,6 @@ function test_to_json(root:TreeNodeImpl, state:GlobalState) {
                 let dpow = pow as DefaultPowerup
                 if(dpow.can_serialize(comp,root,state)) {
                     return dpow.serialize(comp,root,state)
-                    break;
                 }
             }
         }
@@ -109,7 +109,7 @@ test('tojson',()=> {
     let root1 = local_make_empty_doc(state1)
     console.log("doc before",root1.children)
     let obj = test_to_json(root1,state1)
-    // console.log("obj is",obj,obj.children[0])
+    console.log("obj is",util.inspect(obj,{depth:20}))
 
     let root2 = test_from_jsonobj(obj, state1)
     console.log("doc after",root2.children)

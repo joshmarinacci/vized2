@@ -242,11 +242,11 @@ export class DefaultPowerup implements Powerup {
     }
 
     serialize(comp:Component,node:TreeNode,state:GlobalState):any {
-
+        return { powerup:this.constructor.name, klass:comp.constructor.name }
     }
 
     can_deserialize(obj:any, state:GlobalState):boolean {
-        return false
+        return (obj && obj.powerup === this.constructor.name)
     }
 
     deserialize(obj:any, state:GlobalState):Component {

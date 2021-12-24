@@ -1,7 +1,7 @@
 import {
     add_child_to_parent, CanvasRenderSurface,
     Component,
-    DefaultPowerup,
+    DefaultPowerup, DocMarker,
     FilledShape,
     FilledShapeName,
     FilledShapeObject,
@@ -216,14 +216,7 @@ export class RectPowerup extends DefaultPowerup {
         return false
     }
     override serialize(comp: Component, node: TreeNode, state: GlobalState): any {
-        if(comp instanceof RectShapeObject) return { powerup:this.constructor.name, klass:comp.constructor.name }
-    }
-
-    override can_deserialize(obj: any, state: GlobalState): boolean {
-        if(obj.powerup === this.constructor.name && obj.klass === RectShapeObject.name) {
-            return true
-        }
-        return false
+        if(comp instanceof RectShapeObject) return super.serialize(comp,node,state)
     }
 
     override deserialize(obj: any, state: GlobalState): Component {
