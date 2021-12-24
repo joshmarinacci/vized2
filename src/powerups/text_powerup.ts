@@ -419,6 +419,7 @@ export class TextPowerup extends DefaultPowerup{
         state.svgexporters.push(new TextSVGExporter())
         state.pdfexporters.push(new TextPDFExporter())
         state.jsonexporters.push(new TextJSONExporter())
+        // this.simple_comps.push()
     }
 
     child_options(node: TreeNode): Action[] {
@@ -432,12 +433,39 @@ export class TextPowerup extends DefaultPowerup{
     override get_editor_by_name(name: string, state: GlobalState): any {
         return TextShapeEditor
     }
-
     override can_edit(comp: Component): boolean {
         return comp.name === TextShapeName
     }
-
     override get_editor(comp: Component, node: TreeNode, state: GlobalState): any {
         return TextShapeEditor
+    }
+    override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
+        if(comp instanceof TextShapeObject) return true
+        return super.can_serialize(comp, node, state);
+    }
+    override serialize(comp: Component, node: TreeNode, state: GlobalState): any {
+        if(comp instanceof TextShapeObject) {
+            let tso = comp as TextShapeObject
+            return {
+                powerup:this.constructor.name,
+                klass:comp.constructor.name,
+                content:tso.get_content(),
+                fontfamily:tso.get_fontfamily(),
+                halign:tso.get_halign(),
+                valign:tso.get_valign(),
+                fontsize:tso.get_fontsize(),
+            }
+        }
+        return super.serialize(comp, node, state);
+    }
+    override can_deserialize(obj: any, state: GlobalState): boolean {
+        if(obj.name === TextShapeObject.name) return true
+        return super.can_deserialize(obj, state);
+    }
+    override deserialize(obj: any, state: GlobalState): Component {
+        if(obj.klass === TextShapeObject.name) {
+            return new TextShapeObject(obj.content,obj.fontsize,obj.halign,obj.valign)
+        }
+        return super.deserialize(obj, state);
     }
 }

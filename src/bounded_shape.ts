@@ -131,6 +131,8 @@ export class BoundedShapePickSystem implements PickingSystem {
 export class BoundedShapePowerup extends DefaultPowerup {
     init(state: GlobalState) {
         state.pickers.push(new BoundedShapePickSystem())
+        this.simple_comps.push(MovableBoundedShape)
+        this.simple_comps.push(ResizableRectObject)
     }
 
     child_options(node: TreeNode): Action[] {
@@ -155,6 +157,14 @@ export class BoundedShapePowerup extends DefaultPowerup {
         if(obj.powerup === this.constructor.name && obj.klass === BoundedShapeObject.name) {
             let b = obj.bounds
             return new BoundedShapeObject(new Rect(b.x,b.y,b.w,b.h))
+        }
+        if(obj.klass === MovableBoundedShape.name) {
+            // @ts-ignore
+            return new MovableBoundedShape(null)
+        }
+        if(obj.klass === ResizableRectObject.name) {
+            // @ts-ignore
+            return new ResizableRectObject(null)
         }
         return super.deserialize(obj,state)
     }

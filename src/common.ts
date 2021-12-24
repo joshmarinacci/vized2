@@ -256,7 +256,7 @@ export class DefaultPowerup implements Powerup {
     }
 
     deserialize(obj:any, state:GlobalState):Component {
-        throw new Error("deserialize not implemented")
+        throw new Error("deserialize not implemented for " + JSON.stringify(obj))
     }
 
 }
