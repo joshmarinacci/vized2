@@ -138,7 +138,7 @@ export class BoundedShapePowerup extends DefaultPowerup {
     }
     override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
         if(comp instanceof BoundedShapeObject) return true
-        return false
+        return super.can_serialize(comp,node,state)
     }
     serialize(comp: Component, node: TreeNode, state: GlobalState): any {
         if(comp instanceof BoundedShapeObject) {
@@ -149,13 +149,14 @@ export class BoundedShapePowerup extends DefaultPowerup {
                 bounds:bso.get_bounds().toJSON(),
             }
         }
+        return super.serialize(comp,node,state)
     }
     override deserialize(obj: any, state: GlobalState): Component {
         if(obj.powerup === this.constructor.name && obj.klass === BoundedShapeObject.name) {
             let b = obj.bounds
             return new BoundedShapeObject(new Rect(b.x,b.y,b.w,b.h))
         }
-        throw new Error("cant handle " + obj)
+        return super.deserialize(obj,state)
     }
 }
 

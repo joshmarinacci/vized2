@@ -202,6 +202,7 @@ export class RectPowerup extends DefaultPowerup {
         state.svgexporters.push(new RectSVGExporter())
         state.pdfexporters.push(new RectPDFExporter())
         state.jsonexporters.push(new RectJsonExporter())
+        this.simple_comps.push(RectShapeObject)
     }
 
     child_options(node: TreeNode): Action[] {
@@ -209,14 +210,6 @@ export class RectPowerup extends DefaultPowerup {
             return [make_rectangle]
         }
         return [];
-    }
-
-    override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
-        if(comp instanceof RectShapeObject) return true
-        return false
-    }
-    override serialize(comp: Component, node: TreeNode, state: GlobalState): any {
-        if(comp instanceof RectShapeObject) return super.serialize(comp,node,state)
     }
 
     override deserialize(obj: any, state: GlobalState): Component {

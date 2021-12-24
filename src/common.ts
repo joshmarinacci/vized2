@@ -206,6 +206,10 @@ export interface Powerup {
 }
 
 export class DefaultPowerup implements Powerup {
+    simple_comps: any[];
+    constructor() {
+        this.simple_comps = []
+    }
     child_options(node: TreeNode): Action[] {
         return [];
     }
@@ -238,11 +242,13 @@ export class DefaultPowerup implements Powerup {
     }
 
     can_serialize(comp:Component, node:TreeNode, state:GlobalState):boolean {
+        if(this.simple_comps.includes(comp.constructor)) return true
         return false
     }
 
     serialize(comp:Component,node:TreeNode,state:GlobalState):any {
-        return { powerup:this.constructor.name, klass:comp.constructor.name }
+        if(this.simple_comps.includes(comp.constructor)) return { powerup:this.constructor.name, klass:comp.constructor.name }
+        throw new Error("cannot serialize "+comp.constructor.name)
     }
 
     can_deserialize(obj:any, state:GlobalState):boolean {

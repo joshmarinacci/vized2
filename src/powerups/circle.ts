@@ -244,6 +244,7 @@ export class CirclePowerup extends DefaultPowerup{
         state.svgexporters.push(new CircleSVGExporter())
         state.pdfexporters.push(new CirclePDFExporter())
         state.jsonexporters.push(new CircleShapeJSONExporter())
+        this.simple_comps.push(RadiusSelectionCircleLike)
     }
 
     override can_edit_by_name(comp: string): boolean {
@@ -265,8 +266,7 @@ export class CirclePowerup extends DefaultPowerup{
 
     override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
         if(comp instanceof CircleShapeObject) return true
-        if(comp instanceof RadiusSelectionCircleLike) return true
-        return false
+        return super.can_serialize(comp,node,state)
     }
 
     override serialize(comp: Component, node: TreeNode, state: GlobalState): any {
@@ -279,7 +279,7 @@ export class CirclePowerup extends DefaultPowerup{
                 radius: fso.get_radius(),
             }
         }
-        if(comp instanceof RadiusSelectionCircleLike) return super.serialize(comp,node,state)
+        return super.serialize(comp,node,state)
     }
 
     override deserialize(obj: any, state: GlobalState): Component {

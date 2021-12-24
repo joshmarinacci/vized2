@@ -74,6 +74,9 @@ class StandardJSONExporter implements JSONExporter {
 export class StandardPowerup extends DefaultPowerup {
     init(state: GlobalState) {
         state.jsonexporters.push(new StandardJSONExporter())
+        this.simple_comps.push(DocMarker)
+        this.simple_comps.push(PageMarker)
+        this.simple_comps.push(MovableCenterPosition)
     }
 
     override new_doc_actions(): Action[] {
@@ -100,20 +103,15 @@ export class StandardPowerup extends DefaultPowerup {
         return null
     }
     override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
-        if(comp instanceof DocMarker) return true
-        if(comp instanceof PageMarker) return true
         if(comp instanceof FilledShapeObject) return true
-        if(comp instanceof MovableCenterPosition) return true
-        return false
+        return super.can_serialize(comp,node,state)
     }
     override serialize(comp: Component, node: TreeNode, state: GlobalState): any {
-        if(comp instanceof DocMarker) return super.serialize(comp,node,state)
-        if(comp instanceof PageMarker) return super.serialize(comp,node,state)
         if(comp instanceof FilledShapeObject) {
             let fso = comp as FilledShapeObject
             return { powerup:this.constructor.name, klass:comp.constructor.name, fill: fso.get_fill(), fill_type:fso.get_fill_type()}
         }
-        if(comp instanceof MovableCenterPosition) return super.serialize(comp,node,state)
+        return super.serialize(comp,node,state)
     }
 
     override deserialize(obj: any, state: GlobalState): Component {
