@@ -1,5 +1,5 @@
 import {
-    add_child_to_parent, CanvasRenderSurface, CenterPositionName,
+    add_child_to_parent, CanvasRenderSurface, CenterPositionName, Component,
     DefaultPowerup,
     GlobalState, MovableCenterPosition, MultiComp,
     PageName,
@@ -261,6 +261,7 @@ export class SnowflakePowerup extends DefaultPowerup{
         state.pickers.push(new SnowflakePickSystem())
         state.renderers.push(new SnowflakeRendererSystem())
         state.pdfexporters.push(new SnowflakePDFExporter())
+        this.simple_comps.push(ParentDrawChildrenMarker)
     }
 
     child_options(node: TreeNode): Action[] {
@@ -276,6 +277,37 @@ export class SnowflakePowerup extends DefaultPowerup{
     override get_editor_by_name(name: string, state: GlobalState): any {
         if(name === SnowflakeName) return SnowflakeEditor
         return null
+    }
+    override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
+        if(comp instanceof SnowflakeObject) return true
+        return super.can_serialize(comp, node, state);
+    }
+    override serialize(comp: Component, node: TreeNode, state: GlobalState): any {
+        if(comp instanceof SnowflakeObject) {
+            let sfo = comp as SnowflakeObject
+            return {
+                powerup:this.constructor.name,
+                klass:comp.constructor.name,
+                position:sfo.get_position(),
+                mode:sfo.get_mode(),
+            }
+        }
+        return super.serialize(comp, node, state);
+    }
+
+    override can_deserialize(obj: any, state: GlobalState): boolean {
+        if(obj.klass === SnowflakeObject.name) return true
+        if(obj.klass === ParentDrawChildrenMarker.name) return true
+        return super.can_deserialize(obj, state);
+    }
+
+    override deserialize(obj: any, state: GlobalState): Component {
+        if(obj.klass === SnowflakeObject.name) {
+            // @ts-ignore
+            return new SnowflakeObject(null, Point.fromJSON(obj.position))
+        }
+        if(obj.klass === ParentDrawChildrenMarker.name) return new ParentDrawChildrenMarker()
+        return super.deserialize(obj, state);
     }
 
 }

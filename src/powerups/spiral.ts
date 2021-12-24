@@ -308,7 +308,7 @@ export class SpiralPowerup extends DefaultPowerup{
         return super.can_deserialize(obj, state);
     }
     override deserialize(obj: any, state: GlobalState): Component {
-        if(obj.klass === SpiralShapeObject.name) return new SpiralShapeObject(obj.point,obj.radius)
+        if(obj.klass === SpiralShapeObject.name) return new SpiralShapeObject(Point.fromJSON(obj.point),obj.radius)
         return super.deserialize(obj, state);
     }
 }

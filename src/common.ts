@@ -299,6 +299,10 @@ export class Point {
             y:this.y,
         }
     }
+
+    static fromJSON(point: { x: number; y: number }) {
+        return new Point(point.x,point.y)
+    }
 }
 
 export class Rect {
@@ -393,6 +397,10 @@ export class Rect {
             h:this.h,
             w:this.w,
         }
+    }
+
+    static fromJSON(b:any) {
+        return new Rect(b.x,b.y,b.w,b.h)
     }
 }
 

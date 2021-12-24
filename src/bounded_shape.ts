@@ -155,8 +155,7 @@ export class BoundedShapePowerup extends DefaultPowerup {
     }
     override deserialize(obj: any, state: GlobalState): Component {
         if(obj.powerup === this.constructor.name && obj.klass === BoundedShapeObject.name) {
-            let b = obj.bounds
-            return new BoundedShapeObject(new Rect(b.x,b.y,b.w,b.h))
+            return new BoundedShapeObject(Rect.fromJSON(obj.bounds))
         }
         if(obj.klass === MovableBoundedShape.name) {
             // @ts-ignore

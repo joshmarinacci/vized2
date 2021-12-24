@@ -4,7 +4,7 @@ import {
     DocMarker, FilledShapeName,
     FilledShapeObject,
     GlobalState, MovableCenterPosition,
-    PageMarker, PageName,
+    PageMarker, PageName, ParentDrawChildrenName,
     Rect,
     TreeNode,
     TreeNodeImpl
