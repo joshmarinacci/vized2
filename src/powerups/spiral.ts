@@ -285,4 +285,30 @@ export class SpiralPowerup extends DefaultPowerup{
         if(node.has_component(ParentLikeName) || node.has_component(PageName)) return [make_spiral]
         return [];
     }
+
+    override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
+        if(comp instanceof SpiralShapeObject) return true
+        return super.can_serialize(comp, node, state);
+    }
+    override serialize(comp: Component, node: TreeNode, state: GlobalState): any {
+        if(comp instanceof SpiralShapeObject) {
+            let sso = comp as SpiralShapeObject
+            return {
+                powerup:this.constructor.name,
+                klass:comp.constructor.name,
+                point:sso.get_position().toJSON(),
+                radius:sso.get_radius(),
+            }
+        }
+        return super.serialize(comp, node, state);
+    }
+
+    override can_deserialize(obj: any, state: GlobalState): boolean {
+        if(obj.klass === SpiralShapeObject.name) return true
+        return super.can_deserialize(obj, state);
+    }
+    override deserialize(obj: any, state: GlobalState): Component {
+        if(obj.klass === SpiralShapeObject.name) return new SpiralShapeObject(obj.point,obj.radius)
+        return super.deserialize(obj, state);
+    }
 }
