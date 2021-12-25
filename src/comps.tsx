@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {ReactNode, useEffect, useState} from "react";
 import {GlobalState} from "./common";
 
 export function Toolbar(props: { children: any }) {
@@ -24,3 +24,14 @@ export function NumberEditor(props: { value: number, set_value: any, state: Glob
                   }}/>
 
 }
+
+export function ToggleButton(props: { onClick: () => void, children: ReactNode, selected:boolean }) {
+    let style = {
+        backgroundColor:props.selected?"aquamarine":"gray",
+        borderRadius:'0.25rem',
+        border: '1px solid #333333',
+        margin: '0.125rem 0.25rem',
+    }
+    return <button style={style} onClick={props.onClick}>{props.children}</button>
+}
+
