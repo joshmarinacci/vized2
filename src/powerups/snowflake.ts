@@ -45,7 +45,7 @@ class SnowflakeObject implements MultiComp, Snowflake, RenderBounds {
     }
 
     supports(): string[] {
-        return [SnowflakeName, CenterPositionName, ParentLikeName];
+        return [SnowflakeName, CenterPositionName, ParentLikeName, RenderBoundsName];
     }
 
     get_child_bounds(): Rect {
