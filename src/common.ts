@@ -139,7 +139,7 @@ export class GlobalState {
     }
 
     dispatch(type: EVENT_TYPES, payload: any) {
-        // this.log("dispatching",type,payload)
+        // this.log("dispatching",type,payload, this._get_listeners(type).length)
         this._get_listeners(type).forEach(cb => cb(payload))
     }
 

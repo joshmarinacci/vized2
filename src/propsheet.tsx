@@ -5,6 +5,7 @@ import "./propsheet.css"
 export function PropSheet(props: {}) {
     const state = useContext(GlobalStateContext)
     const [node, set_node] = useState<TreeNode | null>(null)
+    const [count, set_count] = useState(0)
     useEffect(() => {
         let op = () => {
             if (state.selection.isEmpty()) {
@@ -19,6 +20,15 @@ export function PropSheet(props: {}) {
             state.off("selection-change", op)
         }
     },[])
+    useEffect(() => {
+        let op2 = () => {
+            set_count(count+1)
+        }
+        state.on("object-changed",op2)
+        return () => {
+            state.off("object-changed",op2)
+        }
+    },[count])
     if (!node) {
         return <div className={'panel right'}>
             nothing selected
