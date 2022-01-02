@@ -206,6 +206,9 @@ class HandleMoveDelegate implements MouseGestureDelegate {
 
     press(e: MouseEvent, pt:Point, root:TreeNode) {
         this.start = pt
+        this.state.infopanel.visible = true
+        this.state.infopanel.position.from_object(pt)
+        this.state.infopanel.text = this.handle.display_value()
     }
 
     move(e: MouseEvent, pt:Point, root:TreeNode) {
@@ -213,11 +216,14 @@ class HandleMoveDelegate implements MouseGestureDelegate {
         let diff = curr.subtract(this.start as Point)
         this.handle.moveBy(diff)
         this.start = curr
+        this.state.infopanel.position.from_object(pt)
+        this.state.infopanel.text = this.handle.display_value()
         this.state.dispatch('refresh', {})
     }
 
     release(e: MouseEvent) {
         this.start = null
+        this.state.infopanel.visible = false
         this.state.dispatch('object-changed',{})
     }
 

@@ -214,6 +214,10 @@ export class RadiusHandle extends Handle {
         if (rad < 1) rad = 1
         this.circle.set_radius(rad)
     }
+
+    display_value(): string {
+        return `${this.circle.get_radius()}`;
+    }
 }
 
 

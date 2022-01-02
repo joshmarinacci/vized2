@@ -636,6 +636,8 @@ export abstract class Handle extends Rect {
     moveBy(diff: Point) {
 
     }
+
+    abstract display_value():string
 }
 
 export function forceDownloadBlob(title:string, blob:Blob) {

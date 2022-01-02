@@ -90,6 +90,12 @@ export class BoundedShapeHandle extends Handle {
         bdd.w = this.x - bdd.x + this.w / 2
         bdd.h = this.y - bdd.y + this.h / 2
     }
+
+    display_value(): string {
+        let bd: BoundedShape = this.node.get_component(BoundedShapeName) as BoundedShape
+        let bdd = bd.get_bounds()
+        return `${bdd.w} x ${bdd.h}`;
+    }
 }
 
 export class ResizableRectObject implements Resizable {

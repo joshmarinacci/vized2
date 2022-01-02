@@ -103,6 +103,11 @@ export class ImageShapeHandle extends Handle {
         let scale = w/iso.img.width
         iso.set_scale(scale)
     }
+
+    display_value(): string {
+        let iso = this.node.get_component(ImageShapeName) as ImageShapeObject
+        return `${iso.get_bounds().w} x ${iso.get_bounds().h}`;
+    }
 }
 
 export class ResizableImageObject implements Resizable {
