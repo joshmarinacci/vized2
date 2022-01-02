@@ -53,47 +53,11 @@ function draw_node(state:GlobalState, surf:CanvasRenderSurface, node: TreeNode) 
 }
 
 function draw_handles(state:GlobalState, ctx: CanvasRenderingContext2D, node:TreeNode) {
-    let off = new Point(0,0)
-    if(node.has_component(ParentLikeName)) {
-        let pt = (node.get_component(ParentLikeName) as ParentLike).get_position()
-        off = pt
-    }
-    state.active_handles.forEach(hand => {
-        ctx.fillStyle = 'yellow'
-        ctx.fillRect(off.x+hand.x, off.y+hand.y, hand.w, hand.h)
-    })
 }
 function draw_snaps(state: GlobalState, ctx: CanvasRenderingContext2D, page: TreeNode) {
-    let pg_bounds = (page.get_component(BoundedShapeName) as BoundedShape).get_bounds()
-    if(state.active_v_snap !== -1) {
-        ctx.beginPath()
-        ctx.moveTo(state.active_v_snap, pg_bounds.y)
-        ctx.lineTo(state.active_v_snap, pg_bounds.y2)
-        ctx.strokeStyle = 'green'
-        ctx.stroke()
-    }
-    if(state.active_h_snap !== -1) {
-        ctx.beginPath()
-        ctx.moveTo(pg_bounds.x, state.active_h_snap)
-        ctx.lineTo(pg_bounds.x2, state.active_h_snap)
-        ctx.strokeStyle = 'green'
-        ctx.stroke()
-    }
 }
 
 function draw_infopanels(state: GlobalState, ctx: CanvasRenderingContext2D, current_page: TreeNode) {
-    if(state.infopanel.visible) {
-        ctx.save()
-        ctx.translate(state.infopanel.position.x+20,state.infopanel.position.y+20)
-        ctx.font = '16px sans-serif'
-        let met = ctx.measureText(state.infopanel.text)
-        let pad = 5
-        ctx.fillStyle = 'gray'
-        ctx.fillRect(0,0,met.width+pad+pad,met.actualBoundingBoxAscent+met.actualBoundingBoxDescent+pad+pad)
-        ctx.fillStyle = 'white'
-        ctx.fillText(state.infopanel.text,pad,pad + met.actualBoundingBoxAscent)
-        ctx.restore()
-    }
 }
 
 
@@ -285,6 +249,63 @@ function ContextMenu(props: { state: GlobalState }) {
     </ul>
 }
 
+interface CanvasOverlay {
+    draw(state:GlobalState, surf:CanvasRenderSurface, page:TreeNode):void
+}
+
+class InfoPanelOverlay implements CanvasOverlay {
+    draw(state: GlobalState, surf: CanvasRenderSurface, page: TreeNode): void {
+        let ctx = surf.ctx
+        if(state.infopanel.visible) {
+            ctx.save()
+            ctx.translate(state.infopanel.position.x+20,state.infopanel.position.y+20)
+            ctx.font = '16px sans-serif'
+            let met = ctx.measureText(state.infopanel.text)
+            let pad = 5
+            ctx.fillStyle = 'gray'
+            ctx.fillRect(0,0,met.width+pad+pad,met.actualBoundingBoxAscent+met.actualBoundingBoxDescent+pad+pad)
+            ctx.fillStyle = 'white'
+            ctx.fillText(state.infopanel.text,pad,pad + met.actualBoundingBoxAscent)
+            ctx.restore()
+        }
+    }
+}
+
+class SnapsOverlay implements CanvasOverlay {
+    draw(state: GlobalState, surf: CanvasRenderSurface, page: TreeNode): void {
+        let pg_bounds = (page.get_component(BoundedShapeName) as BoundedShape).get_bounds()
+        let ctx = surf.ctx
+        if(state.active_v_snap !== -1) {
+            ctx.beginPath()
+            ctx.moveTo(state.active_v_snap, pg_bounds.y)
+            ctx.lineTo(state.active_v_snap, pg_bounds.y2)
+            ctx.strokeStyle = 'green'
+            ctx.stroke()
+        }
+        if(state.active_h_snap !== -1) {
+            ctx.beginPath()
+            ctx.moveTo(pg_bounds.x, state.active_h_snap)
+            ctx.lineTo(pg_bounds.x2, state.active_h_snap)
+            ctx.strokeStyle = 'green'
+            ctx.stroke()
+        }
+    }
+}
+
+class HandlesOverlay implements CanvasOverlay {
+    draw(state: GlobalState, surf: CanvasRenderSurface, page: TreeNode): void {
+        let off = new Point(0,0)
+        if(page.has_component(ParentLikeName)) {
+            let pt = (page.get_component(ParentLikeName) as ParentLike).get_position()
+            off = pt
+        }
+        state.active_handles.forEach(hand => {
+            surf.ctx.fillStyle = 'yellow'
+            surf.ctx.fillRect(off.x+hand.x, off.y+hand.y, hand.w, hand.h)
+        })
+    }
+}
+
 export function CanvasView(props:{}) {
     let state = useContext(GlobalStateContext)
     const [pan_offset, set_pan_offset] = useState(new Point(0,0))
@@ -357,12 +378,10 @@ export function CanvasView(props:{}) {
         if(!canvas.current) return
         let can = canvas.current as HTMLCanvasElement
         let ctx = can.getContext('2d') as CanvasRenderingContext2D
-        // let scale = Math.pow(2,zoom_level)
         //real size of the canvas
         ctx.fillStyle = 'yellow'
         ctx.fillRect(0,0,can.width,can.height)
         ctx.save()
-        // ctx.translate(pan_offset.x,pan_offset.y)
         ctx.scale(scale,scale)
 
         ctx.translate(-min_bounds.x,-min_bounds.y)
@@ -375,10 +394,12 @@ export function CanvasView(props:{}) {
             selectionEnabled: true,
             inset:is_inset,
         }
-        draw_node(state,surf, current_page)
-        draw_handles(state, ctx, current_page)
-        draw_snaps(state,ctx,current_page)
-        draw_infopanels(state,ctx,current_page)
+        draw_node(state, surf, current_page)
+        let overlays:CanvasOverlay[] = []
+        overlays.push(new HandlesOverlay())
+        overlays.push(new SnapsOverlay())
+        overlays.push(new InfoPanelOverlay())
+        overlays.forEach(overlay => overlay.draw(state,surf,current_page))
         ctx.restore()
 
         if(is_inset && current_root.has_component(ParentLikeName)) {
