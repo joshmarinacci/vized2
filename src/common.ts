@@ -62,6 +62,19 @@ const GRAYSCALE = {
     colors:["#000000","#333333","#444444","#888888","#a0a0a0","#bbbbbb","#dddddd",'#ffffff']
 }
 
+export class InfoPanel {
+    readonly position: Point;
+    text: string;
+    visible: boolean;
+    constructor(pt: Point, text: string) {
+        this.position = pt.clone()
+        this.text = text
+        this.visible = false
+    }
+
+}
+
+
 export class GlobalState {
     renderers: RenderingSystem[]
     jsonexporters:JSONExporter[]
@@ -79,6 +92,7 @@ export class GlobalState {
     private images:ImageReference[]
     active_v_snap: number;
     active_h_snap: number;
+    infopanel: InfoPanel;
 
     constructor() {
         this.renderers = []
@@ -115,6 +129,7 @@ export class GlobalState {
             VERT_HATCH_IMAGE,
             CROSS_HATCH,
         ]
+        this.infopanel = new InfoPanel(new Point(0,0),"empty")
     }
     set_root(tree: TreeNode) {
         this.root = tree

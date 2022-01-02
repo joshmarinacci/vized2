@@ -4,7 +4,7 @@ import {
     DIAG_HATCH_IMAGE,
     GlobalState,
     GlobalStateContext,
-    Handle,
+    Handle, InfoPanel,
     Movable,
     MovableName, ParentDrawChildrenName, ParentLike, ParentLikeName,
     Point, RadiusSelection, RadiusSelectionName, Rect, RenderBounds, RenderBoundsName,
@@ -81,6 +81,20 @@ function draw_snaps(state: GlobalState, ctx: CanvasRenderingContext2D, page: Tre
     }
 }
 
+function draw_infopanels(state: GlobalState, ctx: CanvasRenderingContext2D, current_page: TreeNode) {
+    if(state.infopanel.visible) {
+        ctx.save()
+        ctx.translate(state.infopanel.position.x+20,state.infopanel.position.y+20)
+        ctx.font = '16px sans-serif'
+        let met = ctx.measureText(state.infopanel.text)
+        let pad = 5
+        ctx.fillStyle = 'gray'
+        ctx.fillRect(0,0,met.width+pad+pad,met.actualBoundingBoxAscent+met.actualBoundingBoxDescent+pad+pad)
+        ctx.fillStyle = 'white'
+        ctx.fillText(state.infopanel.text,pad,pad + met.actualBoundingBoxAscent)
+        ctx.restore()
+    }
+}
 
 
 export interface MouseGestureDelegate {
@@ -132,11 +146,16 @@ class MouseMoveDelegate implements MouseGestureDelegate {
         this.start_offsets = this.start_bounds.map(bd => pt.subtract(bd.position))
         this.refresh_handles(this.state.selection.get())
         this.state.dispatch('selection-change',{})
+        this.state.infopanel.position.from_object(this.start_point)
+        this.state.infopanel.text = "some text"
+        this.state.infopanel.visible = true
     }
 
     move(e: MouseEvent, pt:Point, root:TreeNode) {
         if (!this.press_point) return
         if (!this.start_point) return
+        // @ts-ignore
+        let last_mov:Movable = null
         for(let i=0; i<this.movables.length; i++) {
             let node = this.movables[i]
             let mov = this.movables[i].get_component(MovableName) as Movable
@@ -173,6 +192,11 @@ class MouseMoveDelegate implements MouseGestureDelegate {
                 check_h_snap(mov,page_bounds.center().y,node_bounds.center().y,this.state)
                 check_h_snap(mov,page_bounds.y2,node_bounds.y2,this.state)
             }
+            last_mov = mov
+        }
+        if(last_mov) {
+            this.state.infopanel.position.from_object(pt)
+            this.state.infopanel.text = `${last_mov.position().x} x ${last_mov.position().y}`
         }
         this.state.active_handles.forEach(h => h.update_from_node())
         this.state.dispatch('refresh', {})
@@ -182,6 +206,7 @@ class MouseMoveDelegate implements MouseGestureDelegate {
         this.press_point = null
         this.state.active_v_snap = -1
         this.state.active_h_snap = -1
+        this.state.infopanel.visible = false
         this.state.dispatch('object-changed',{})
     }
 
@@ -353,6 +378,7 @@ export function CanvasView(props:{}) {
         draw_node(state,surf, current_page)
         draw_handles(state, ctx, current_page)
         draw_snaps(state,ctx,current_page)
+        draw_infopanels(state,ctx,current_page)
         ctx.restore()
 
         if(is_inset && current_root.has_component(ParentLikeName)) {
