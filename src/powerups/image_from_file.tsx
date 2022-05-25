@@ -37,11 +37,12 @@ function ImageFileUpload() {
         let image = new TreeNodeImpl()
         image.title = 'image'
         let iso = new ImageShapeObject()
+        iso.set_scale(1.0)
         // @ts-ignore
         let file = input.current.files[0]
         state.add_image_from_file(file).then(img => iso.setImage(img))
         image.add_component(iso)
-        image.add_component(new MovableBoundedShape(image))
+        // image.add_component(new MovableBoundedShape(image))
         image.add_component(new ResizableImageObject(image))
         add_child_to_parent(image, state.get_root())
         state.dispatch('object-changed', {})
