@@ -160,7 +160,7 @@ class MouseMoveDelegate implements MouseGestureDelegate {
         }
         if(last_mov) {
             this.state.infopanel.position.from_object(pt)
-            this.state.infopanel.text = `${last_mov.position().x} x ${last_mov.position().y}`
+            this.state.infopanel.text = `${last_mov.position().x.toFixed(2)} x ${last_mov.position().y.toFixed(2)}`
         }
         this.state.active_handles.forEach(h => h.update_from_node())
         this.state.dispatch('refresh', {})
