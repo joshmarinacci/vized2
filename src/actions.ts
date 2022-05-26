@@ -1,5 +1,6 @@
-import {GlobalState, TreeNode} from "./common";
+import {GlobalState, TreeNode, TreeNodeImpl} from "./common";
 import {treenode_to_treenode} from "./exporters/json";
+import {make_std_group} from "./powerups/group";
 
 export interface Action {
     title: string
@@ -118,7 +119,24 @@ export const duplicate:Action = {
             console.log('got the dupe',dupe)
             ch.parent.children.push(dupe)
             dupe.parent = ch.parent
-            state.dispatch("object-changed",{})
         })
+        state.dispatch("object-changed",{})
+    },
+}
+
+export const selection_to_group:Action = {
+    use_gui:false,
+    title:'move into group',
+    fun(node: TreeNode, state: GlobalState): any {
+        let group = make_std_group()
+        let parent:TreeNodeImpl
+        state.selection.get().forEach((ch:TreeNode) => {
+            console.log("moving ", ch)
+            parent = ch.parent as TreeNodeImpl
+            group.add_child(ch)
+        })
+        // @ts-ignore
+        parent.add_child(group)
+        state.dispatch("object-changed",{})
     },
 }

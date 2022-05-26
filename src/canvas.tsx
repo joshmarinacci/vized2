@@ -21,7 +21,7 @@ import {
     move_to_bottom,
     move_to_top,
     move_up,
-    nothing
+    nothing, selection_to_group
 } from "./actions";
 import {PopupContext, PopupContextImpl} from "./popup";
 import {BoundedShape, BoundedShapeName} from "./bounded_shape";
@@ -242,6 +242,9 @@ function ContextMenu(props: { state: GlobalState }) {
         actions.push(move_down)
         actions.push(move_up)
         actions.push(move_to_top)
+    }
+    if(props.state.selection.size() >= 2) {
+        actions.push(selection_to_group)
     }
     if(actions.length === 0) actions.push(nothing)
     return <ul className={'menu'}>

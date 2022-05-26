@@ -189,7 +189,7 @@ class GroupPDFExporter implements PDFExporter {
 export function make_std_group():TreeNodeImpl {
     let group = new TreeNodeImpl()
     group.title = 'group'
-    let shape = new GroupShapeObject(group, new Point(100,50))
+    let shape = new GroupShapeObject(group, new Point(0,0))
     group.add_component(shape)
     group.add_component(new MovableCenterPosition(group))
     return group

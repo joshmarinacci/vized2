@@ -533,6 +533,14 @@ export class TreeNodeImpl implements TreeNode {
         this.components = []
         this.comps = new Map<string, Component>()
     }
+    remove_child(node:TreeNode) {
+        this.children = this.children.filter(ch => ch !== node)
+    }
+    add_child(node:TreeNode) {
+        if(node.parent) (node.parent as TreeNodeImpl).remove_child(node)
+        this.children.push(node)
+        node.parent = this
+    }
     add_component(comp:Component) {
         this.components.push(comp)
         this.comps.set(comp.name,comp)
@@ -622,6 +630,9 @@ export class SelectionSystem implements System{
 
     isEmpty() {
         return (this.selection.size<=0)
+    }
+    size() {
+        return this.selection.size
     }
 }
 
