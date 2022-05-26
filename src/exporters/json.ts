@@ -19,50 +19,13 @@ export interface JSONExporter extends Component {
     fromJSON(obj:any,node:TreeNode):Component
 }
 
-export function treenode_to_POJO(root: TreeNode, state: GlobalState):any {
-    let obj:any = {}
-    Object.keys(root).forEach(key => {
-        if (key === 'parent') return
-        if (key === 'comps') return
-        if (key === 'children') {
-            obj[key] = root.children.map(ch => treenode_to_POJO(ch, state))
-            return
-        }
-        if(key === 'components') {
-            obj[key] = (root as TreeNodeImpl).all_components().map((comp:Component) => {
-                let exp = state.jsonexporters.find(exp => exp.canHandleToJSON(comp,root))
-                //if(!exp) throw new Error(`cannot export component ${comp.name}`)
-                if(!exp) console.warn(`cannot export component ${comp.name}`)
-                if(exp) return exp.toJSON(comp,root)
-                return {missing:true, name:comp.name}
-            }).filter(o => o !== null)
-            return
-        }
-
-        // @ts-ignore
-        obj[key] = root[key]
-    })
-    return obj
+export function treenode_to_treenode(src: TreeNode, state: GlobalState):TreeNode {
+    let obj = test_to_json(src as TreeNodeImpl,state)
+    let str = JSON.stringify(obj, null, '  ')
+    let obj2 = JSON.parse(str)
+    let new_node = test_from_json(obj2,state)
+    return new_node
 }
-
-export function POJO_to_treenode(obj: any, state: GlobalState):TreeNode {
-    console.log("obj is",obj)
-    let node = new TreeNodeImpl()
-    node.id = obj.id
-    node.children = obj.children.map((ch:any) => {
-        return POJO_to_treenode(ch,state)
-    })
-    obj.components.forEach((comp:any) => {
-        console.log("comp is",comp)
-        let exp = state.jsonexporters.find(exp => exp.canHandleFromJSON(comp,node))
-        if(exp) return node.add_component(exp.fromJSON(comp,node))
-        console.warn(`cannot import component ${comp.name}`)
-        return null
-    })
-    return node
-}
-
-
 
 export function export_JSON(root: TreeNode, state:GlobalState) {
     console.log("exporting to JSON", root)
@@ -153,7 +116,7 @@ export function test_to_json(root:TreeNodeImpl, state:GlobalState) {
             }
         }
 
-        console.log("can't serialize",comp)
+        console.error("can't serialize",comp)
         return {
             missing:true,
             name:comp.name
@@ -181,7 +144,7 @@ export function test_from_json(obj:any, state:GlobalState):TreeNodeImpl {
         console.log("couldn't deserialize component",def, def.constructor.name)
     })
     node.children = obj.children.map((ch:any) => {
-        console.log("deserailzing child",ch)
+        // console.log("deserializing child",ch)
         let chh = test_from_json(ch,state)
         add_child_to_parent(chh,node)
         return chh

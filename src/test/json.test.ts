@@ -2,10 +2,10 @@ import {
     add_child_to_parent,
     GlobalState,
     TreeNodeImpl,
-    Point, DefaultPowerup,
+    Point, Rect,
 } from "../common";
 import {make_empty_doc, StandardPowerup} from "../powerups/standard";
-import {RectPowerup} from "../powerups/rect_powerup";
+import {make_std_rect, RectPowerup} from "../powerups/rect_powerup";
 import {
     BoundedShapePowerup
 } from "../bounded_shape";
@@ -14,10 +14,12 @@ import {PDFPowerup} from "../exporters/pdf";
 import assert from "assert";
 import {test_from_json, test_to_json} from "../exporters/json";
 
-function local_make_empty_doc(state:GlobalState) {
+function make_simple_doc(state:GlobalState) {
     let root = make_empty_doc(state)
     let circ = make_std_circle(new Point(100,100),10)
     add_child_to_parent(circ, root)
+    let rect = make_std_rect(new Rect(10,20,30,40))
+    add_child_to_parent(rect,root)
     return root
 }
 
@@ -33,8 +35,10 @@ function compareNode(root1:TreeNodeImpl, root2:TreeNodeImpl) {
         assert.deepStrictEqual(c1,c2)
     }
 
-    if(root1.children.length ! === root2.children.length) {
-        console.log("different length children!")
+    if(root1.children.length !== root2.children.length) {
+        console.error("different length children!", root1.children.length, root2.children.length)
+        console.error(root1.children)
+        console.error(root2.children)
         return false
     }
     for(let i=0; i<root1.children.length;   i++) {
@@ -56,7 +60,8 @@ test('tojson',()=> {
     state1.powerups.push(new PDFPowerup())
     state1.powerups.forEach(pow => pow.init(state1))
 
-    let root1 = local_make_empty_doc(state1)
+    // make test doc
+    let root1 = make_simple_doc(state1)
     // console.log("doc before",root1.children)
     let obj = test_to_json(root1,state1)
     // console.log("obj is",util.inspect(obj,{depth:20}))
