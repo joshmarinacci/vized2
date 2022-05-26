@@ -16,7 +16,7 @@ import {ToggleButton, Toolbar} from "./comps";
 import {
     Action,
     delete_selection,
-    delete_selection_action,
+    delete_selection_action, duplicate,
     move_down,
     move_to_bottom,
     move_to_top,
@@ -237,6 +237,7 @@ function ContextMenu(props: { state: GlobalState }) {
     let actions:Action[] = []
     if(!props.state.selection.isEmpty()) {
         actions.push(delete_selection_action)
+        actions.push(duplicate)
         actions.push(move_to_bottom)
         actions.push(move_down)
         actions.push(move_up)

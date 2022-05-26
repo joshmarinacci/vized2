@@ -1,4 +1,5 @@
 import {GlobalState, TreeNode} from "./common";
+import {treenode_to_treenode} from "./exporters/json";
 
 export interface Action {
     title: string
@@ -104,4 +105,20 @@ export const move_down:Action = {
         })
         state.dispatch("object-changed", {})
     }
+}
+
+export const duplicate:Action = {
+    use_gui:false,
+    title:'duplicate',
+    fun(node: TreeNode, state: GlobalState): any {
+        state.selection.get().forEach((ch:TreeNode) => {
+            console.log("duplicating ", ch)
+            let dupe = treenode_to_treenode(ch, state)
+            dupe.id = "tree_node_" + Math.floor(Math.random() * 1000000)
+            console.log('got the dupe',dupe)
+            ch.parent.children.push(dupe)
+            dupe.parent = ch.parent
+            state.dispatch("object-changed",{})
+        })
+    },
 }
