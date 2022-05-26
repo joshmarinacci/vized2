@@ -1,5 +1,5 @@
 import {
-    add_child_to_parent, CanvasRenderSurface,
+    add_child_to_parent, BorderedShape, BorderedShapeName, BorderedShapeObject, CanvasRenderSurface,
     Component,
     DefaultPowerup, DocMarker,
     FilledShape,
@@ -60,6 +60,15 @@ export class RectRendererSystem implements RenderingSystem {
                 ctx.fillStyle = 'magenta'
             }
             ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
+
+
+            if(node.has_component(BorderedShapeName)) {
+                let bd = (node.get_component(BorderedShapeName) as BorderedShape)
+                ctx.strokeStyle = bd.get_border_fill()
+                ctx.lineWidth = bd.get_border_width()
+                ctx.strokeRect(rect.x,rect.y,rect.w,rect.h)
+            }
+
             if (surf.selectionEnabled && state.selection.has(node)) {
                 ctx.strokeStyle = 'magenta'
                 ctx.lineWidth = 3.5
@@ -181,6 +190,7 @@ export function make_std_rect(bounds:Rect):TreeNodeImpl {
     rect1.add_component(new RectShapeObject())
     rect1.add_component(new BoundedShapeObject(bounds))
     rect1.add_component(new FilledShapeObject("#ff0000"))
+    rect1.add_component(new BorderedShapeObject("#000000"))
     rect1.add_component(new MovableBoundedShape(rect1))
     rect1.add_component(new ResizableRectObject(rect1))
     return rect1

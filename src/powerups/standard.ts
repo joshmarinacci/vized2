@@ -1,4 +1,5 @@
 import {
+    BorderedShapeName,
     CenterPositionName, Component,
     DefaultPowerup,
     DocMarker, FilledShapeName,
@@ -15,6 +16,7 @@ import {RectShapeObject} from "./rect_powerup";
 import {Action} from "../actions";
 import {BoundedShapeEditor} from "./bounded_shape_editor";
 import {FilledShapeEditor} from "./filled_shape_editor";
+import {BorderedShapeEditor} from "./filled_border_editor";
 import {CenterPositionEditor} from "./position_editor";
 import {JSONExporter} from "../exporters/json";
 
@@ -94,11 +96,13 @@ export class StandardPowerup extends DefaultPowerup {
         if(comp === BoundedShapeName) return true
         if(comp === FilledShapeName) return true
         if(comp === CenterPositionName) return true
+        if(comp === BorderedShapeName) return true
         return false
     }
     override get_editor_by_name(name: string, state: GlobalState): any {
         if(name === BoundedShapeName) return BoundedShapeEditor
         if(name === FilledShapeName) return FilledShapeEditor
+        if(name === BorderedShapeName) return BorderedShapeEditor
         if(name === CenterPositionName) return CenterPositionEditor
         return null
     }

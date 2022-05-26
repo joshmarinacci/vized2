@@ -53,11 +53,11 @@ function file_to_DataURL(file: File):Promise<string> {
 }
 
 
-const BASIC_COLORS = {
+export const BASIC_COLORS = {
     title:"basic",
-    colors:['#ff0000','#00ff00','#0000ff','#000000','#ffffff']
+    colors:['transparent','#ff0000','#00ff00','#0000ff','#000000','#ffffff']
 }
-const GRAYSCALE = {
+export const GRAYSCALE = {
     title:"grayscale",
     colors:["#000000","#333333","#444444","#888888","#a0a0a0","#bbbbbb","#dddddd",'#ffffff']
 }
@@ -443,6 +443,13 @@ export interface FilledShape extends Component {
     set_fill(fill:any):void
 }
 
+export interface BorderedShape extends Component {
+    get_border_fill():any
+    set_border_fill(fill:any):void
+    get_border_width():number
+    set_border_width(width:number):void
+}
+
 export const DocName = "DocName"
 export interface Doc extends Component {}
 export class DocMarker implements Doc {
@@ -570,7 +577,6 @@ export class TreeNodeImpl implements TreeNode {
 }
 
 export const FilledShapeName = "FilledShapeName"
-
 export class FilledShapeObject implements FilledShape {
     name: string;
     private fill_type:FillType
@@ -593,6 +599,34 @@ export class FilledShapeObject implements FilledShape {
         this.fill = fill
     }
 
+}
+
+export const BorderedShapeName = "BorderedShapeName"
+export class BorderedShapeObject implements BorderedShape {
+    name: string;
+    private fill:any;
+    private width:number;
+    constructor(color:string) {
+        this.name = BorderedShapeName
+        this.fill = color
+        this.width = 1
+    }
+
+    get_border_fill(): any {
+        return this.fill
+    }
+
+    get_border_width(): number {
+        return this.width
+    }
+
+    set_border_fill(fill: any): void {
+        this.fill = fill
+    }
+
+    set_border_width(width: number): void {
+        this.width = width
+    }
 
 }
 
