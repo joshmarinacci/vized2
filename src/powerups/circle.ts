@@ -132,8 +132,8 @@ export class CirclePickSystem implements PickingSystem {
         this.name = CirclePickSystemName
     }
     pick_node(pt: Point, node: TreeNode): boolean {
-        if(node.has_component(CircleShapeName)) {
-            let circle = (node.get_component(CircleShapeName) as CircleShape)
+        if(node.has_component(CircleLikeShapeName)) {
+            let circle = (node.get_component(CircleLikeShapeName) as CircleLikeShape)
             let dist = circle.get_position().subtract(pt)
             if(dist.magnitude() < circle.get_radius()) {
                 return true

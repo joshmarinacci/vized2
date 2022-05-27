@@ -22,13 +22,14 @@ import {cssToPdfColor, hex_to_pdfrgbf, PDFContext, PDFExporter} from "../exporte
 import {Action} from "../actions";
 import {SpiralEditor} from "./spiral_editor";
 import {
-    CircleLikeShape, CircleLikeShapeName,
+    CircleLikeShape, CircleLikeShapeName, CirclePickSystem,
     RadiusSelectionCircleLike
 } from "./circle";
 import {PDFPage} from "pdf-lib";
 
 export const SpiralShapeName = "SpiralShape"
 export class SpiralShapeObject implements Component, MultiComp, CircleLikeShape, RenderBounds {
+    name: string;
     private radius: number;
     private pos: Point;
     private wrap: number;
@@ -41,7 +42,6 @@ export class SpiralShapeObject implements Component, MultiComp, CircleLikeShape,
     supports(): string[] {
         return [this.name, CircleLikeShapeName, CenterPositionName, RenderBoundsName];
     }
-    name: string;
     get_radius() {
         return this.radius
     }
@@ -57,11 +57,9 @@ export class SpiralShapeObject implements Component, MultiComp, CircleLikeShape,
     set_wrap(wrap:number) {
         this.wrap = wrap
     }
-
     isMulti(): boolean {
         return true
     }
-
     get_bounds(): Rect {
         return new Rect(
             this.pos.x - this.radius,
@@ -116,24 +114,6 @@ class SpiralRendererSystem implements RenderingSystem {
         }
     }
 
-}
-const SpiralPickSystemName = 'SpiralPickSystemName';
-export class SpiralPickSystem implements PickingSystem {
-    name: string;
-    constructor() {
-        this.name = SpiralPickSystemName
-    }
-
-    pick_node(pt: Point, node: TreeNode): boolean {
-        if(node.has_component(SpiralShapeName)) {
-            let circle = node.get_component(SpiralShapeName) as SpiralShapeObject
-            let dist = circle.get_position().subtract(pt)
-            if (dist.magnitude() < circle.get_radius()) {
-                return true
-            }
-        }
-        return false
-    }
 }
 
 
@@ -238,9 +218,8 @@ class SpiralSVGExporter implements SVGExporter {
 export function make_std_spiral(center:Point, radius:number) {
     let node = new TreeNodeImpl()
     node.title = 'spiral'
+    node.add_component(new SpiralShapeObject(center,radius))
     node.add_component(new FilledShapeObject('#000000'))
-    let shape = new SpiralShapeObject(center,radius)
-    node.add_component(shape)
     node.add_component(new MovableCenterPosition(node))
     node.add_component(new RadiusSelectionCircleLike(node))
     return node
@@ -258,7 +237,7 @@ const make_spiral: Action = {
 
 export class SpiralPowerup extends DefaultPowerup{
     init(state: GlobalState) {
-        state.pickers.push(new SpiralPickSystem())
+        state.pickers.push(new CirclePickSystem())
         state.renderers.push(new SpiralRendererSystem())
         state.svgexporters.push(new SpiralSVGExporter())
         state.pdfexporters.push(new SpiralPDFExporter())

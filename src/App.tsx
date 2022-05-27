@@ -43,6 +43,7 @@ import {BookmarkPowerup} from "./powerups/bookmark";
 import {SnowflakePowerup} from "./powerups/snowflake";
 import {StandardPowerup} from "./powerups/standard";
 import {import_embedded_png_action} from "./exporters/upload_embedded_png";
+import {NGonPowerup} from "./powerups/ngon";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -146,6 +147,7 @@ export function setup_state():GlobalState {
     state.powerups.push(new BookmarkPowerup())
     state.powerups.push(new PresentationPowerup())
     state.powerups.push(new SnowflakePowerup())
+    state.powerups.push(new NGonPowerup())
     state.powerups.forEach(pow => pow.init(state))
     return state
 }
