@@ -72,7 +72,6 @@ class MouseMoveDelegate implements MouseGestureDelegate {
     press_point: Point | null
     private state: GlobalState;
     private movables: TreeNode[];
-    private start_bounds: Rect[]
     private start_offsets: Point[]
     private start_point: Point | null;
     private snap: boolean;
@@ -82,7 +81,6 @@ class MouseMoveDelegate implements MouseGestureDelegate {
         this.press_point = null
         this.movables = []
         this.start_offsets = []
-        this.start_bounds = []
         this.start_point = null
         this.snap = snap
     }
@@ -105,9 +103,8 @@ class MouseMoveDelegate implements MouseGestureDelegate {
         } else {
             this.state.selection.clear()
         }
-        this.movables = this.state.selection.get().filter(sh => sh.has_component(MovableName) && sh.has_component(RenderBoundsName))
-        this.start_bounds = this.movables.map(nd => ((nd.get_component(RenderBoundsName) as RenderBounds).get_bounds().clone()))
-        this.start_offsets = this.start_bounds.map(bd => pt.subtract(bd.position))
+        this.movables = this.state.selection.get().filter(sh => sh.has_component(MovableName))// && sh.has_component(RenderBoundsName))
+        this.start_offsets = this.movables.map(nd => pt.subtract((nd.get_component(MovableName) as Movable).position()))
         this.refresh_handles(this.state.selection.get())
         this.state.dispatch('selection-change',{})
         this.state.infopanel.position.from_object(this.start_point)
