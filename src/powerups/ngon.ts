@@ -1,20 +1,34 @@
 import {
-    add_child_to_parent, BorderedShape, BorderedShapeName, BorderedShapeObject,
+    add_child_to_parent,
+    BorderedShape,
+    BorderedShapeName,
+    BorderedShapeObject,
     CanvasRenderSurface,
-    CenterPosition, CenterPositionName, Component,
-    DefaultPowerup, FilledShape, FilledShapeName,
-    FilledShapeObject, GlobalState,
-    MovableCenterPosition, MultiComp,
+    CenterPosition,
+    CenterPositionName,
+    Component,
+    DefaultPowerup,
+    FilledShape,
+    FilledShapeName,
+    FilledShapeObject,
+    GlobalState,
+    MovableCenterPosition,
+    MultiComp,
     PageName,
     ParentLikeName,
-    Point, Rect, RenderBounds, RenderBoundsName, RenderingSystem, TreeNode,
+    Point,
+    Rect,
+    RenderBounds,
+    RenderBoundsName,
+    RenderingSystem,
+    SVGExporter,
+    TreeNode,
     TreeNodeImpl
 } from "../common";
 import {Action} from "../actions";
 import {CircleLikeShape, CircleLikeShapeName, CirclePickSystem, RadiusSelectionCircleLike} from "./circle";
-import {SpiralShapeName} from "./spiral";
-import {SpiralEditor} from "./spiral_editor";
 import {NGonEditor} from "./ngon_editor";
+import {apply_svg_border, to_svg} from "../exporters/svg";
 
 export const NGonShapeName = "NGonShapeName"
 export interface NGonShape extends CenterPosition {
@@ -127,6 +141,40 @@ export class NGonRendererSystem implements RenderingSystem {
 
 }
 
+export class NGonSVGExporter implements SVGExporter {
+    name: string;
+    constructor() {
+        this.name = "NGonSVGExporter"
+    }
+
+    canExport(node: TreeNode): boolean {
+        return node.has_component(NGonShapeName)
+    }
+
+    toSVG(node: TreeNode): string {
+        let shape = node.get_component(NGonShapeName) as NGonShape
+        let color = node.get_component(FilledShapeName) as FilledShape
+        let obj:any = {
+            fill:color.get_fill()
+        }
+        apply_svg_border(node,obj)
+
+        let points = []
+        let offset = shape.get_position()
+        let ang = Math.PI*2/shape.get_sides()
+        for(let i=0; i<shape.get_sides(); i++) {
+            let theta = ang*i
+            let x = Math.sin(theta)*shape.get_radius()
+            let y = Math.cos(theta)*shape.get_radius()
+            points.push((x+offset.x).toFixed(1))
+            points.push((y+offset.y).toFixed(1))
+        }
+        obj.points = points.join(",")
+        return to_svg('polyline', obj)
+    }
+
+}
+
 export const make_ngon_action: Action = {
     use_gui: false,
     title: "add ngon",
@@ -151,6 +199,7 @@ export function make_std_ngon(center:Point, radius:number, sides:number, color?:
 export class NGonPowerup extends DefaultPowerup {
     init(state: GlobalState) {
         state.pickers.push(new CirclePickSystem())
+        state.svgexporters.push(new NGonSVGExporter())
         state.renderers.push(new NGonRendererSystem())
     }
 

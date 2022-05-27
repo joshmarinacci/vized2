@@ -1,5 +1,9 @@
 import {
-    add_child_to_parent, BorderedShape, BorderedShapeName, BorderedShapeObject, CanvasRenderSurface,
+    add_child_to_parent,
+    BorderedShape,
+    BorderedShapeName,
+    BorderedShapeObject,
+    CanvasRenderSurface,
     CenterPosition,
     CenterPositionName,
     Component,
@@ -12,11 +16,15 @@ import {
     MovableCenterPosition,
     MovableName,
     MultiComp,
-    PageName, ParentLikeName,
+    PageName,
+    ParentLikeName,
     PickingSystem,
     Point,
     RadiusSelection,
-    RadiusSelectionName, Rect, RenderBounds, RenderBoundsName,
+    RadiusSelectionName,
+    Rect,
+    RenderBounds,
+    RenderBoundsName,
     RenderingSystem,
     SVGExporter,
     TreeNode,
@@ -26,6 +34,7 @@ import {JSONExporter} from "../exporters/json";
 import {hex_to_pdfrgbf, PDFContext, PDFExporter} from "../exporters/pdf";
 import {Action} from "../actions";
 import {CircleLikeEditor} from "./circle_shape_editor";
+import {apply_svg_border, to_svg} from "../exporters/svg";
 
 export const CircleLikeShapeName = "CircleLikeShape"
 export interface CircleLikeShape extends CenterPosition {
@@ -153,8 +162,6 @@ export class CirclePickSystem implements PickingSystem {
 }
 
 
-
-
 export class CircleSVGExporter implements SVGExporter {
     name: string;
     constructor() {
@@ -174,8 +181,8 @@ export class CircleSVGExporter implements SVGExporter {
             r:circle.get_radius(),
             fill:color.get_fill()
         }
-        let pairs = Object.keys(obj).map(k => `${k}='${obj[k]}'`)
-        return '<circle ' + pairs.join(" ") + "/>"
+        apply_svg_border(node,obj)
+        return to_svg('circle', obj)
     }
 
 }

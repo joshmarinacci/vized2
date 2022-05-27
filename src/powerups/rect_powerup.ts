@@ -27,6 +27,7 @@ import {
 import {JSONExporter} from "../exporters/json";
 import {Action} from "../actions";
 import {PDFPage} from "pdf-lib";
+import {apply_svg_border, to_svg} from "../exporters/svg";
 
 const RectShapeName = "RectShape"
 interface RectShape extends Component {
@@ -104,9 +105,8 @@ export class RectSVGExporter implements SVGExporter {
             height:rect.w,
             fill:color.get_fill()
         }
-        // @ts-ignore
-        let pairs = Object.keys(obj).map(k => `${k}='${obj[k]}'`)
-        return '<rect ' + pairs.join(" ") + "/>"
+        apply_svg_border(node,obj)
+        return to_svg('rect',obj)
     }
 
 }

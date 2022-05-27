@@ -1,4 +1,12 @@
-import {forceDownloadBlob, System, TreeNode, GlobalState, DefaultPowerup} from "../common";
+import {
+    BorderedShape,
+    BorderedShapeName,
+    DefaultPowerup,
+    forceDownloadBlob,
+    GlobalState,
+    System,
+    TreeNode
+} from "../common";
 import {Action} from "../actions";
 
 export function treenode_to_SVG(node: TreeNode, state: GlobalState) {
@@ -35,4 +43,21 @@ export class SVGPowerup extends DefaultPowerup {
         }
         return [action]
     }
+}
+
+export function apply_svg_border(node: TreeNode, obj: any): void {
+    if (node.has_component(BorderedShapeName)) {
+        let bd: BorderedShape = node.get_component(BorderedShapeName) as BorderedShape
+        if (bd.get_border_width() > 0) {
+            // @ts-ignore
+            obj['stroke'] = bd.get_border_fill()
+            // @ts-ignore
+            obj['stroke-width'] = bd.get_border_width()
+        }
+    }
+}
+
+export function to_svg(name: string, obj: any) {
+    let pairs = Object.keys(obj).map(k => `${k}='${obj[k]}'`)
+    return `<${name} ${pairs.join(" ")}/>`
 }
