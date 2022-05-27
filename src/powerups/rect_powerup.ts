@@ -131,7 +131,8 @@ export class RectPDFExporter implements PDFExporter {
             y:rect.y,
             width:rect.w,
             height:rect.h,
-            color:hex_to_pdfrgbf(color.get_fill())})
+            color:hex_to_pdfrgbf(color.get_fill())
+        })
     }
 
 }

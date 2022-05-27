@@ -29,6 +29,7 @@ import {Action} from "../actions";
 import {CircleLikeShape, CircleLikeShapeName, CirclePickSystem, RadiusSelectionCircleLike} from "./circle";
 import {NGonEditor} from "./ngon_editor";
 import {apply_svg_border, to_svg} from "../exporters/svg";
+import {hex_to_pdfrgbf, PDFContext, PDFExporter} from "../exporters/pdf";
 
 export const NGonShapeName = "NGonShapeName"
 export interface NGonShape extends CenterPosition {
@@ -196,10 +197,43 @@ export function make_std_ngon(center:Point, radius:number, sides:number, color?:
 }
 
 
+class NGonPDFExporter implements PDFExporter {
+    name: string;
+    constructor() {
+        this.name = 'NGonPDFExporter'
+    }
+
+    canExport(node: TreeNode): boolean {
+        return node.has_component(NGonShapeName)
+    }
+
+    toPDF(ctx: PDFContext, node: TreeNode, state: GlobalState): void {
+        let page = ctx.currentPage
+        let shape:NGonShape = node.get_component(NGonShapeName) as NGonShape
+        let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
+        let bd:BorderedShape = node.get_component(BorderedShapeName) as BorderedShape
+
+        let offset = shape.get_position()
+        let ang = Math.PI*2/shape.get_sides()
+        let prev = {x:0,y:0}
+        for(let i=0; i<shape.get_sides(); i++) {
+            let theta = ang*i
+            let cur = {x:0,y:0}
+            cur.x = offset.x+Math.sin(theta)*shape.get_radius()
+            cur.y = offset.y+Math.cos(theta)*shape.get_radius()
+            if(i !== 0) {
+                page.drawLine({start:prev, end: cur, color:hex_to_pdfrgbf(bd.get_border_fill()), thickness:bd.get_border_width()})
+            }
+            prev = cur
+        }
+    }
+}
+
 export class NGonPowerup extends DefaultPowerup {
     init(state: GlobalState) {
         state.pickers.push(new CirclePickSystem())
         state.svgexporters.push(new NGonSVGExporter())
+        state.pdfexporters.push(new NGonPDFExporter())
         state.renderers.push(new NGonRendererSystem())
     }
 
