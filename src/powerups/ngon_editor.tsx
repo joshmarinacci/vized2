@@ -1,4 +1,3 @@
-import {SpiralShapeObject} from "./spiral";
 import {GlobalState} from "../common";
 import {NumberEditor} from "../comps";
 import React from "react";

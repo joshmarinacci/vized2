@@ -64,9 +64,11 @@ export class RectRendererSystem implements RenderingSystem {
 
             if(node.has_component(BorderedShapeName)) {
                 let bd = (node.get_component(BorderedShapeName) as BorderedShape)
-                ctx.strokeStyle = bd.get_border_fill()
-                ctx.lineWidth = bd.get_border_width()
-                ctx.strokeRect(rect.x,rect.y,rect.w,rect.h)
+                if(bd.get_border_width() > 0) {
+                    ctx.strokeStyle = bd.get_border_fill()
+                    ctx.lineWidth = bd.get_border_width()
+                    ctx.strokeRect(rect.x, rect.y, rect.w, rect.h)
+                }
             }
 
             if (surf.selectionEnabled && state.selection.has(node)) {

@@ -70,9 +70,12 @@ export function BorderedShapeEditor(props: { comp: BorderedShape, state: GlobalS
     return <div className={"prop-grid"}>
         <h3>Bordered Shape</h3>
         <label>border width</label>
-        <NumberEditor value={props.comp.get_border_width()} set_value={(v: number) => {
-            props.comp.set_border_width(v)
-        }} state={props.state} live={true}/>
+        <NumberEditor value={props.comp.get_border_width()}
+                      set_value={(v: number) => props.comp.set_border_width(v)}
+                      state={props.state}
+                      live={true}
+                      min={0}
+        />
 
         <PaletteColorPicker state={props.state} color={props.comp.get_border_fill()} on_change={(c:any)=>{
             props.comp.set_border_fill(c)

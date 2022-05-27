@@ -1,5 +1,5 @@
 import {
-    add_child_to_parent,
+    add_child_to_parent, BorderedShape, BorderedShapeName, BorderedShapeObject,
     CanvasRenderSurface,
     CenterPosition, CenterPositionName, Component,
     DefaultPowerup, FilledShape, FilledShapeName,
@@ -98,13 +98,21 @@ export class NGonRendererSystem implements RenderingSystem {
                 let x = Math.sin(theta)*shape.get_radius()
                 let y = Math.cos(theta)*shape.get_radius()
                 if(i===0) {
-                    ctx.moveTo(x, y)
+                    ctx.moveTo(x,y)
                 } else {
                     ctx.lineTo(x,y)
                 }
             }
             ctx.closePath()
             ctx.fill()
+            if(node.has_component(BorderedShapeName)) {
+                let bd = (node.get_component(BorderedShapeName) as BorderedShape)
+                if (bd.get_border_width() > 0) {
+                    ctx.strokeStyle = bd.get_border_fill()
+                    ctx.lineWidth = bd.get_border_width()
+                    ctx.stroke()
+                }
+            }
             if(state.selection.has(node)) {
                 ctx.strokeStyle = 'magenta'
                 ctx.lineWidth = 3.5
@@ -133,6 +141,7 @@ export function make_std_ngon(center:Point, radius:number, sides:number, color?:
     node.title = 'ngon'
     node.add_component(new NGonShapeObject(center, radius, sides))
     node.add_component(new FilledShapeObject(color?color:"#ffcccc"))
+    node.add_component(new BorderedShapeObject("#000000"))
     node.add_component(new MovableCenterPosition(node))
     node.add_component(new RadiusSelectionCircleLike(node))
     return node

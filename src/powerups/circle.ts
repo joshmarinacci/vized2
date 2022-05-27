@@ -1,5 +1,5 @@
 import {
-    add_child_to_parent, CanvasRenderSurface,
+    add_child_to_parent, BorderedShape, BorderedShapeName, BorderedShapeObject, CanvasRenderSurface,
     CenterPosition,
     CenterPositionName,
     Component,
@@ -113,6 +113,15 @@ export class CircleRendererSystem implements RenderingSystem {
             ctx.arc(shape.get_position().x, shape.get_position().y,shape.get_radius(),0,Math.PI*2)
             ctx.closePath()
             ctx.fill()
+            if(node.has_component(BorderedShapeName)) {
+                let bd = (node.get_component(BorderedShapeName) as BorderedShape)
+                if(bd.get_border_width() > 0) {
+                    ctx.strokeStyle = bd.get_border_fill()
+                    ctx.lineWidth = bd.get_border_width()
+                    ctx.stroke()
+                }
+            }
+
             if(surf.selectionEnabled && state.selection.has(node)) {
                 ctx.strokeStyle = 'magenta'
                 ctx.lineWidth = 3.5
@@ -224,11 +233,11 @@ export class RadiusHandle extends Handle {
 export function make_std_circle(center:Point, radius:number, color?:string):TreeNodeImpl {
     let circle = new TreeNodeImpl()
     circle.title = 'circle'
-    let shape = new CircleShapeObject(center, radius)
-    circle.add_component(shape)
+    circle.add_component(new CircleShapeObject(center, radius))
     circle.add_component(new MovableCenterPosition(circle))
     circle.add_component(new RadiusSelectionCircleLike(circle))
     circle.add_component(new FilledShapeObject(color?color:"#ffcccc"))
+    circle.add_component(new BorderedShapeObject("#000000"))
     return circle
 }
 
