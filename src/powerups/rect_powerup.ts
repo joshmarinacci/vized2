@@ -203,9 +203,7 @@ export const make_rectangle: Action = {
     use_gui: false,
     title: "add rectangle",
     fun(node: TreeNode, state: GlobalState): void {
-        let rect1 = make_std_rect(new Rect(10, 10, 100, 100))
-        add_child_to_parent(rect1, node)
-        state.dispatch('object-changed', {})
+        state.add_and_select(make_std_rect(new Rect(10, 10, 100, 100)),node)
     }
 }
 

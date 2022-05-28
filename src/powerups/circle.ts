@@ -248,12 +248,11 @@ export function make_std_circle(center:Point, radius:number, color?:string):Tree
     return circle
 }
 
-export const make_circle: Action = {
+const make_circle: Action = {
     use_gui: false,
     title: "add circle",
     fun(node: TreeNode, state: GlobalState): void {
-        add_child_to_parent(make_std_circle(new Point(100,100),20), node)
-        state.dispatch('object-changed', {})
+        state.add_and_select(make_std_circle(new Point(100,100),20),node)
     }
 }
 

@@ -220,8 +220,7 @@ export const make_image: Action = {
     title: "add image",
     fun(node: TreeNode, state: GlobalState): void {
         let image = make_image_node("https://vr.josh.earth/assets/2dimages/saturnv.jpg",state, 0.2)
-        add_child_to_parent(image, node)
-        state.dispatch('object-changed', {})
+        state.add_and_select(image,node)
     }
 }
 

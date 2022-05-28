@@ -229,8 +229,7 @@ const make_spiral: Action = {
     title: "add spiral",
     fun(node: TreeNode, state: GlobalState): void {
         let circle = make_std_spiral(new Point(100,200),15)
-        add_child_to_parent(circle, node)
-        state.dispatch('object-changed', {})
+        state.add_and_select(circle,node)
     }
 }
 

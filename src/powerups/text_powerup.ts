@@ -408,8 +408,7 @@ export const make_text: Action = {
         text.add_component(new MovableBoundedShape(text))
         text.add_component(new ResizableRectObject(text))
         text.add_component(new FilledShapeObject('#000000'))
-        add_child_to_parent(text, node)
-        state.dispatch('object-changed', {})
+        state.add_and_select(text,node)
     }
 }
 

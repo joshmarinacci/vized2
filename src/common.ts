@@ -204,6 +204,12 @@ export class GlobalState {
         let data_url = await file_to_DataURL(file)
         return await this.add_image_from_url(data_url)
     }
+
+    add_and_select(child: TreeNode, parent: TreeNode) {
+        add_child_to_parent(child, parent)
+        this.selection.set([child])
+        this.dispatch('object-changed', {})
+    }
 }
 
 // @ts-ignore

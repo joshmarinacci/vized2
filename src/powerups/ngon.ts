@@ -176,12 +176,11 @@ export class NGonSVGExporter implements SVGExporter {
 
 }
 
-export const make_ngon_action: Action = {
+const make_ngon_action: Action = {
     use_gui: false,
     title: "add ngon",
     fun(node: TreeNode, state: GlobalState): void {
-        add_child_to_parent(make_std_ngon(new Point(50,50),20, 5), node)
-        state.dispatch('object-changed', {})
+        state.add_and_select(make_std_ngon(new Point(50,50),20, 5), node)
     }
 }
 

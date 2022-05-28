@@ -116,8 +116,7 @@ export const make_snowflake_action: Action = {
     use_gui: false,
     title: "add snowflake",
     fun(node: TreeNode, state: GlobalState): void {
-        add_child_to_parent(make_std_snowflake(), node)
-        state.dispatch('object-changed', {})
+        state.add_and_select(make_std_snowflake(), node)
     }
 }
 

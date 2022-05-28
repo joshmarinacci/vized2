@@ -198,8 +198,7 @@ const make_group: Action = {
     use_gui: false,
     title: "add group",
     fun(node: TreeNode, state: GlobalState): void {
-        add_child_to_parent(make_std_group(), node)
-        state.dispatch('object-changed', {})
+        state.add_and_select(make_std_group(),node)
     }
 }
 
