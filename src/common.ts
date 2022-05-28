@@ -606,10 +606,10 @@ export class BorderedShapeObject implements BorderedShape {
     name: string;
     private fill:any;
     private width:number;
-    constructor(color:string) {
+    constructor(color:string, width:number=1) {
         this.name = BorderedShapeName
         this.fill = color
-        this.width = 1
+        this.width = width
     }
 
     get_border_fill(): any {

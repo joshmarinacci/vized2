@@ -13,6 +13,7 @@ import {CirclePowerup, make_std_circle} from "../powerups/circle";
 import {PDFPowerup} from "../exporters/pdf";
 import assert from "assert";
 import {test_from_json, test_to_json} from "../exporters/json";
+import * as util from "util";
 
 function make_simple_doc(state:GlobalState) {
     let root = make_empty_doc(state)
@@ -51,7 +52,7 @@ function compareNode(root1:TreeNodeImpl, root2:TreeNodeImpl) {
 
 }
 
-test('tojson',()=> {
+test('tojson_simple',()=> {
     let state1 = new GlobalState()
     state1.powerups.push(new StandardPowerup())
     state1.powerups.push(new BoundedShapePowerup())
@@ -71,4 +72,22 @@ test('tojson',()=> {
     compareNode(root1,root2)
 })
 
+test('tojson_border',()=> {
+    let state1 = new GlobalState()
+    state1.powerups.push(new StandardPowerup())
+    state1.powerups.push(new BoundedShapePowerup())
+    state1.powerups.push(new CirclePowerup())
+    state1.powerups.push(new RectPowerup())
+    state1.powerups.push(new PDFPowerup())
+    state1.powerups.forEach(pow => pow.init(state1))
+
+    // make test doc
+    let root1 = make_empty_doc(state1)
+    let circ = make_std_circle(new Point(100,100),10)
+    add_child_to_parent(circ, root1)
+    let obj = test_to_json(root1,state1)
+    // console.log("obj is",util.inspect(obj,{depth:20}))
+    let root2 = test_from_json(obj, state1)
+    compareNode(root1,root2)
+})
 

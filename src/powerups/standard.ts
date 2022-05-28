@@ -1,5 +1,5 @@
 import {
-    BorderedShapeName,
+    BorderedShapeName, BorderedShapeObject,
     CenterPositionName, Component,
     DefaultPowerup,
     DocMarker, FilledShapeName,
@@ -79,6 +79,7 @@ export class StandardPowerup extends DefaultPowerup {
         this.simple_comps.push(DocMarker)
         this.simple_comps.push(PageMarker)
         this.simple_comps.push(MovableCenterPosition)
+        this.simple_comps.push(BorderedShapeObject)
     }
 
     override new_doc_actions(): Action[] {
@@ -115,6 +116,10 @@ export class StandardPowerup extends DefaultPowerup {
             let fso = comp as FilledShapeObject
             return { powerup:this.constructor.name, klass:comp.constructor.name, fill: fso.get_fill(), fill_type:fso.get_fill_type()}
         }
+        if(comp instanceof BorderedShapeObject) {
+            let bso = comp as BorderedShapeObject
+            return { powerup:this.constructor.name, klass:comp.constructor.name, border_fill: bso.get_border_fill(), border_width:bso.get_border_width()}
+        }
         return super.serialize(comp,node,state)
     }
 
@@ -122,6 +127,7 @@ export class StandardPowerup extends DefaultPowerup {
         if(obj.klass === DocMarker.name) return new DocMarker()
         if(obj.klass === PageMarker.name) return new PageMarker()
         if(obj.klass === FilledShapeObject.name) return new FilledShapeObject(obj.fill)
+        if(obj.klass === BorderedShapeObject.name) return new BorderedShapeObject(obj.border_fill, obj.border_width)
         if(obj.klass === MovableCenterPosition.name) {
             // @ts-ignore
             return new MovableCenterPosition(node)
