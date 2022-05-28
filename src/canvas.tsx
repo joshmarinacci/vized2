@@ -75,14 +75,18 @@ class MouseMoveDelegate implements MouseGestureDelegate {
     private start_offsets: Point[]
     private start_point: Point | null;
     private snap: boolean;
+    private snap_grid:boolean;
+    private snap_grid_size:number;
 
-    constructor(state: GlobalState, snap:boolean) {
+    constructor(state: GlobalState, snap:boolean, snap_grid:boolean) {
         this.state = state
         this.press_point = null
         this.movables = []
         this.start_offsets = []
         this.start_point = null
         this.snap = snap
+        this.snap_grid = snap_grid
+        this.snap_grid_size = 16
     }
 
     press(e: MouseEvent, pt:Point, root:TreeNode) {
@@ -152,6 +156,12 @@ class MouseMoveDelegate implements MouseGestureDelegate {
                 check_h_snap(mov,page_bounds.y,node_bounds.y,this.state)
                 check_h_snap(mov,page_bounds.center().y,node_bounds.center().y,this.state)
                 check_h_snap(mov,page_bounds.y2,node_bounds.y2,this.state)
+            }
+            if(this.snap_grid) {
+                let pos = mov.position().clone()
+                pos.x = Math.floor(pos.x/this.snap_grid_size)*this.snap_grid_size
+                pos.y = Math.floor(pos.y/this.snap_grid_size)*this.snap_grid_size
+                mov.moveTo(pos)
             }
             last_mov = mov
         }
@@ -317,7 +327,8 @@ export function CanvasView(props:{}) {
     let state = useContext(GlobalStateContext)
     const [pan_offset, set_pan_offset] = useState(new Point(0,0))
     const [zoom_level, set_zoom_level] = useState(0)
-    const [snap_enabled, set_snap_enabled] = useState(true)
+    const [snap_bounds, set_snap_bounds] = useState(true)
+    const [snap_grid, set_snap_grid] = useState(false)
     const scale = Math.pow(1.5,zoom_level)
     const [delegate, set_delegate] = useState<MouseGestureDelegate|null>()
     const [is_inset, set_is_inset] = useState(false)
@@ -469,7 +480,7 @@ export function CanvasView(props:{}) {
         if (hand) {
             del =  new HandleMoveDelegate(state,hand)
         } else {
-            del = new MouseMoveDelegate(state,snap_enabled)
+            del = new MouseMoveDelegate(state,snap_bounds, snap_grid)
         }
         del.press(e,pt,current_root)
         set_delegate(del)
@@ -531,7 +542,8 @@ export function CanvasView(props:{}) {
             <label>{(scale*100).toFixed(0)}</label>
             <button onClick={()=>{set_zoom_level(zoom_level-1)}}>zoom out</button>
             <button disabled={!is_inset} onClick={()=>exit_inset()}>exit</button>
-            <ToggleButton selected={snap_enabled} onClick={()=>set_snap_enabled(!snap_enabled)}>snap</ToggleButton>
+            <ToggleButton selected={snap_bounds} onClick={()=>set_snap_bounds(!snap_bounds)}>snap bounds</ToggleButton>
+            <ToggleButton selected={snap_grid} onClick={()=>set_snap_grid(!snap_grid)}>snap grid</ToggleButton>
         </Toolbar>
         <div className={'canvas-wrapper grow'}>
             {/*<div className={'canvas-sizer'} style={{width:min_bounds.w+'px', height:min_bounds.h+'px'}}/>*/}
