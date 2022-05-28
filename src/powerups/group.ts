@@ -53,7 +53,7 @@ import {
     ParentLikeName,
     RenderBoundsName,
     RenderBounds,
-    CanvasRenderSurface
+    CanvasRenderSurface, Component
 } from "../common";
 import {SVGExporter, treenode_to_SVG} from "../exporters/svg";
 import {cssToPdfColor, PDFContext, PDFExporter, treenode_to_PDF} from "../exporters/pdf";
@@ -216,5 +216,29 @@ export class GroupPowerup extends DefaultPowerup{
             return [make_group]
         }
         return [];
+    }
+
+    override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
+        if(comp instanceof GroupShapeObject) return true
+        return super.can_serialize(comp, node, state);
+    }
+
+    override serialize(comp: Component, node: TreeNode, state: GlobalState): any {
+        if(comp instanceof GroupShapeObject) {
+            let g = comp as GroupShapeObject
+            return {
+                powerup: this.constructor.name,
+                klass: comp.constructor.name,
+                position: g.get_position(),
+            }
+        }
+        return super.serialize(comp, node, state);
+    }
+
+    override deserialize(obj: any, node: TreeNode, state: GlobalState): Component {
+        if(obj.klass === GroupShapeObject.name) {
+            return new GroupShapeObject(node, new Point(obj.position.x,obj.position.y))
+        }
+        return super.deserialize(obj, node, state);
     }
 }
