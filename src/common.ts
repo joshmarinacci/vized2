@@ -692,9 +692,14 @@ export class SelectionSystem implements System{
     }
 }
 
-export abstract class Handle extends Rect {
+export abstract class Handle {
+    x: number;
+    y: number;
+    size: number;
     protected constructor(x:number, y:number) {
-        super(x,y,10,10);
+        this.x = x
+        this.y = y
+        this.size = 10
     }
     update_from_node() {
 
@@ -705,6 +710,12 @@ export abstract class Handle extends Rect {
     }
 
     abstract display_value():string
+
+    contains(pt: Point, ppu: number) {
+        let s = this.size/ppu
+        let r = new Rect(this.x-s/2,this.y-s/2,s,s)
+        return r.contains(pt)
+    }
 }
 
 export function forceDownloadBlob(title:string, blob:Blob) {

@@ -315,16 +315,28 @@ class SnapsOverlay implements CanvasOverlay {
     }
 }
 
+function make_centered_square(point: Point, number: number) {
+    return new Rect(
+        point.x-number/2,
+        point.y-number/2,
+        number,
+        number,
+    )
+}
+
 class HandlesOverlay implements CanvasOverlay {
     draw(state: GlobalState, surf: CanvasRenderSurface, page: TreeNode): void {
+        let pg = page.get_component(PageName) as PageMarker
         let off = new Point(0,0)
         if(page.has_component(ParentLikeName)) {
             let pt = (page.get_component(ParentLikeName) as ParentLike).get_position()
             off = pt
         }
         state.active_handles.forEach(hand => {
-            surf.ctx.fillStyle = 'yellow'
-            surf.ctx.fillRect(off.x+hand.x, off.y+hand.y, hand.w, hand.h)
+            surf.ctx.fillStyle = '#e28f14'
+            let r = make_centered_square(new Point(hand.x,hand.y).multiply(pg.ppu),hand.size)
+            r = r.translate(off)
+            surf.ctx.fillRect(r.x, r.y,r.w,r.h)
         })
     }
 }
@@ -381,7 +393,7 @@ export function CanvasView(props:{}) {
 
     const over_handle = (e: MouseEvent) => {
         let pt = toRootPoint(e)
-        return state.active_handles.find((hand:Handle) => hand.contains(pt))
+        return state.active_handles.find((hand:Handle) => hand.contains(pt,pg.ppu))
     }
 
     const over_parent = (e:MouseEvent):TreeNode|null => {

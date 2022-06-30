@@ -74,8 +74,8 @@ export class BoundedShapeHandle extends Handle {
 
     update_from_node() {
         let bd: BoundedShape = this.node.get_component(BoundedShapeName) as BoundedShape
-        this.x = bd.get_bounds().x + bd.get_bounds().w - 5
-        this.y = bd.get_bounds().y + bd.get_bounds().h - 5
+        this.x = bd.get_bounds().x + bd.get_bounds().w
+        this.y = bd.get_bounds().y + bd.get_bounds().h
     }
 
     override moveBy(diff: Point) {
@@ -87,14 +87,14 @@ export class BoundedShapeHandle extends Handle {
     private update_to_node() {
         let bd: BoundedShape = this.node.get_component(BoundedShapeName) as BoundedShape
         let bdd = bd.get_bounds()
-        bdd.w = this.x - bdd.x + this.w / 2
-        bdd.h = this.y - bdd.y + this.h / 2
+        bdd.w = this.x - bdd.x
+        bdd.h = this.y - bdd.y
     }
 
     display_value(): string {
         let bd: BoundedShape = this.node.get_component(BoundedShapeName) as BoundedShape
         let bdd = bd.get_bounds()
-        return `${bdd.w} x ${bdd.h}`;
+        return `${bdd.w.toFixed(2)} x ${bdd.h.toFixed(2)}`;
     }
 }
 
