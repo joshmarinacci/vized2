@@ -464,12 +464,22 @@ export class DocMarker implements Doc {
         this.name = DocName
     }
 }
+
+export enum Unit {
+    Pixels,
+    Centimeter,
+}
+
 export const PageName = 'PageName'
-export interface Page extends Component {}
+export interface Page extends Component {
+    unit:Unit
+}
 export class PageMarker implements Page {
     name: string;
+    unit: Unit;
     constructor() {
         this.name = PageName
+        this.unit = Unit.Pixels
     }
 
 }

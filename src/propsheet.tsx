@@ -49,7 +49,7 @@ export function PropSheet(props: {}) {
             let name = obj.name
             let comp = node.get_component(name)
             let Editor = obj.ed
-            return <Editor key={i} comp={comp} state={state}/>
+            return <Editor key={i} comp={comp} state={state} node={node}/>
         })}
         {/*    return <h4 key={comp.name}>{comp.name}</h4>*/}
     </div>
