@@ -60,6 +60,7 @@ export class RectRendererSystem implements RenderingSystem {
             } else {
                 ctx.fillStyle = 'magenta'
             }
+            rect = rect.scale(surf.ppu)
             ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
 
 

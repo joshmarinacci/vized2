@@ -1,9 +1,13 @@
 import {
-    forceDownloadBlob,
-    TreeNode,
-    GlobalState,
+    CanvasRenderSurface,
     DefaultPowerup,
-    ParentDrawChildrenName, ParentLikeName, ParentLike, CanvasRenderSurface
+    forceDownloadBlob,
+    GlobalState,
+    ParentDrawChildrenName,
+    ParentLike,
+    ParentLikeName,
+    TreeNode,
+    Unit
 } from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {Action} from "../actions";
@@ -44,7 +48,10 @@ export function export_PNG(root: TreeNode, state: GlobalState):HTMLCanvasElement
     let surf:CanvasRenderSurface = {
         ctx: ctx,
         selectionEnabled: true,
-        inset:false
+        inset:false,
+        ppu: 100,
+        scale: 1,
+        unit: Unit.Pixels,
     }
     root.children.forEach(ch => to_PNG(surf, ch, state))
     return canvas

@@ -394,12 +394,12 @@ export class Rect {
         return new Rect(this.x+position.x,this.y+position.y,this.w,this.h)
     }
 
-    grow(value:number) {
+    grow(pt:Point) {
         return new Rect(
-            this.x - value,
-            this.y - value,
-            this.w + value+value,
-            this.h + value+value,
+            this.x - pt.x,
+            this.y - pt.y,
+            this.w + pt.x+pt.x,
+            this.h + pt.y+pt.y,
         )
     }
 
@@ -468,6 +468,7 @@ export class DocMarker implements Doc {
 export enum Unit {
     Pixels,
     Centimeter,
+    Inch,
 }
 
 export const PageName = 'PageName'
@@ -477,9 +478,11 @@ export interface Page extends Component {
 export class PageMarker implements Page {
     name: string;
     unit: Unit;
+    ppu: number;
     constructor() {
         this.name = PageName
         this.unit = Unit.Pixels
+        this.ppu = 1
     }
 
 }
@@ -520,8 +523,11 @@ export interface System {
 }
 export interface CanvasRenderSurface {
     ctx:CanvasRenderingContext2D,
-    selectionEnabled:boolean
-    inset:boolean
+    selectionEnabled:boolean,
+    inset:boolean,
+    unit:Unit,
+    ppu:number,
+    scale:number
 }
 
 export interface RenderingSystem extends System {

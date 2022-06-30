@@ -6,7 +6,7 @@ import {
     GlobalStateContext,
     Handle, InfoPanel,
     Movable,
-    MovableName, ParentDrawChildrenName, ParentLike, ParentLikeName,
+    MovableName, PageMarker, PageName, ParentDrawChildrenName, ParentLike, ParentLikeName,
     Point, RadiusSelection, RadiusSelectionName, Rect, RenderBounds, RenderBoundsName,
     Resizable,
     ResizableName,
@@ -34,6 +34,7 @@ import {
     find_page_for_selection,
     strokeRect
 } from "./util";
+import {unit_abbr} from "./units";
 
 function draw_node(state:GlobalState, surf:CanvasRenderSurface, node: TreeNode) {
     //draw the current node
@@ -354,7 +355,8 @@ export function CanvasView(props:{}) {
     })
 
     const SLOP = new Point(100,100)
-    const min_bounds = calc_total_min_bounds(current_page).grow(SLOP.x)
+    let pg = current_page.get_component(PageName) as PageMarker
+    const min_bounds = calc_total_min_bounds(current_page).scale(pg.ppu).grow(SLOP)
 
     function toRootPoint(e: MouseEvent) {
         let target: HTMLElement = e.target as HTMLElement
@@ -394,6 +396,7 @@ export function CanvasView(props:{}) {
         // console.log("inset",is_inset,'current_root',current_root.title)
         if(!current_root) return
         if(!canvas.current) return
+        let pg = current_page.get_component(PageName) as PageMarker
         let can = canvas.current as HTMLCanvasElement
         let ctx = can.getContext('2d') as CanvasRenderingContext2D
         //real size of the canvas
@@ -411,6 +414,9 @@ export function CanvasView(props:{}) {
             ctx: ctx,
             selectionEnabled: true,
             inset:is_inset,
+            unit:pg.unit,
+            ppu:pg.ppu,
+            scale:scale
         }
         draw_node(state, surf, current_page)
         let overlays:CanvasOverlay[] = []
@@ -425,6 +431,17 @@ export function CanvasView(props:{}) {
             let child_bounds = parent.get_child_bounds()
             strokeRect(ctx,child_bounds,'aqua')
             fillRectHole(ctx,min_bounds,child_bounds,'rgba(255,0,0,0.2)')
+        }
+        {
+            ctx.save()
+            ctx.translate(-10,-100)
+            ctx.fillStyle = 'white'
+            ctx.scale(1,1)
+            ctx.font = '12pt sans-serif'
+            ctx.fillRect(0,0,400,30)
+            ctx.fillStyle = 'black'
+            ctx.fillText(`z${zoom_level}=s${scale} unit=${unit_abbr(pg.unit)} ppu=${pg.ppu}`,5,20)
+            ctx.restore()
         }
         ctx.restore()
     }
