@@ -1,9 +1,8 @@
-import {GlobalState, TreeNode} from "../common";
-import {NumberEditor} from "../comps";
+import {EditorProps, NumberEditor} from "../comps";
 import React from "react";
 import {NGonShapeObject} from "./ngon";
 
-export function NGonEditor(props: { comp: NGonShapeObject, state: GlobalState, node:TreeNode }) {
+export function NGonEditor(props: EditorProps<NGonShapeObject>){//{ comp: NGonShapeObject, state: GlobalState, node:TreeNode }) {
     return <div className={"prop-grid"}>
         <h3>NGon Shape</h3>
         <label>sides</label>

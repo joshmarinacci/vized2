@@ -1,8 +1,9 @@
-import {FilledShape, GlobalState, Point} from "../common";
-import React, {useEffect, useRef, useState} from "react";
+import {FilledShape} from "../common";
+import React from "react";
 import {PaletteColorPicker} from "./filled_border_editor";
+import {EditorProps} from "../comps";
 
-export function FilledShapeEditor(props: { comp: FilledShape, state: GlobalState }) {
+export function FilledShapeEditor(props: EditorProps<FilledShape>) {
     // let patterns_canvas = useRef<HTMLCanvasElement>(null)
     //     if (patterns_canvas.current) {
     //         let can = patterns_canvas.current as HTMLCanvasElement

@@ -1,9 +1,8 @@
 import {TextShapeObject} from "./text_powerup";
-import {GlobalState, TreeNode} from "../common";
 import React, {useEffect, useState} from "react";
-import {NumberEditor} from "../comps";
+import {EditorProps, NumberEditor} from "../comps";
 
-export function TextShapeEditor(props: { comp: TextShapeObject, state: GlobalState, node:TreeNode }) {
+export function TextShapeEditor(props: EditorProps<TextShapeObject>) {
     const [content, set_content] = useState(props.comp.get_content())
     const [halign, set_halign] = useState(props.comp.get_halign())
     const [valign, set_valign] = useState(props.comp.get_valign())

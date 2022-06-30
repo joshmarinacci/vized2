@@ -1,6 +1,6 @@
 import {BASIC_COLORS, BorderedShape, GlobalState, Point, TreeNode} from "../common";
 import React, {useEffect, useRef, useState} from "react";
-import {NumberEditor} from "../comps";
+import {EditorProps, NumberEditor} from "../comps";
 
 export function PaletteColorPicker(props: { state:GlobalState, color:any, on_change:any}) {
     const [pal, set_pal] = useState(BASIC_COLORS)
@@ -66,7 +66,7 @@ export function PaletteColorPicker(props: { state:GlobalState, color:any, on_cha
     </div>
 }
 
-export function BorderedShapeEditor(props: { comp: BorderedShape, state: GlobalState, node:TreeNode }) {
+export function BorderedShapeEditor(props: EditorProps<BorderedShape>) {
     return <div className={"prop-grid"}>
         <h3>Bordered Shape</h3>
         <label>border width</label>

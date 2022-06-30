@@ -1,8 +1,8 @@
 import {CenterPosition, GlobalState, TreeNode} from "../common";
 import React, {useState} from "react";
-import {NumberEditor} from "../comps";
+import {EditorProps, NumberEditor} from "../comps";
 
-export function CenterPositionEditor(props: { comp: CenterPosition, state: GlobalState, node:TreeNode }) {
+export function CenterPositionEditor(props: EditorProps<CenterPosition>) {
     let comp = props.comp
     const [position, set_position] = useState(comp.get_position())
 

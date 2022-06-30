@@ -1,9 +1,8 @@
-import {GlobalState, TreeNode} from "../common";
 import React, {useState} from "react";
-import {NumberEditor} from "../comps";
+import {EditorProps, NumberEditor} from "../comps";
 import {Snowflake, SnowflakeMode} from "./snowflake";
 
-export function SnowflakeEditor(props: { comp: Snowflake, state: GlobalState, node:TreeNode }) {
+export function SnowflakeEditor(props: EditorProps<Snowflake>) {
     const [mode, set_mode] = useState(props.comp.get_mode())
     let comp = props.comp
     return <div className={"prop-grid"}>

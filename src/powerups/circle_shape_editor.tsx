@@ -1,10 +1,8 @@
-import {GlobalState, PageMarker, PageName, TreeNode, Unit} from "../common";
 import React from "react";
-import {NumberEditor} from "../comps";
+import {EditorProps, NumberEditor} from "../comps";
 import {CircleLikeShape} from "./circle";
-import {find_page_for_node} from "../util";
 
-export function CircleLikeEditor(props: { comp: CircleLikeShape, state: GlobalState, node:TreeNode }) {
+export function CircleLikeEditor(props: EditorProps<CircleLikeShape>) {
     return <div className={"prop-grid"}>
         <h3>Radius</h3>
         <label>radius</label>

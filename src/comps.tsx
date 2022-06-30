@@ -102,3 +102,8 @@ export function ToggleButton(props: { onClick: () => void, children: ReactNode, 
     return <button style={style} onClick={props.onClick}>{props.children}</button>
 }
 
+export type EditorProps<E> = {
+    comp: E,
+    state: GlobalState,
+    node: TreeNode,
+}

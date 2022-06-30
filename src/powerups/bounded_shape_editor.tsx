@@ -1,9 +1,8 @@
 import {BoundedShape} from "../bounded_shape";
-import {GlobalState, TreeNode} from "../common";
-import {NumberEditor} from "../comps";
+import {EditorProps, NumberEditor} from "../comps";
 import React from "react";
 
-export function BoundedShapeEditor(props: { comp: BoundedShape, state: GlobalState, node:TreeNode }) {
+export function BoundedShapeEditor(props:EditorProps<BoundedShape>) {
     let rect = props.comp.get_bounds()
     return <div className={"prop-grid"}>
         <h3>Bounded Shape</h3>

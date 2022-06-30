@@ -1,9 +1,8 @@
-import {GlobalState, TreeNode} from "../common";
-import React, {useState} from "react";
+import React from "react";
 import {SpiralShapeObject} from "./spiral";
-import {NumberEditor} from "../comps";
+import {EditorProps, NumberEditor} from "../comps";
 
-export function SpiralEditor(props: { comp: SpiralShapeObject, state: GlobalState, node:TreeNode }) {
+export function SpiralEditor(props: EditorProps<SpiralShapeObject>) {
     return <div className={"prop-grid"}>
         <h3>Spiral Shape</h3>
         <label>wrap</label>
