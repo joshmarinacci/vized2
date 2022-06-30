@@ -1,6 +1,7 @@
 import React, {ReactNode, useEffect, useState} from "react";
-import {GlobalState, Unit} from "./common";
+import {GlobalState, PageMarker, PageName, TreeNode, Unit} from "./common";
 import {convert_unit, unit_abbr} from "./units";
+import {find_page_for_node} from "./util";
 
 export function Toolbar(props: { children: any }) {
     return <div className={'toolbar'}>{props.children}</div>
@@ -47,15 +48,17 @@ export function NumberEditor(props: {
     set_value: any,
     state: GlobalState,
     live: boolean,
+    node:TreeNode,
     min?:number,
-    unit?:Unit
 }) {
-    let target_unit:Unit = props.unit || Unit.Pixels;
     const [num_value, set_num_value] = useState(props.value)
     const [str_value, set_str_value] = useState<any>(props.value)
     const [valid, set_valid] = useState(true)
     const [from_unit, set_from_unit] = useState(Unit.Pixels)
     useEffect(() => set_str_value(props.value), [props.value])
+    let page = find_page_for_node(props.node);
+    let target_unit = page?(page.get_component(PageName) as PageMarker).unit:Unit.Pixels
+    console.log("target unit",target_unit,from_unit)
 
     return <input type={"text"} value={str_value}
                   onChange={(e) => {

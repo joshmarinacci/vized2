@@ -1,9 +1,9 @@
 import {TextShapeObject} from "./text_powerup";
-import {GlobalState} from "../common";
+import {GlobalState, TreeNode} from "../common";
 import React, {useEffect, useState} from "react";
 import {NumberEditor} from "../comps";
 
-export function TextShapeEditor(props: { comp: TextShapeObject, state: GlobalState }) {
+export function TextShapeEditor(props: { comp: TextShapeObject, state: GlobalState, node:TreeNode }) {
     const [content, set_content] = useState(props.comp.get_content())
     const [halign, set_halign] = useState(props.comp.get_halign())
     const [valign, set_valign] = useState(props.comp.get_valign())
@@ -26,7 +26,7 @@ export function TextShapeEditor(props: { comp: TextShapeObject, state: GlobalSta
         }}/>
 
         <label>font size</label>
-        <NumberEditor value={props.comp.get_fontsize()} set_value={(v:number)=>props.comp.set_fontsize(v)} state={props.state} live={true}/>
+        <NumberEditor value={props.comp.get_fontsize()} set_value={(v:number)=>props.comp.set_fontsize(v)} state={props.state} live={true} node={props.node}/>
         <label>H Align</label>
         <select value={halign} onChange={e => {
             set_halign(e.target.value)
