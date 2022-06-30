@@ -36,6 +36,9 @@ import {
 } from "./util";
 import {unit_abbr} from "./units";
 
+const BOUNDS_SNAP_THRESHOLD = 20
+const GRID_SNAP_SIZE = 16
+
 function draw_node(state:GlobalState, surf:CanvasRenderSurface, node: TreeNode) {
     //draw the current node
     state.renderers.forEach((rend) => rend.render(surf, node, state))
@@ -78,8 +81,9 @@ class MouseMoveDelegate implements MouseGestureDelegate {
     private snap: boolean;
     private snap_grid:boolean;
     private snap_grid_size:number;
+    private ppu: number;
 
-    constructor(state: GlobalState, snap:boolean, snap_grid:boolean) {
+    constructor(state: GlobalState, snap:boolean, snap_grid:boolean, ppu:number) {
         this.state = state
         this.press_point = null
         this.movables = []
@@ -87,7 +91,8 @@ class MouseMoveDelegate implements MouseGestureDelegate {
         this.start_point = null
         this.snap = snap
         this.snap_grid = snap_grid
-        this.snap_grid_size = 16
+        this.snap_grid_size = GRID_SNAP_SIZE/ppu
+        this.ppu = ppu
     }
 
     press(e: MouseEvent, pt:Point, root:TreeNode) {
@@ -135,7 +140,7 @@ class MouseMoveDelegate implements MouseGestureDelegate {
 
                 const check_v_snap = (mov:Movable, x1:number, x2:number, state:GlobalState) => {
                     let ob = x1-x2
-                    if(Math.abs(ob) < 20){
+                    if(Math.abs(ob) < BOUNDS_SNAP_THRESHOLD/this.ppu){
                         state.active_v_snap = x1
                         let pos = mov.position().clone()
                         mov.moveTo(new Point(pos.x+ob,pos.y))
@@ -143,7 +148,7 @@ class MouseMoveDelegate implements MouseGestureDelegate {
                 }
                 const check_h_snap = (mov:Movable, y1:number, y2:number, state:GlobalState) => {
                     let ob = y1-y2
-                    if(Math.abs(ob) < 20){
+                    if(Math.abs(ob) < BOUNDS_SNAP_THRESHOLD/this.ppu){
                         state.active_h_snap = y1
                         let pos = mov.position().clone()
                         mov.moveTo(new Point(pos.x,pos.y+ob))
@@ -365,6 +370,7 @@ export function CanvasView(props:{}) {
         let pt = cp.subtract(pan_offset)
         pt = pt.multiply(1/scale)
         pt = pt.add(min_bounds.position)
+        pt = pt.multiply(1/pg.ppu)
         let root = current_root
         if(root.has_component(ParentLikeName)) {
             let off = (root.get_component(ParentLikeName) as ParentLike).get_position()
@@ -497,7 +503,7 @@ export function CanvasView(props:{}) {
         if (hand) {
             del =  new HandleMoveDelegate(state,hand)
         } else {
-            del = new MouseMoveDelegate(state,snap_bounds, snap_grid)
+            del = new MouseMoveDelegate(state,snap_bounds, snap_grid, pg.ppu)
         }
         del.press(e,pt,current_root)
         set_delegate(del)

@@ -1,4 +1,5 @@
 import {
+    BorderedShapeObject,
     DefaultPowerup,
     DocMarker,
     FilledShapeObject,
@@ -10,7 +11,7 @@ import {
     Unit
 } from "../common";
 import {Action} from "../actions";
-import {BoundedShapeObject} from "../bounded_shape";
+import {BoundedShapeObject, MovableBoundedShape, ResizableRectObject} from "../bounded_shape";
 import {PDFExportBounds} from "../exporters/pdf";
 import {RectShapeObject} from "./rect_powerup";
 
@@ -27,6 +28,18 @@ function make_bizcard_tree(state: GlobalState):TreeNode {
     // root.add_component(new PDFExportBounds("in", 1 / 100))
     root.add_component(new RectShapeObject())
     root.add_component(new FilledShapeObject('white'))
+
+    let rect1 = new TreeNodeImpl()
+    rect1.title = 'rect'
+    let bounds = new Rect(0,0,1,1)
+    rect1.add_component(new RectShapeObject())
+    rect1.add_component(new BoundedShapeObject(bounds))
+    rect1.add_component(new FilledShapeObject("#ff0000"))
+    rect1.add_component(new BorderedShapeObject("#000000"))
+    rect1.add_component(new MovableBoundedShape(rect1))
+    rect1.add_component(new ResizableRectObject(rect1))
+    root.add_child(rect1)
+
     return root
 }
 

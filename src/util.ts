@@ -13,6 +13,7 @@ export function find_first_page(root: TreeNode): TreeNode {
 }
 
 export function find_page_for_node(node: TreeNode): TreeNode | null {
+    if (!node) return null
     if (node.has_component(PageName)) {
         return node
     }
