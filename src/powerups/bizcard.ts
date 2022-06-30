@@ -3,8 +3,8 @@ import {
     DefaultPowerup,
     DocMarker,
     FilledShapeObject,
-    GlobalState,
-    PageMarker,
+    GlobalState, MovableCenterPosition,
+    PageMarker, Point,
     Rect,
     TreeNode,
     TreeNodeImpl,
@@ -14,6 +14,7 @@ import {Action} from "../actions";
 import {BoundedShapeObject, MovableBoundedShape, ResizableRectObject} from "../bounded_shape";
 import {PDFExportBounds} from "../exporters/pdf";
 import {RectShapeObject} from "./rect_powerup";
+import {CircleShapeObject, RadiusSelectionCircleLike} from "./circle";
 
 function make_bizcard_tree(state: GlobalState):TreeNode {
     let root = new TreeNodeImpl()
@@ -39,6 +40,20 @@ function make_bizcard_tree(state: GlobalState):TreeNode {
     rect1.add_component(new MovableBoundedShape(rect1))
     rect1.add_component(new ResizableRectObject(rect1))
     root.add_child(rect1)
+
+
+    let center = new Point(1.2,1.2)
+    let radius = 0.5
+    let color = 'red'
+    let circle = new TreeNodeImpl()
+    circle.title = 'circle'
+    circle.add_component(new CircleShapeObject(center, radius))
+    circle.add_component(new MovableCenterPosition(circle))
+    circle.add_component(new RadiusSelectionCircleLike(circle))
+    circle.add_component(new FilledShapeObject(color?color:"#ffcccc"))
+    circle.add_component(new BorderedShapeObject("#000000"))
+    root.add_child(circle)
+
 
     return root
 }

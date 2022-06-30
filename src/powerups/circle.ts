@@ -118,8 +118,10 @@ export class CircleRendererSystem implements RenderingSystem {
             } else {
                 ctx.fillStyle = 'magenta'
             }
+            let pos = shape.get_position().multiply(surf.ppu)
+            let rad = shape.get_radius()*surf.ppu
             ctx.beginPath()
-            ctx.arc(shape.get_position().x, shape.get_position().y,shape.get_radius(),0,Math.PI*2)
+            ctx.arc(pos.x, pos.y,rad,0,Math.PI*2)
             ctx.closePath()
             ctx.fill()
             if(node.has_component(BorderedShapeName)) {
@@ -210,13 +212,13 @@ export class RadiusHandle extends Handle {
     private circle: CircleLikeShape
 
     constructor(circle:CircleLikeShape) {
-        super(0, 0);
+        super(circle.get_position().x+circle.get_radius(), circle.get_position().y);
         this.circle = circle
     }
 
     update_from_node() {
-        this.x = this.circle.get_position().x + this.circle.get_radius() - 5
-        this.y = this.circle.get_position().y - 5
+        this.x = this.circle.get_position().x + this.circle.get_radius()
+        this.y = this.circle.get_position().y
     }
 
     override moveBy(diff: Point) {
@@ -226,13 +228,13 @@ export class RadiusHandle extends Handle {
     }
 
     private update_to_node() {
-        let rad = this.x + 5 - this.circle.get_position().x
-        if (rad < 1) rad = 1
+        let rad = this.x - this.circle.get_position().x
+        // if (rad < 1) rad = 1
         this.circle.set_radius(rad)
     }
 
     display_value(): string {
-        return `${this.circle.get_radius()}`;
+        return `${this.circle.get_radius().toFixed(2)}`;
     }
 }
 

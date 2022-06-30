@@ -80,11 +80,12 @@ class SpiralRendererSystem implements RenderingSystem {
         if(node.has_component(SpiralShapeName)) {
             let spiral:SpiralShapeObject = node.get_component(SpiralShapeName) as SpiralShapeObject
             let times = spiral.get_wrap()*Math.PI*2
-            let radius = spiral.get_radius() / times
+            let radius = spiral.get_radius() / times * surf.ppu
 
             let ctx = surf.ctx
             ctx.save()
-            ctx.translate(spiral.get_position().x,spiral.get_position().y)
+            let p = spiral.get_position().multiply(surf.ppu)
+            ctx.translate(p.x,p.y)
             ctx.beginPath()
             if (node.has_component(FilledShapeName)) {
                 let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
@@ -106,7 +107,7 @@ class SpiralRendererSystem implements RenderingSystem {
                 ctx.strokeStyle = 'magenta'
                 ctx.lineWidth = 3.5
                 ctx.beginPath()
-                ctx.arc(0,0,spiral.get_radius(),0,Math.PI*2)
+                ctx.arc(0,0,spiral.get_radius()*surf.ppu,0,Math.PI*2)
                 ctx.stroke()
             }
 
