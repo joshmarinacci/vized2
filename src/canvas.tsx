@@ -10,7 +10,8 @@ import {
     Point, RadiusSelection, RadiusSelectionName, Rect, RenderBounds, RenderBoundsName,
     Resizable,
     ResizableName,
-    TreeNode
+    TreeNode,
+    Unit
 } from "./common";
 import {ToggleButton, Toolbar} from "./comps";
 import {
@@ -341,6 +342,82 @@ class HandlesOverlay implements CanvasOverlay {
     }
 }
 
+class CanvasSurf implements CanvasRenderSurface {
+    ctx: CanvasRenderingContext2D;
+    selectionEnabled: boolean;
+    inset: boolean;
+    unit: Unit;
+    ppu: number;
+    scale: number;
+    translate: Point;
+    constructor(ctx: CanvasRenderingContext2D, pg: PageMarker) {
+        this.ctx = ctx
+        this.selectionEnabled = true
+        this.inset = false
+        this.unit = pg.unit
+        this.ppu = pg.ppu
+        this.scale = 1
+        this.translate = new Point(0,0)
+    }
+
+    fill_unit_circle(pos: Point, rad: number, fill: any): void {
+        console.log("drawing with scale",this.scale)
+        this.ctx.save()
+        this.ctx.fillStyle = fill
+        // this.ctx.scale(this.scale,this.scale)
+        // this.ctx.translate(this.translate.x,this.translate.y)
+        this.ctx.beginPath()
+        let p2 = pos.multiply(this.ppu)
+        let r2 = rad*this.ppu
+        this.ctx.arc(p2.x,p2.y,r2,0,Math.PI*2)
+        this.ctx.closePath()
+        this.ctx.fill()
+        this.ctx.restore()
+    }
+
+    stroke_unit_circle(pos: Point, rad: number, strokeFill: any, strokeWidth: number) {
+        this.ctx.save()
+        this.ctx.strokeStyle = strokeFill
+        // this.ctx.scale(this.scale,this.scale)
+        // this.ctx.translate(this.translate.x,this.translate.y)
+        this.ctx.beginPath()
+        this.ctx.lineWidth = strokeWidth
+        let p2 = pos.multiply(this.ppu)
+        let r2 = rad*this.ppu
+        this.ctx.arc(p2.x,p2.y,r2,0,Math.PI*2)
+        this.ctx.closePath()
+        this.ctx.stroke()
+        this.ctx.restore()
+    }
+
+    fill_unit_rect(rect: Rect, fill: any) {
+        this.ctx.save()
+        this.ctx.fillStyle = fill
+        // this.ctx.scale(this.scale,this.scale)
+        // this.ctx.translate(this.translate.x,this.translate.y)
+        this.ctx.beginPath()
+        let r2 = rect.scale(this.ppu)
+        this.ctx.rect(r2.x,r2.y,r2.w,r2.h)
+        this.ctx.closePath()
+        this.ctx.fill()
+        this.ctx.restore()
+    }
+    stroke_unit_rect(rect: Rect, strokeFill: any, strokeWidth: number) {
+        this.ctx.save()
+        this.ctx.strokeStyle = strokeFill
+        this.ctx.lineWidth = strokeWidth
+        // this.ctx.scale(this.scale,this.scale)
+        // this.ctx.translate(this.translate.x,this.translate.y)
+        this.ctx.beginPath()
+        let r2 = rect.scale(this.ppu)
+        this.ctx.rect(r2.x,r2.y,r2.w,r2.h)
+        this.ctx.closePath()
+        this.ctx.stroke()
+        this.ctx.restore()
+    }
+
+}
+
 export function CanvasView(props:{}) {
     let state = useContext(GlobalStateContext)
     const [pan_offset, set_pan_offset] = useState(new Point(0,0))
@@ -379,6 +456,7 @@ export function CanvasView(props:{}) {
         let target: HTMLElement = e.target as HTMLElement
         let bounds = target.getBoundingClientRect()
         let cp = new Point(e.clientX - bounds.x, e.clientY - bounds.y)
+        cp = cp.multiply(window.devicePixelRatio)
         let pt = cp.subtract(pan_offset)
         pt = pt.multiply(1/scale)
         pt = pt.add(min_bounds.position)
@@ -410,10 +488,15 @@ export function CanvasView(props:{}) {
         return null
     }
 
+    let canvas_style_bounds = min_bounds.scale(scale)
+    let scaled_min_bounds = min_bounds.scale(scale*window.devicePixelRatio)
+
     function refresh() {
         // console.log("inset",is_inset,'current_root',current_root.title)
         if(!current_root) return
         if(!canvas.current) return
+        canvas.current.style.width  = `${canvas_style_bounds.w}px`
+        canvas.current.style.height = `${canvas_style_bounds.h}px`
         let pg = current_page.get_component(PageName) as PageMarker
         let can = canvas.current as HTMLCanvasElement
         let ctx = can.getContext('2d') as CanvasRenderingContext2D
@@ -570,7 +653,6 @@ export function CanvasView(props:{}) {
     }
 
 
-    let scaled_min_bounds = min_bounds.scale(scale)
     return <div className={'panel center vbox'}>
         <Toolbar>
             <button onClick={()=>set_zoom_level(zoom_level+1)}>zoom in</button>
