@@ -57,14 +57,6 @@ function draw_node(state:GlobalState, surf:CanvasRenderSurface, node: TreeNode) 
     ctx.restore()
 }
 
-function draw_handles(state:GlobalState, ctx: CanvasRenderingContext2D, node:TreeNode) {
-}
-function draw_snaps(state: GlobalState, ctx: CanvasRenderingContext2D, page: TreeNode) {
-}
-
-function draw_infopanels(state: GlobalState, ctx: CanvasRenderingContext2D, current_page: TreeNode) {
-}
-
 
 export interface MouseGestureDelegate {
     press(e: MouseEvent, pt:Point, root:TreeNode):void
@@ -274,7 +266,7 @@ function ContextMenu(props: { state: GlobalState }) {
 }
 
 interface CanvasOverlay {
-    draw(state:GlobalState, surf:CanvasRenderSurface, page:TreeNode):void
+    draw(state:GlobalState, surf:CanvasSurf, page:TreeNode):void
 }
 
 class InfoPanelOverlay implements CanvasOverlay {
@@ -296,23 +288,24 @@ class InfoPanelOverlay implements CanvasOverlay {
 }
 
 class SnapsOverlay implements CanvasOverlay {
-    draw(state: GlobalState, surf: CanvasRenderSurface, page: TreeNode): void {
+    draw(state: GlobalState, surf: CanvasSurf, page: TreeNode): void {
         let pg_bounds = (page.get_component(BoundedShapeName) as BoundedShape).get_bounds()
-        let ctx = surf.ctx
-        if(state.active_v_snap !== -1) {
-            ctx.beginPath()
-            ctx.moveTo(state.active_v_snap, pg_bounds.y)
-            ctx.lineTo(state.active_v_snap, pg_bounds.y2)
-            ctx.strokeStyle = 'green'
-            ctx.stroke()
-        }
-        if(state.active_h_snap !== -1) {
-            ctx.beginPath()
-            ctx.moveTo(pg_bounds.x, state.active_h_snap)
-            ctx.lineTo(pg_bounds.x2, state.active_h_snap)
-            ctx.strokeStyle = 'green'
-            ctx.stroke()
-        }
+        surf.with_unscaled((ctx:CanvasRenderingContext2D)=>{
+            if(state.active_v_snap !== -1) {
+                surf.stroke_line(
+                    surf.transform_point(new Point(state.active_v_snap,pg_bounds.y)),
+                    surf.transform_point(new Point(state.active_v_snap,pg_bounds.y2)),
+                    1,
+                    'green')
+            }
+            if(state.active_h_snap !== -1) {
+                surf.stroke_line(
+                    surf.transform_point(new Point(pg_bounds.x,state.active_h_snap)),
+                    surf.transform_point( new Point(pg_bounds.x2,state.active_h_snap)),
+                    1,
+                    'green')
+            }
+        })
     }
 }
 
@@ -416,6 +409,27 @@ class CanvasSurf implements CanvasRenderSurface {
         this.ctx.restore()
     }
 
+    with_unscaled(lam: (ctx: CanvasRenderingContext2D) => void) {
+        this.ctx.save()
+        lam(this.ctx)
+        this.ctx.restore()
+    }
+
+    transform_point(pt:Point):Point {
+        return pt.add(this.translate).multiply(this.scale)
+    }
+
+    stroke_line(pt1: Point, pt2: Point, lineWidth: number, color: string) {
+        let ctx = this.ctx
+        ctx.beginPath()
+        ctx.moveTo(pt1.x,pt1.y)
+        ctx.lineTo(pt2.x,pt2.y)
+        ctx.lineWidth = lineWidth
+        ctx.strokeStyle = color
+        ctx.stroke()
+    }
+
+
 }
 
 export function CanvasView(props:{}) {
@@ -503,29 +517,23 @@ export function CanvasView(props:{}) {
         //real size of the canvas
         ctx.fillStyle = 'yellow'
         ctx.fillRect(0,0,can.width,can.height)
+
+        let surf = new CanvasSurf(ctx,pg);
+        surf.scale = scale
+        surf.translate = new Point(-min_bounds.x,-min_bounds.y)
         ctx.save()
         ctx.scale(scale,scale)
-
         ctx.translate(-min_bounds.x,-min_bounds.y)
         fillRect(ctx,min_bounds,'#f0f0f0')
         fillRect(ctx,min_bounds,ctx.createPattern(DIAG_HATCH_IMAGE,"repeat") as CanvasPattern)
-
-        ctx.save()
-        let surf:CanvasRenderSurface = {
-            ctx: ctx,
-            selectionEnabled: true,
-            inset:is_inset,
-            unit:pg.unit,
-            ppu:pg.ppu,
-            scale:scale
-        }
         draw_node(state, surf, current_page)
+        ctx.restore()
+
         let overlays:CanvasOverlay[] = []
         overlays.push(new HandlesOverlay())
         overlays.push(new SnapsOverlay())
         overlays.push(new InfoPanelOverlay())
         overlays.forEach(overlay => overlay.draw(state,surf,current_page))
-        ctx.restore()
 
         if(is_inset && current_root.has_component(ParentLikeName)) {
             let parent = current_root.get_component(ParentLikeName) as ParentLike
@@ -544,7 +552,6 @@ export function CanvasView(props:{}) {
             ctx.fillText(`z${zoom_level}=s${scale} unit=${unit_abbr(pg.unit)} ppu=${pg.ppu}`,5,20)
             ctx.restore()
         }
-        ctx.restore()
     }
     //redraw when current root changes, or transforms, or the docroot or min bounds
     useEffect(()=> refresh(),[canvas, pan_offset, zoom_level, current_root, min_bounds.w, min_bounds.h])

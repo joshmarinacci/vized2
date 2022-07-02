@@ -190,7 +190,7 @@ function NewDocActions(props: {}) {
         </ul>
         pc.show(menu,e)
     }
-    }>New Doc</button>
+    }>New&nbsp;Doc</button>
 }
 
 function ImportActions(props: {}) {
