@@ -270,20 +270,20 @@ interface CanvasOverlay {
 }
 
 class InfoPanelOverlay implements CanvasOverlay {
-    draw(state: GlobalState, surf: CanvasRenderSurface, page: TreeNode): void {
-        let ctx = surf.ctx
-        if(state.infopanel.visible) {
-            ctx.save()
-            ctx.translate(state.infopanel.position.x+20,state.infopanel.position.y+20)
-            ctx.font = '16px sans-serif'
+    draw(state: GlobalState, surf: CanvasSurf, page: TreeNode): void {
+        if(!state.infopanel.visible) return
+        surf.with_unscaled((ctx)=>{
+            let rect_pos = surf.transform_point(state.infopanel.position.add(new Point(20,20)));
+            ctx.font = '24px sans-serif'
             let met = ctx.measureText(state.infopanel.text)
-            let pad = 5
-            ctx.fillStyle = 'gray'
-            ctx.fillRect(0,0,met.width+pad+pad,met.actualBoundingBoxAscent+met.actualBoundingBoxDescent+pad+pad)
-            ctx.fillStyle = 'white'
-            ctx.fillText(state.infopanel.text,pad,pad + met.actualBoundingBoxAscent)
-            ctx.restore()
-        }
+            let pad = 10
+            let rect = new Rect(rect_pos.x,rect_pos.y,
+                met.width+pad+pad,
+                met.actualBoundingBoxAscent+met.actualBoundingBoxDescent+pad+pad)
+            surf.fill_rect(rect,'gray')
+            let text_pos = rect_pos.add(new Point(pad,pad+met.actualBoundingBoxAscent))
+            surf.fill_text(state.infopanel.text,text_pos,'white')
+        })
     }
 }
 
@@ -430,6 +430,15 @@ class CanvasSurf implements CanvasRenderSurface {
     }
 
 
+    fill_rect(rect: Rect, color: string) {
+        this.ctx.fillStyle = color
+        this.ctx.fillRect(rect.x,rect.y,rect.w,rect.h)
+    }
+
+    fill_text(text: string, position: Point, color: string) {
+        this.ctx.fillStyle = color
+        this.ctx.fillText(text,position.x,position.y)
+    }
 }
 
 export function CanvasView(props:{}) {
