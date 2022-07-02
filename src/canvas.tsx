@@ -1,7 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
 import {
     CanvasRenderSurface,
-    DIAG_HATCH_IMAGE,
     GlobalState,
     GlobalStateContext,
     Handle,
@@ -38,7 +37,6 @@ import {PopupContext, PopupContextImpl} from "./popup";
 import {BoundedShape, BoundedShapeName} from "./bounded_shape";
 import {
     calc_total_min_bounds,
-    fillRect,
     fillRectHole,
     find_first_page,
     find_page_for_node,
@@ -46,6 +44,11 @@ import {
     strokeRect
 } from "./util";
 import {unit_abbr} from "./units";
+import {CanvasOverlay} from "./can/overlays";
+import {InfoPanelOverlay} from "./can/infopanel";
+import {SnapsOverlay} from "./can/snaps";
+import {HandlesOverlay} from "./can/handles";
+import {RulerOverlay} from "./can/ruler";
 
 const BOUNDS_SNAP_THRESHOLD = 20
 const GRID_SNAP_SIZE = 16
@@ -275,75 +278,6 @@ function ContextMenu(props: { state: GlobalState }) {
     </ul>
 }
 
-interface CanvasOverlay {
-    draw(state:GlobalState, surf:CanvasSurf, page:TreeNode):void
-}
-
-class InfoPanelOverlay implements CanvasOverlay {
-    draw(state: GlobalState, surf: CanvasSurf, page: TreeNode): void {
-        if(!state.infopanel.visible) return
-        surf.with_unscaled((ctx)=>{
-            let rect_pos = surf.transform_point(state.infopanel.position.add(new Point(20,20)));
-            ctx.font = '24px sans-serif'
-            let met = ctx.measureText(state.infopanel.text)
-            let pad = 10
-            let rect = new Rect(rect_pos.x,rect_pos.y,
-                met.width+pad+pad,
-                met.actualBoundingBoxAscent+met.actualBoundingBoxDescent+pad+pad)
-            surf.fill_rect(rect,'gray')
-            let text_pos = rect_pos.add(new Point(pad,pad+met.actualBoundingBoxAscent))
-            surf.fill_text(state.infopanel.text,text_pos,'white')
-        })
-    }
-}
-
-class SnapsOverlay implements CanvasOverlay {
-    draw(state: GlobalState, surf: CanvasSurf, page: TreeNode): void {
-        let pg_bounds = (page.get_component(BoundedShapeName) as BoundedShape).get_bounds()
-        surf.with_unscaled((ctx:CanvasRenderingContext2D)=>{
-            if(state.active_v_snap !== -1) {
-                surf.stroke_line(
-                    surf.transform_point(new Point(state.active_v_snap,pg_bounds.y)),
-                    surf.transform_point(new Point(state.active_v_snap,pg_bounds.y2)),
-                    1,
-                    'green')
-            }
-            if(state.active_h_snap !== -1) {
-                surf.stroke_line(
-                    surf.transform_point(new Point(pg_bounds.x,state.active_h_snap)),
-                    surf.transform_point( new Point(pg_bounds.x2,state.active_h_snap)),
-                    1,
-                    'green')
-            }
-        })
-    }
-}
-
-function make_centered_square(point: Point, number: number) {
-    return new Rect(
-        point.x-number/2,
-        point.y-number/2,
-        number,
-        number,
-    )
-}
-
-class HandlesOverlay implements CanvasOverlay {
-    draw(state: GlobalState, surf: CanvasSurf, page: TreeNode): void {
-        let off = new Point(0,0)
-        if(page.has_component(ParentLikeName)) {
-            off = (page.get_component(ParentLikeName) as ParentLike).get_position()
-        }
-        surf.with_unscaled((ctx)=>{
-            state.active_handles.forEach(hand => {
-                let pt = surf.transform_point(new Point(hand.x,hand.y))
-                let rect = make_centered_square(pt,hand.size).translate(off)
-                surf.fill_rect(rect,'#e28f14')
-            })
-        })
-    }
-}
-
 export class CanvasSurf implements CanvasRenderSurface {
     ctx: CanvasRenderingContext2D;
     selectionEnabled: boolean;
@@ -400,6 +334,7 @@ export class CanvasSurf implements CanvasRenderSurface {
         this.ctx.fillStyle = color
         this.ctx.fillText(text,position.x,position.y)
     }
+
 }
 
 export function CanvasView(props:{}) {
@@ -500,6 +435,7 @@ export function CanvasView(props:{}) {
         overlays.push(new HandlesOverlay())
         overlays.push(new SnapsOverlay())
         overlays.push(new InfoPanelOverlay())
+        overlays.push(new RulerOverlay())
         overlays.forEach(overlay => overlay.draw(state,surf,current_page))
 
         if(is_inset && current_root.has_component(ParentLikeName)) {
