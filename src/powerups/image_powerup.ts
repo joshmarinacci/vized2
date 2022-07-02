@@ -21,6 +21,7 @@ import {PDFContext, PDFExporter} from "../exporters/pdf";
 import {SVGExporter} from "../exporters/svg";
 import {Action} from "../actions";
 import {make_image_file} from "./image_from_file";
+import {CanvasSurf} from "../canvas";
 
 const ImageShapeName = "ImageShapeName"
 export interface ImageShape extends Component {
@@ -135,20 +136,22 @@ export class ImageRendererSystem implements RenderingSystem {
 
     render(surf:CanvasRenderSurface, node: TreeNode, state: GlobalState): void {
         if (node.has_component(BoundedShapeName) && node.has_component(ImageShapeName)) {
-            let ctx = surf.ctx
-            let img = node.get_component(ImageShapeName) as ImageShapeObject
-            let rect = img.get_bounds()
-            ctx.fillStyle = 'magenta'
-            // ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
-            if(img.img && state.image_ready(img.img.id)) {
-                ctx.drawImage(state.get_DomImage(img.img.id), rect.x, rect.y, rect.w, rect.h)
-            }
-            // console.log('aspect ratio',img.aspect_ratio)
-            if (state.selection.has(node)) {
-                ctx.strokeStyle = 'magenta'
-                ctx.lineWidth = 3.5
-                ctx.strokeRect(rect.x, rect.y, rect.w, rect.h)
-            }
+            let cs = surf as CanvasSurf
+            cs.with_scaled(ctx => {
+                let img = node.get_component(ImageShapeName) as ImageShapeObject
+                let rect = img.get_bounds()
+                // ctx.fillStyle = 'magenta'
+                // ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
+                if(img.img && state.image_ready(img.img.id)) {
+                    ctx.drawImage(state.get_DomImage(img.img.id), rect.x, rect.y, rect.w, rect.h)
+                }
+                // console.log('aspect ratio',img.aspect_ratio)
+                if (state.selection.has(node)) {
+                    ctx.strokeStyle = 'magenta'
+                    ctx.lineWidth = 3.5/cs.ppu
+                    ctx.strokeRect(rect.x, rect.y, rect.w, rect.h)
+                }
+            })
         }
     }
 

@@ -30,6 +30,7 @@ import {CircleLikeShape, CircleLikeShapeName, CirclePickSystem, RadiusSelectionC
 import {NGonEditor} from "./ngon_editor";
 import {apply_svg_border, to_svg} from "../exporters/svg";
 import {hex_to_pdfrgbf, PDFContext, PDFExporter} from "../exporters/pdf";
+import {CanvasSurf} from "../canvas";
 
 export const NGonShapeName = "NGonShapeName"
 export interface NGonShape extends CenterPosition {
@@ -95,48 +96,49 @@ export class NGonRendererSystem implements RenderingSystem {
     }
 
     render(surf: CanvasRenderSurface, node: TreeNode, state: GlobalState): void {
-        let ctx = surf.ctx
         if(node.has_component(NGonShapeName)) {
             let shape:NGonShapeObject = node.get_component(NGonShapeName) as NGonShapeObject
+            let cs = surf as CanvasSurf
+            cs.with_scaled(ctx => {
             ctx.fillStyle = 'magenta'
-            if(node.has_component(FilledShapeName)) {
-                ctx.fillStyle = (node.get_component(FilledShapeName) as FilledShape).get_fill()
-            } else {
-                ctx.fillStyle = 'magenta'
-            }
-            ctx.save()
-            ctx.translate(shape.get_position().x, shape.get_position().y)
-            ctx.beginPath()
-            let ang = Math.PI*2/shape.get_sides()
-            for(let i=0; i<shape.get_sides(); i++) {
-                let theta = ang*i
-                let x = Math.sin(theta)*shape.get_radius()
-                let y = Math.cos(theta)*shape.get_radius()
-                if(i===0) {
-                    ctx.moveTo(x,y)
+                if(node.has_component(FilledShapeName)) {
+                    ctx.fillStyle = (node.get_component(FilledShapeName) as FilledShape).get_fill()
                 } else {
-                    ctx.lineTo(x,y)
+                    ctx.fillStyle = 'magenta'
                 }
-            }
-            ctx.closePath()
-            ctx.fill()
-            if(node.has_component(BorderedShapeName)) {
-                let bd = (node.get_component(BorderedShapeName) as BorderedShape)
-                if (bd.get_border_width() > 0) {
-                    ctx.strokeStyle = bd.get_border_fill()
-                    ctx.lineWidth = bd.get_border_width()
+                ctx.save()
+                ctx.translate(shape.get_position().x, shape.get_position().y)
+                ctx.beginPath()
+                let ang = Math.PI*2/shape.get_sides()
+                for(let i=0; i<shape.get_sides(); i++) {
+                    let theta = ang*i
+                    let x = Math.sin(theta)*shape.get_radius()
+                    let y = Math.cos(theta)*shape.get_radius()
+                    if(i===0) {
+                        ctx.moveTo(x,y)
+                    } else {
+                        ctx.lineTo(x,y)
+                    }
+                }
+                ctx.closePath()
+                ctx.fill()
+                if(node.has_component(BorderedShapeName)) {
+                    let bd = (node.get_component(BorderedShapeName) as BorderedShape)
+                    if (bd.get_border_width() > 0) {
+                        ctx.strokeStyle = bd.get_border_fill()
+                        ctx.lineWidth = bd.get_border_width()/cs.ppu
+                        ctx.stroke()
+                    }
+                }
+                if(state.selection.has(node)) {
+                    ctx.strokeStyle = 'magenta'
+                    ctx.lineWidth = 3.5/cs.ppu
+                    ctx.beginPath()
+                    ctx.arc(0,0,shape.get_radius(),0,Math.PI*2)
                     ctx.stroke()
                 }
-            }
-            if(state.selection.has(node)) {
-                ctx.strokeStyle = 'magenta'
-                ctx.lineWidth = 3.5
-                ctx.beginPath()
-                ctx.arc(0,0,shape.get_radius(),0,Math.PI*2)
-                ctx.stroke()
-            }
-
-            ctx.restore()
+                ctx.restore()
+            })
         }
     }
 

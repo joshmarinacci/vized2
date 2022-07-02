@@ -26,6 +26,7 @@ import {
     RadiusSelectionCircleLike
 } from "./circle";
 import {PDFPage} from "pdf-lib";
+import {CanvasSurf} from "../canvas";
 
 export const SpiralShapeName = "SpiralShape"
 export class SpiralShapeObject implements Component, MultiComp, CircleLikeShape, RenderBounds {
@@ -78,40 +79,42 @@ class SpiralRendererSystem implements RenderingSystem {
 
     render(surf:CanvasRenderSurface, node: TreeNode, state: GlobalState): void {
         if(node.has_component(SpiralShapeName)) {
-            let spiral:SpiralShapeObject = node.get_component(SpiralShapeName) as SpiralShapeObject
-            let times = spiral.get_wrap()*Math.PI*2
-            let radius = spiral.get_radius() / times * surf.ppu
+            let cs = surf as CanvasSurf
+            cs.with_scaled(ctx => {
+                let spiral:SpiralShapeObject = node.get_component(SpiralShapeName) as SpiralShapeObject
+                let times = spiral.get_wrap()*Math.PI*2
+                let radius = spiral.get_radius() / times
 
-            let ctx = surf.ctx
-            ctx.save()
-            let p = spiral.get_position().multiply(surf.ppu)
-            ctx.translate(p.x,p.y)
-            ctx.beginPath()
-            if (node.has_component(FilledShapeName)) {
-                let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
-                ctx.strokeStyle = color.get_fill()
-                ctx.lineWidth = 1
-            }
-            for(let th=0; th<times; th+=0.1) {
-                let x = Math.sin(th)*radius*th
-                let y = Math.cos(th)*radius*th
-                if(th === 0) {
-                    ctx.moveTo(x,y)
-                } else {
-                    ctx.lineTo(x,y)
-                }
-            }
-            ctx.stroke()
-
-            if(state.selection.has(node)) {
-                ctx.strokeStyle = 'magenta'
-                ctx.lineWidth = 3.5
+                ctx.save()
+                let p = spiral.get_position()
+                ctx.translate(p.x,p.y)
                 ctx.beginPath()
-                ctx.arc(0,0,spiral.get_radius()*surf.ppu,0,Math.PI*2)
+                if (node.has_component(FilledShapeName)) {
+                    let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
+                    ctx.strokeStyle = color.get_fill()
+                    ctx.lineWidth = 1/surf.ppu
+                }
+                for(let th=0; th<times; th+=0.1) {
+                    let x = Math.sin(th)*radius*th
+                    let y = Math.cos(th)*radius*th
+                    if(th === 0) {
+                        ctx.moveTo(x,y)
+                    } else {
+                        ctx.lineTo(x,y)
+                    }
+                }
                 ctx.stroke()
-            }
 
-            ctx.restore()
+                if(state.selection.has(node)) {
+                    ctx.strokeStyle = 'magenta'
+                    ctx.lineWidth = 3.5/surf.ppu
+                    ctx.beginPath()
+                    ctx.arc(0,0,spiral.get_radius(),0,Math.PI*2)
+                    ctx.stroke()
+                }
+
+                ctx.restore()
+            })
         }
     }
 

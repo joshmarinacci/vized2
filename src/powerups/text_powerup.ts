@@ -28,6 +28,7 @@ import {JSONExporter} from "../exporters/json";
 import {Action} from "../actions";
 import {TextShapeEditor} from "./text_editor";
 import {PDFFont, PDFPage, popGraphicsState, pushGraphicsState, scale, translate} from "pdf-lib";
+import {CanvasSurf} from "../canvas";
 
 export const TextShapeName = "TextShapeName"
 interface TextShape extends Component {
@@ -148,8 +149,11 @@ function calc_text_size(lines: string[], surf: RenderingSurface, line_height: nu
 
 class CanvasRenderingSurface implements RenderingSurface {
     private ctx: CanvasRenderingContext2D;
-    constructor(ctx:CanvasRenderingContext2D) {
+    private ppu: number;
+
+    constructor(ctx: CanvasRenderingContext2D, ppu: number) {
         this.ctx = ctx
+        this.ppu = ppu
     }
 
     measureText(text: string, size: number, family: string): TextMetrics {
@@ -264,17 +268,18 @@ class TextRenderingSystem implements RenderingSystem {
             let tn = node.get_component(TextShapeName) as TextShape
             let fill = node.get_component(FilledShapeName) as FilledShape
             let rect = bs.get_bounds()
-
-            let ctx = can.ctx
-            let surf:RenderingSurface = new CanvasRenderingSurface(can.ctx)
-            render_text(surf,rect,tn,fill)
-            if (state.selection.has(node)) {
-                ctx.save()
-                ctx.strokeStyle = 'magenta'
-                ctx.lineWidth = 3.5
-                ctx.strokeRect(rect.x,rect.y,rect.w,rect.h)
-                ctx.restore()
-            }
+            let cs = can as CanvasSurf
+            cs.with_scaled(ctx => {
+                let surf:RenderingSurface = new CanvasRenderingSurface(can.ctx, cs.ppu)
+                render_text(surf,rect,tn,fill)
+                if (state.selection.has(node)) {
+                    ctx.save()
+                    ctx.strokeStyle = 'magenta'
+                    ctx.lineWidth = 3.5/cs.ppu
+                    ctx.strokeRect(rect.x,rect.y,rect.w,rect.h)
+                    ctx.restore()
+                }
+            })
         }
     }
 
