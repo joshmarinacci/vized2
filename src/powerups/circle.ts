@@ -35,6 +35,7 @@ import {hex_to_pdfrgbf, PDFContext, PDFExporter} from "../exporters/pdf";
 import {Action} from "../actions";
 import {CircleLikeEditor} from "./circle_shape_editor";
 import {apply_svg_border, to_svg} from "../exporters/svg";
+import {CanvasSurf} from "../canvas";
 
 export const CircleLikeShapeName = "CircleLikeShape"
 export interface CircleLikeShape extends CenterPosition {
@@ -110,34 +111,36 @@ export class CircleRendererSystem implements RenderingSystem {
     }
 
     render(surf: CanvasRenderSurface, node: TreeNode, state:GlobalState): void {
-        let ctx = surf.ctx
         if(node.has_component(CircleShapeName)) {
             let shape:CircleShape = node.get_component(CircleShapeName) as CircleShape
+            let fill = 'magenta'
             if(node.has_component(FilledShapeName)) {
-                ctx.fillStyle = (node.get_component(FilledShapeName) as FilledShape).get_fill()
-            } else {
-                ctx.fillStyle = 'magenta'
+                fill = (node.get_component(FilledShapeName) as FilledShape).get_fill()
             }
-            let pos = shape.get_position().multiply(surf.ppu)
-            let rad = shape.get_radius()*surf.ppu
-            ctx.beginPath()
-            ctx.arc(pos.x, pos.y,rad,0,Math.PI*2)
-            ctx.closePath()
-            ctx.fill()
-            if(node.has_component(BorderedShapeName)) {
-                let bd = (node.get_component(BorderedShapeName) as BorderedShape)
-                if(bd.get_border_width() > 0) {
-                    ctx.strokeStyle = bd.get_border_fill()
-                    ctx.lineWidth = bd.get_border_width()
+            let cs = (surf as CanvasSurf)
+            cs.with_scaled(ctx => {
+                let pos = shape.get_position()
+                let rad = shape.get_radius()
+                ctx.fillStyle = fill
+                ctx.beginPath()
+                ctx.arc(pos.x, pos.y,rad,0,Math.PI*2)
+                ctx.closePath()
+                ctx.fill()
+                if(node.has_component(BorderedShapeName)) {
+                    let bd = (node.get_component(BorderedShapeName) as BorderedShape)
+                    if(bd.get_border_width() > 0) {
+                        ctx.strokeStyle = bd.get_border_fill()
+                        ctx.lineWidth = bd.get_border_width()/cs.ppu;
+                        ctx.stroke()
+                    }
+                }
+
+                if(surf.selectionEnabled && state.selection.has(node)) {
+                    ctx.strokeStyle = 'magenta'
+                    ctx.lineWidth = 3.5/cs.ppu
                     ctx.stroke()
                 }
-            }
-
-            if(surf.selectionEnabled && state.selection.has(node)) {
-                ctx.strokeStyle = 'magenta'
-                ctx.lineWidth = 3.5
-                ctx.stroke()
-            }
+            })
 
         }
     }
