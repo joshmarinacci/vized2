@@ -699,7 +699,7 @@ export abstract class Handle {
     protected constructor(x:number, y:number) {
         this.x = x
         this.y = y
-        this.size = 10
+        this.size = 32
     }
     update_from_node() {
 

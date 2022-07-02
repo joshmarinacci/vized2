@@ -4,10 +4,18 @@ import {
     DIAG_HATCH_IMAGE,
     GlobalState,
     GlobalStateContext,
-    Handle, InfoPanel,
+    Handle,
     Movable,
-    MovableName, PageMarker, PageName, ParentDrawChildrenName, ParentLike, ParentLikeName,
-    Point, RadiusSelection, RadiusSelectionName, Rect, RenderBounds, RenderBoundsName,
+    MovableName,
+    PageMarker,
+    PageName,
+    ParentDrawChildrenName,
+    ParentLike,
+    ParentLikeName,
+    Point,
+    RadiusSelection,
+    RadiusSelectionName,
+    Rect,
     Resizable,
     ResizableName,
     TreeNode,
@@ -17,12 +25,14 @@ import {ToggleButton, Toolbar} from "./comps";
 import {
     Action,
     delete_selection,
-    delete_selection_action, duplicate,
+    delete_selection_action,
+    duplicate,
     move_down,
     move_to_bottom,
     move_to_top,
     move_up,
-    nothing, selection_to_group
+    nothing,
+    selection_to_group
 } from "./actions";
 import {PopupContext, PopupContextImpl} from "./popup";
 import {BoundedShape, BoundedShapeName} from "./bounded_shape";
@@ -319,18 +329,17 @@ function make_centered_square(point: Point, number: number) {
 }
 
 class HandlesOverlay implements CanvasOverlay {
-    draw(state: GlobalState, surf: CanvasRenderSurface, page: TreeNode): void {
-        let pg = page.get_component(PageName) as PageMarker
+    draw(state: GlobalState, surf: CanvasSurf, page: TreeNode): void {
         let off = new Point(0,0)
         if(page.has_component(ParentLikeName)) {
-            let pt = (page.get_component(ParentLikeName) as ParentLike).get_position()
-            off = pt
+            off = (page.get_component(ParentLikeName) as ParentLike).get_position()
         }
-        state.active_handles.forEach(hand => {
-            surf.ctx.fillStyle = '#e28f14'
-            let r = make_centered_square(new Point(hand.x,hand.y).multiply(pg.ppu),hand.size)
-            r = r.translate(off)
-            surf.ctx.fillRect(r.x, r.y,r.w,r.h)
+        surf.with_unscaled((ctx)=>{
+            state.active_handles.forEach(hand => {
+                let pt = surf.transform_point(new Point(hand.x,hand.y))
+                let rect = make_centered_square(pt,hand.size).translate(off)
+                surf.fill_rect(rect,'#e28f14')
+            })
         })
     }
 }
@@ -416,7 +425,7 @@ class CanvasSurf implements CanvasRenderSurface {
     }
 
     transform_point(pt:Point):Point {
-        return pt.add(this.translate).multiply(this.scale)
+        return pt.multiply(this.ppu).add(this.translate).multiply(this.scale)
     }
 
     stroke_line(pt1: Point, pt2: Point, lineWidth: number, color: string) {
