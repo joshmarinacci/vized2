@@ -344,7 +344,7 @@ class HandlesOverlay implements CanvasOverlay {
     }
 }
 
-class CanvasSurf implements CanvasRenderSurface {
+export class CanvasSurf implements CanvasRenderSurface {
     ctx: CanvasRenderingContext2D;
     selectionEnabled: boolean;
     inset: boolean;
@@ -362,64 +362,17 @@ class CanvasSurf implements CanvasRenderSurface {
         this.translate = new Point(0,0)
     }
 
-    fill_unit_circle(pos: Point, rad: number, fill: any): void {
-        console.log("drawing with scale",this.scale)
-        this.ctx.save()
-        this.ctx.fillStyle = fill
-        // this.ctx.scale(this.scale,this.scale)
-        // this.ctx.translate(this.translate.x,this.translate.y)
-        this.ctx.beginPath()
-        let p2 = pos.multiply(this.ppu)
-        let r2 = rad*this.ppu
-        this.ctx.arc(p2.x,p2.y,r2,0,Math.PI*2)
-        this.ctx.closePath()
-        this.ctx.fill()
-        this.ctx.restore()
-    }
-
-    stroke_unit_circle(pos: Point, rad: number, strokeFill: any, strokeWidth: number) {
-        this.ctx.save()
-        this.ctx.strokeStyle = strokeFill
-        // this.ctx.scale(this.scale,this.scale)
-        // this.ctx.translate(this.translate.x,this.translate.y)
-        this.ctx.beginPath()
-        this.ctx.lineWidth = strokeWidth
-        let p2 = pos.multiply(this.ppu)
-        let r2 = rad*this.ppu
-        this.ctx.arc(p2.x,p2.y,r2,0,Math.PI*2)
-        this.ctx.closePath()
-        this.ctx.stroke()
-        this.ctx.restore()
-    }
-
-    fill_unit_rect(rect: Rect, fill: any) {
-        this.ctx.save()
-        this.ctx.fillStyle = fill
-        // this.ctx.scale(this.scale,this.scale)
-        // this.ctx.translate(this.translate.x,this.translate.y)
-        this.ctx.beginPath()
-        let r2 = rect.scale(this.ppu)
-        this.ctx.rect(r2.x,r2.y,r2.w,r2.h)
-        this.ctx.closePath()
-        this.ctx.fill()
-        this.ctx.restore()
-    }
-    stroke_unit_rect(rect: Rect, strokeFill: any, strokeWidth: number) {
-        this.ctx.save()
-        this.ctx.strokeStyle = strokeFill
-        this.ctx.lineWidth = strokeWidth
-        // this.ctx.scale(this.scale,this.scale)
-        // this.ctx.translate(this.translate.x,this.translate.y)
-        this.ctx.beginPath()
-        let r2 = rect.scale(this.ppu)
-        this.ctx.rect(r2.x,r2.y,r2.w,r2.h)
-        this.ctx.closePath()
-        this.ctx.stroke()
-        this.ctx.restore()
-    }
-
     with_unscaled(lam: (ctx: CanvasRenderingContext2D) => void) {
         this.ctx.save()
+        lam(this.ctx)
+        this.ctx.restore()
+    }
+
+    with_scaled(lam: (ctx: CanvasRenderingContext2D) => void) {
+        this.ctx.save()
+        this.ctx.scale(this.scale,this.scale)
+        this.ctx.translate(this.translate.x,this.translate.y)
+        this.ctx.scale(this.ppu,this.ppu)
         lam(this.ctx)
         this.ctx.restore()
     }
@@ -437,7 +390,6 @@ class CanvasSurf implements CanvasRenderSurface {
         ctx.strokeStyle = color
         ctx.stroke()
     }
-
 
     fill_rect(rect: Rect, color: string) {
         this.ctx.fillStyle = color
@@ -463,12 +415,11 @@ export function CanvasView(props:{}) {
     const [current_root, set_current_root] = useState(()=>find_first_page(state.get_root()))
     let canvas = useRef<HTMLCanvasElement>(null)
     let pc = useContext(PopupContext)
-    // console.log("current root = ",current_root.title)
+
 
     // reset things when the document changes
     useEffect(()=>{
         let op = (rt:TreeNode) => {
-            // console.log(`doc changed. new root = ${rt.id} ${state.get_root().id}`)
             set_pan_offset(new Point(0,0))
             set_zoom_level(0)
             set_delegate(null)
@@ -524,7 +475,6 @@ export function CanvasView(props:{}) {
     let scaled_min_bounds = min_bounds.scale(scale*window.devicePixelRatio)
 
     function refresh() {
-        // console.log("inset",is_inset,'current_root',current_root.title)
         if(!current_root) return
         if(!canvas.current) return
         canvas.current.style.width  = `${canvas_style_bounds.w}px`
@@ -532,7 +482,6 @@ export function CanvasView(props:{}) {
         let pg = current_page.get_component(PageName) as PageMarker
         let can = canvas.current as HTMLCanvasElement
         let ctx = can.getContext('2d') as CanvasRenderingContext2D
-        //real size of the canvas
         ctx.fillStyle = 'yellow'
         ctx.fillRect(0,0,can.width,can.height)
 
@@ -540,10 +489,10 @@ export function CanvasView(props:{}) {
         surf.scale = scale
         surf.translate = new Point(-min_bounds.x,-min_bounds.y)
         ctx.save()
-        ctx.scale(scale,scale)
-        ctx.translate(-min_bounds.x,-min_bounds.y)
-        fillRect(ctx,min_bounds,'#f0f0f0')
-        fillRect(ctx,min_bounds,ctx.createPattern(DIAG_HATCH_IMAGE,"repeat") as CanvasPattern)
+        // ctx.scale(scale,scale)
+        // ctx.translate(-min_bounds.x,-min_bounds.y)
+        // fillRect(ctx,min_bounds,'#f0f0f0')
+        // fillRect(ctx,min_bounds,ctx.createPattern(DIAG_HATCH_IMAGE,"repeat") as CanvasPattern)
         draw_node(state, surf, current_page)
         ctx.restore()
 

@@ -28,6 +28,7 @@ import {JSONExporter} from "../exporters/json";
 import {Action} from "../actions";
 import {PDFPage} from "pdf-lib";
 import {apply_svg_border, to_svg} from "../exporters/svg";
+import {CanvasSurf} from "../canvas";
 
 const RectShapeName = "RectShape"
 interface RectShape extends Component {
@@ -45,39 +46,37 @@ export class RectRendererSystem implements RenderingSystem {
     }
 
     render(surf:CanvasRenderSurface, node: TreeNode, state: GlobalState): void {
-        let ctx = surf.ctx
         if (node.has_component(BoundedShapeName) && node.has_component(RectShapeName)) {
             let bd: BoundedShape = node.get_component(BoundedShapeName) as BoundedShape
-            let rect = bd.get_bounds()
-
-            if (node.has_component(FilledShapeName)) {
-                let fill = (node.get_component(FilledShapeName) as FilledShape).get_fill()
-                if(fill instanceof Image) {
-                    ctx.fillStyle = ctx.createPattern(fill as HTMLImageElement, "repeat") as CanvasPattern
-                } else {
-                    ctx.fillStyle = fill
+            let cs = (surf as CanvasSurf)
+            cs.with_scaled(ctx => {
+                let ffill:any = 'green'
+                if (node.has_component(FilledShapeName)) {
+                    let fill = (node.get_component(FilledShapeName) as FilledShape).get_fill()
+                    if(fill instanceof Image) {
+                        ffill = ctx.createPattern(fill as HTMLImageElement, "repeat") as CanvasPattern
+                    } else {
+                        ffill = fill
+                    }
                 }
-            } else {
-                ctx.fillStyle = 'magenta'
-            }
-            rect = rect.scale(surf.ppu)
-            ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
 
-
-            if(node.has_component(BorderedShapeName)) {
-                let bd = (node.get_component(BorderedShapeName) as BorderedShape)
-                if(bd.get_border_width() > 0) {
-                    ctx.strokeStyle = bd.get_border_fill()
-                    ctx.lineWidth = bd.get_border_width()
+                let rect = bd.get_bounds()
+                cs.fill_rect(rect,ffill)
+                if(node.has_component(BorderedShapeName)) {
+                    let bdr = (node.get_component(BorderedShapeName) as BorderedShape)
+                    if(bdr.get_border_width() > 0) {
+                        ctx.strokeStyle = bdr.get_border_fill()
+                        ctx.lineWidth = bdr.get_border_width()/cs.ppu
+                        ctx.strokeRect(rect.x, rect.y, rect.w, rect.h)
+                    }
+                }
+                if (surf.selectionEnabled && state.selection.has(node)) {
+                    ctx.strokeStyle = 'magenta'
+                    ctx.lineWidth = 3.5/cs.ppu
                     ctx.strokeRect(rect.x, rect.y, rect.w, rect.h)
                 }
-            }
+            })
 
-            if (surf.selectionEnabled && state.selection.has(node)) {
-                ctx.strokeStyle = 'magenta'
-                ctx.lineWidth = 3.5
-                ctx.strokeRect(rect.x, rect.y, rect.w, rect.h)
-            }
         }
     }
 
