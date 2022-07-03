@@ -8,7 +8,8 @@ import {
     Point,
     Rect,
     System,
-    TreeNode
+    TreeNode,
+    Unit
 } from "../common";
 import {BoundedShape, BoundedShapeName} from "../bounded_shape";
 import {Action} from "../actions";
@@ -18,12 +19,15 @@ import {make_std_rect} from "../powerups/rect_powerup";
 import {
     PDFDocument,
     PDFFont,
-    PDFPage, popGraphicsState,
+    PDFPage,
+    popGraphicsState,
     pushGraphicsState,
-    rgb, scale,
+    rgb,
+    scale,
     StandardFonts,
     translate
 } from "pdf-lib";
+import {unit_abbr} from "../units";
 
 
 export class PDFContext {
@@ -31,13 +35,15 @@ export class PDFContext {
     currentPage:PDFPage
     scale:number
     fonts: Map<string, PDFFont>;
-    pixel_bounds: Rect
+    pt_bounds: Rect // in points
+    unit:Unit;
     constructor(doc:PDFDocument, page:PDFPage) {
         this.doc = doc
         this.scale = 1.0
         this.currentPage = page
         this.fonts = new Map<string,PDFFont>()
-        this.pixel_bounds = new Rect(0,0,10,10)
+        this.pt_bounds = new Rect(0,0,10,10)
+        this.unit = Unit.Point
     }
 }
 export interface PDFExporter extends System {
@@ -47,11 +53,11 @@ export interface PDFExporter extends System {
 
 const PDFExportBoundsName = "PDFExportBoundsName"
 export class PDFExportBounds implements Component {
-    unit: string;
+    unit: Unit;
     scale: number;
-    constructor(inch: string, scale: number) {
+    constructor(unit: Unit, scale: number) {
         this.name = PDFExportBoundsName
-        this.unit = inch
+        this.unit = unit
         this.scale = scale
     }
     name: string;
@@ -83,7 +89,8 @@ function find_pages(root: TreeNode):TreeNode[] {
 }
 
 function render_pdf_page(ctx:PDFContext, pageNumber: number, pg: TreeNode, state: GlobalState) {
-    ctx.currentPage = ctx.doc.addPage([ctx.pixel_bounds.w,ctx.pixel_bounds.h])
+    ctx.currentPage = ctx.doc.addPage([ctx.pt_bounds.w,ctx.pt_bounds.h])
+    console.log("PDF: rendering page. bounds",ctx.pt_bounds, 'unit', unit_abbr(ctx.unit),'number',pageNumber)
     ctx.currentPage.pushOperators(
         pushGraphicsState(),
         scale(1,-1),
@@ -94,32 +101,33 @@ function render_pdf_page(ctx:PDFContext, pageNumber: number, pg: TreeNode, state
 }
 
 export async function export_PDF(root:TreeNode, state:GlobalState) {
+    function log(...args:any[]) { console.log("PDF",...args) }
     let bounds = new Rect(0,0,500,500)
-    let scale = 1
     let pages:TreeNode[] = find_pages(root)
     let firstpage = pages[0]
     if(firstpage.has_component(BoundedShapeName)) {
         bounds = (firstpage.get_component(BoundedShapeName) as BoundedShape).get_bounds()
     }
     let settings = {
-        unit:'pt',
-        format:[bounds.w,bounds.h],
+        unit:Unit.Point,
+        bounds:new Rect(0,0,bounds.w,bounds.h)
     }
     if(firstpage.has_component(PDFExportBoundsName)) {
-        let pdb = firstpage.get_component(PDFExportBoundsName) as PDFExportBounds
-        console.log('pdb',pdb)
-        settings.unit = pdb.unit
-        settings.format = [bounds.w*pdb.scale,bounds.h*pdb.scale]
-        scale = pdb.scale
+        let pdf_exp_bounds = firstpage.get_component(PDFExportBoundsName) as PDFExportBounds
+        log('pdf_exp_bounds',pdf_exp_bounds)
+        settings.unit = pdf_exp_bounds.unit
+        settings.bounds = new Rect(0,0,bounds.w*pdf_exp_bounds.scale,bounds.h*pdf_exp_bounds.scale)
     }
-    console.log("using the settings",settings)
+    log("using the settings",settings)
     // @ts-ignore
     const pdfDoc = await PDFDocument.create()
     const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman)
     // @ts-ignore
     let ctx = new PDFContext(pdfDoc,null)
-    ctx.pixel_bounds = bounds
+    ctx.unit = settings.unit
+    ctx.pt_bounds = settings.bounds
     ctx.fonts.set("serif",timesRomanFont)
+    log("rendering pages with context",ctx)
 
     pages.forEach((pg,i) => render_pdf_page(ctx,i,pg,state))
     let blob = new Blob([await pdfDoc.save()], { type: 'application/pdf' })
@@ -185,6 +193,7 @@ export class PDFPowerup extends DefaultPowerup {
 }
 
 export function hex_to_pdfrgbf(fill: string) {
+    if(fill === 'red') return rgb(1,0,0)
     if (fill.startsWith('#')) {
         fill = fill.substring(1)
     }

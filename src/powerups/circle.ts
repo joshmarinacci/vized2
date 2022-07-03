@@ -1,5 +1,4 @@
 import {
-    add_child_to_parent,
     BorderedShape,
     BorderedShapeName,
     BorderedShapeObject,
@@ -36,6 +35,11 @@ import {Action} from "../actions";
 import {CircleLikeEditor} from "./circle_shape_editor";
 import {apply_svg_border, to_svg} from "../exporters/svg";
 import {CanvasSurf} from "../canvas";
+import {
+    transform_point_from_unit_to_points,
+    transform_scalar_from_unit_to_points,
+    unit_to_points
+} from "../units";
 
 export const CircleLikeShapeName = "CircleLikeShape"
 export interface CircleLikeShape extends CenterPosition {
@@ -206,8 +210,13 @@ export class CirclePDFExporter implements PDFExporter {
         let page = ctx.currentPage
         let circle: CircleShape = node.get_component(CircleShapeName) as CircleShape
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
-        let pos = circle.get_position()
-        page.drawCircle({x:pos.x,y:pos.y,size:circle.get_radius(),color:hex_to_pdfrgbf(color.get_fill())})
+        let pos = transform_point_from_unit_to_points(circle.get_position(),ctx.unit)
+        let size = transform_scalar_from_unit_to_points(circle.get_radius(),ctx.unit)
+        page.drawCircle({
+            x:pos.x,
+            y:pos.y,
+            size:size,
+            color:hex_to_pdfrgbf(color.get_fill())})
     }
 }
 

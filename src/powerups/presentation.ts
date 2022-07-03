@@ -1,11 +1,15 @@
 import {
     add_child_to_parent,
     DefaultPowerup,
-    DocMarker, DocName, FilledShapeObject,
+    DocMarker,
+    DocName,
+    FilledShapeObject,
     GlobalState,
-    PageMarker, Rect,
+    PageMarker,
+    Rect,
     TreeNode,
-    TreeNodeImpl
+    TreeNodeImpl,
+    Unit
 } from "../common";
 import {Action} from "../actions";
 import {BoundedShapeObject, MovableBoundedShape, ResizableRectObject} from "../bounded_shape";
@@ -18,7 +22,7 @@ function make_empty_page():TreeNode {
     page1.title = 'empty page'
     page1.add_component(new PageMarker())
     page1.add_component(new BoundedShapeObject(new Rect(0, 0, 16*40, 9*40)))
-    page1.add_component(new PDFExportBounds("in", 1 / 100))
+    page1.add_component(new PDFExportBounds(Unit.Inch, 1 / 100))
     page1.add_component(new RectShapeObject())
     page1.add_component(new FilledShapeObject('white'))
     return page1

@@ -11,7 +11,7 @@ import {
     Point,
     Rect,
     TreeNode,
-    TreeNodeImpl
+    TreeNodeImpl, Unit
 } from "./common";
 import {CanvasView} from "./canvas";
 import {RectPowerup, RectShapeObject} from "./powerups/rect_powerup";
@@ -58,7 +58,7 @@ export function make_default_tree(state: GlobalState) {
     root.add_component(new DocMarker())
     root.add_component(new PageMarker())
     root.add_component(new BoundedShapeObject(new Rect(0,0,4*100,5*100)))
-    root.add_component(new PDFExportBounds("in",1/100))
+    root.add_component(new PDFExportBounds(Unit.Point,1))
     root.add_component(new RectShapeObject())
     root.add_component(new FilledShapeObject('white'))
 

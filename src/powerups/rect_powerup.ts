@@ -29,6 +29,7 @@ import {Action} from "../actions";
 import {PDFPage} from "pdf-lib";
 import {apply_svg_border, to_svg} from "../exporters/svg";
 import {CanvasSurf} from "../canvas";
+import {transform_rect_from_unit_to_points} from "../units";
 
 const RectShapeName = "RectShape"
 interface RectShape extends Component {
@@ -126,6 +127,7 @@ export class RectPDFExporter implements PDFExporter {
         let bd = (node.get_component(BoundedShapeName) as BoundedShape)
         let rect = bd.get_bounds()
         let color: FilledShape = node.get_component(FilledShapeName) as FilledShape
+        rect = transform_rect_from_unit_to_points(rect,ctx.unit)
         page.drawRectangle({
             x:rect.x,
             y:rect.y,

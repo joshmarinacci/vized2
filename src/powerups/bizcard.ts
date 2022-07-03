@@ -15,6 +15,7 @@ import {BoundedShapeObject, MovableBoundedShape, ResizableRectObject} from "../b
 import {PDFExportBounds} from "../exporters/pdf";
 import {RectShapeObject} from "./rect_powerup";
 import {CircleShapeObject, RadiusSelectionCircleLike} from "./circle";
+import {unit_abbr} from "../units";
 
 function make_bizcard_tree(state: GlobalState):TreeNode {
     let root = new TreeNodeImpl()
@@ -26,7 +27,7 @@ function make_bizcard_tree(state: GlobalState):TreeNode {
     //3.5" x 2.0"
     root.add_component(pm)
     root.add_component(new BoundedShapeObject(new Rect(0, 0, 3.5, 2)))
-    // root.add_component(new PDFExportBounds("in", 1 / 100))
+    root.add_component(new PDFExportBounds(pm.unit,72))
     root.add_component(new RectShapeObject())
     root.add_component(new FilledShapeObject('white'))
 

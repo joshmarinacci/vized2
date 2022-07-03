@@ -14,7 +14,7 @@ export class RulerOverlay implements CanvasOverlay {
             let h = 50
             let rect = new Rect(pt.x,pt.y-h,w,h)
             surf.fill_rect(rect,'cyan')
-            console.log("ppu is",surf.ppu,'unit',surf.unit)
+            // console.log("ppu is",surf.ppu,'unit',surf.unit)
             function tick(pt: Point, num: number, abbr: string) {
                 surf.ctx.beginPath()
                 surf.ctx.strokeStyle = 'black'

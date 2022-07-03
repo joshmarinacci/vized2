@@ -469,6 +469,7 @@ export enum Unit {
     Pixels,
     Centimeter,
     Inch,
+    Point,
 }
 
 export const PageName = 'PageName'

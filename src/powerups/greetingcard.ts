@@ -6,7 +6,7 @@ import {
     GlobalState,
     PageMarker, Rect,
     TreeNode,
-    TreeNodeImpl
+    TreeNodeImpl, Unit
 } from "../common";
 import {Action} from "../actions";
 import {BoundedShapeObject, MovableBoundedShape, ResizableRectObject} from "../bounded_shape";
@@ -25,7 +25,7 @@ function make_greeting_card_tree(state: GlobalState):TreeNode {
         page1.title = 'front page'
         page1.add_component(new PageMarker())
         page1.add_component(new BoundedShapeObject(new Rect(0, 0, 8.5 * 100 / 2, 11 * 100 / 2)))
-        page1.add_component(new PDFExportBounds("in", 1 / 100))
+        page1.add_component(new PDFExportBounds(Unit.Inch, 1 / 100))
         page1.add_component(new RectShapeObject())
         page1.add_component(new FilledShapeObject('white'))
         add_child_to_parent(page1, root)
@@ -49,7 +49,7 @@ function make_greeting_card_tree(state: GlobalState):TreeNode {
         page2.title = 'front page'
         page2.add_component(new PageMarker())
         page2.add_component(new BoundedShapeObject(new Rect(0, 0, 8.5 * 100 / 2, 11 * 100 / 2)))
-        page2.add_component(new PDFExportBounds("in", 1 / 100))
+        page2.add_component(new PDFExportBounds(Unit.Inch, 1 / 100))
         page2.add_component(new RectShapeObject())
         page2.add_component(new FilledShapeObject('white'))
         add_child_to_parent(page2, root)

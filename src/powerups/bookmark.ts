@@ -5,7 +5,7 @@ import {
     PageMarker,
     Rect,
     TreeNode,
-    TreeNodeImpl
+    TreeNodeImpl, Unit
 } from '../common'
 import {Action} from '../actions'
 import {BoundedShapeObject} from "../bounded_shape";
@@ -18,7 +18,7 @@ function make_bookmark_tree(state: GlobalState):TreeNode {
     root.add_component(new DocMarker())
     root.add_component(new PageMarker())
     root.add_component(new BoundedShapeObject(new Rect(0, 0, 2 * 100 / 2, 7 * 100 / 2)))
-    root.add_component(new PDFExportBounds("in", 1 / 100))
+    root.add_component(new PDFExportBounds(Unit.Inch, 1 / 100))
     root.add_component(new RectShapeObject())
     root.add_component(new FilledShapeObject('white'))
     return root

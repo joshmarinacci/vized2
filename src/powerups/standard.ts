@@ -8,7 +8,7 @@ import {
     PageMarker, PageName, ParentDrawChildrenName,
     Rect,
     TreeNode,
-    TreeNodeImpl
+    TreeNodeImpl, Unit
 } from "../common";
 import {BoundedShapeName, BoundedShapeObject} from "../bounded_shape";
 import {PDFExportBounds} from "../exporters/pdf";
@@ -26,7 +26,7 @@ export function make_empty_doc(state: GlobalState): TreeNodeImpl {
     root.add_component(new DocMarker())
     root.add_component(new PageMarker())
     root.add_component(new BoundedShapeObject(new Rect(0, 0, 4 * 100, 5 * 100)))
-    root.add_component(new PDFExportBounds("in", 1 / 100))
+    root.add_component(new PDFExportBounds(Unit.Inch, 1 / 100))
     root.add_component(new RectShapeObject())
     root.add_component(new FilledShapeObject('white'))
     return root
