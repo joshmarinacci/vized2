@@ -37,8 +37,7 @@ import {apply_svg_border, to_svg} from "../exporters/svg";
 import {CanvasSurf} from "../canvas";
 import {
     transform_point_from_unit_to_points,
-    transform_scalar_from_unit_to_points,
-    unit_to_points
+    transform_scalar_from_unit_to_points
 } from "../units";
 
 export const CircleLikeShapeName = "CircleLikeShape"
