@@ -457,11 +457,23 @@ export interface BorderedShape extends Component {
 }
 
 export const DocName = "DocName"
-export interface Doc extends Component {}
+export interface Doc extends Component {
+    get_title():string
+    set_title(title:string):void
+}
 export class DocMarker implements Doc {
     name: string;
+    title:string;
     constructor() {
         this.name = DocName
+        this.title = "untitled"
+    }
+
+    get_title(): string {
+        return this.title
+    }
+    set_title(title: string): void {
+        this.title = title
     }
 }
 

@@ -45,6 +45,7 @@ import {StandardPowerup} from "./powerups/standard";
 import {import_embedded_png_action} from "./exporters/upload_embedded_png";
 import {NGonPowerup} from "./powerups/ngon";
 import {BizcardPowerup} from "./powerups/bizcard"
+import {export_server_png_action, import_server_png_action} from "./exporters/docserver";
 
 function IDEGrid(props:{title:string, children:any[]}) {
   return <div className={'ide-grid'}>
@@ -159,7 +160,8 @@ function ExportActions(props: {}) {
     let state = useContext(GlobalStateContext)
     return <button onClick={(e)=>{
         let actions:Action[] = state.powerups.map(pw => pw.export_actions()).flat()
-        let menu = <ul className={'menu'}>
+        actions.push(export_server_png_action);
+            let menu = <ul className={'menu'}>
             {actions.map((act,i)=>{
                 return <li key={i} className={'menu-item'} onClick={()=>{
                     act.fun(state.get_root(),state)
@@ -198,7 +200,7 @@ function ImportActions(props: {}) {
     let dc = useContext(DialogContext)
     let state = useContext(GlobalStateContext)
     return <button onClick={(e)=>{
-        let actions:Action[] = [make_image_file, import_embedded_png_action]
+        let actions:Action[] = [make_image_file, import_embedded_png_action, import_server_png_action]
         let menu = <ul className={'menu'}>
             {actions.map((act,i)=>{
                 return <li key={i} className={'menu-item'} onClick={()=>{
