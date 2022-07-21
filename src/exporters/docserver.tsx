@@ -5,7 +5,6 @@ import {useContext, useEffect, useState} from "react";
 import {DialogContext} from "../dialog";
 import {test_from_json, test_to_json} from "./json";
 import {DBObj, DBObjAPI, make_logger, RPCClient} from "josh_util";
-import {import_png} from "./exportutils";
 
 const log = make_logger("docserver")
 
@@ -46,8 +45,12 @@ function ServerDocImport() {
         opening from the server here
         <ul className={"doclist"}>
             {docs.map((d,i) => {
-                log.info("obj is",d)
-                return <li key={i} onClick={()=>load(d)}>{d.data.title}</li>
+                let title = "unnamed"
+                let dm = d.data.components.filter((c:any) => c.klass === 'DocMarker')
+                if(dm.length > 0 && dm[0].title) {
+                    title = dm[0].title
+                }
+                return <li key={i} onClick={()=>load(d)}>{title}</li>
             })}
         </ul>
         <Toolbar>
@@ -71,9 +74,6 @@ export const export_server_png_action:Action = {
     title:"save to server",
     use_gui:false,
     fun(node: TreeNode, state: GlobalState): any {
-        console.log("doing nothing here in docserver saving",node)
-        let title = (node.get_component(DocName) as Doc).get_title()
-        console.log("the title is",title)
         let obj = test_to_json(node as TreeNodeImpl,state)
         console.log("saving obj",obj)
         make_rpc().then(rpc => {

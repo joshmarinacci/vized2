@@ -464,9 +464,9 @@ export interface Doc extends Component {
 export class DocMarker implements Doc {
     name: string;
     title:string;
-    constructor() {
+    constructor(title?:string) {
         this.name = DocName
-        this.title = "untitled"
+        this.title = title?title:"untitled"
     }
 
     get_title(): string {
