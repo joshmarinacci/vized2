@@ -20,6 +20,7 @@ import {BorderedShapeEditor} from "./filled_border_editor";
 import {CenterPositionEditor} from "./position_editor";
 import {JSONExporter} from "../exporters/json";
 import {DocTitleEditor} from "./standard_doctitle_editor";
+import {DockServerMarkerImpl, DocServerMarkerName} from "../exporters/docserver";
 
 export function make_empty_doc(state: GlobalState): TreeNodeImpl {
     let root = new TreeNodeImpl()
@@ -113,6 +114,7 @@ export class StandardPowerup extends DefaultPowerup {
     override can_serialize(comp: Component, node: TreeNode, state: GlobalState): boolean {
         if(comp instanceof FilledShapeObject) return true
         if(comp instanceof DocMarker) return true
+        if(comp instanceof DockServerMarkerImpl) return true
         return super.can_serialize(comp,node,state)
     }
     override serialize(comp: Component, node: TreeNode, state: GlobalState): any {
@@ -128,11 +130,16 @@ export class StandardPowerup extends DefaultPowerup {
             let doc = comp as DocMarker
             return { powerup:this.constructor.name, klass:comp.constructor.name, title: doc.get_title()}
         }
+        if(comp instanceof DockServerMarkerImpl) {
+            let doc = comp as DockServerMarkerImpl
+            return { powerup:this.constructor.name, klass:comp.constructor.name, dbid: doc.get_id()}
+        }
         return super.serialize(comp,node,state)
     }
 
     override deserialize(obj: any, node:TreeNode, state: GlobalState): Component {
         if(obj.klass === DocMarker.name) return new DocMarker(obj.title)
+        if(obj.klass === DockServerMarkerImpl.name) return new DockServerMarkerImpl(obj.dbid)
         if(obj.klass === PageMarker.name) return new PageMarker()
         if(obj.klass === FilledShapeObject.name) return new FilledShapeObject(obj.fill)
         if(obj.klass === BorderedShapeObject.name) return new BorderedShapeObject(obj.border_fill, obj.border_width)

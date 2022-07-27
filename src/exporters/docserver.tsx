@@ -1,10 +1,18 @@
 import {Action} from "../actions";
-import {Doc, DocName, GlobalState, GlobalStateContext, TreeNode, TreeNodeImpl} from "../common";
+import {
+    Component,
+    Doc,
+    DocName,
+    GlobalState,
+    GlobalStateContext,
+    TreeNode,
+    TreeNodeImpl
+} from "../common";
 import {Toolbar} from "../comps";
 import {useContext, useEffect, useState} from "react";
 import {DialogContext} from "../dialog";
 import {test_from_json, test_to_json} from "./json";
-import {DBObj, DBObjAPI, make_logger, RPCClient, Status} from "josh_util";
+import {DBID, DBObj, DBObjAPI, make_logger, RPCClient, Status} from "josh_util";
 import {canvasToPNGBlob, export_PNG} from "./png";
 
 const log = make_logger("docserver")
@@ -20,6 +28,28 @@ async function make_rpc():Promise<DBObjAPI> {
     return api
 }
 
+export const DocServerMarkerName = "DocServerMarkerName"
+export interface DocServerMarker extends Component {
+    get_id():string
+    set_id(id:string):void
+}
+export class DockServerMarkerImpl implements DocServerMarker {
+    name: string
+    _id: string
+    constructor(id:string) {
+        this.name = DocServerMarkerName
+        this._id = id
+    }
+
+    get_id(): string {
+        return this._id
+    }
+    set_id(id: string):void {
+        this._id = id
+    }
+
+}
+
 async function do_atts_save(node:TreeNode, state:GlobalState) {
     let obj = test_to_json(node as TreeNodeImpl,state)
     let data = {
@@ -29,19 +59,56 @@ async function do_atts_save(node:TreeNode, state:GlobalState) {
     let can = export_PNG(node,state)
     console.log("canvas is",can)
     let blob:Blob = await canvasToPNGBlob(can)
-    let url = `http://localhost:8765/api/create_with_attachment`
     let form_data = new FormData()
-    form_data.append('data',JSON.stringify(data))
     form_data.set("thumb",blob)
-    let res = await fetch(url,{
-        method:'POST',
-        headers:{
-            'db-username': 'josh',
-            'db-password': 'pass',
-        },
-        body:form_data,
-    })
-    return await res.json() as Status
+
+    if(node.has_component(DocServerMarkerName)) {
+        let dm = node.get_component(DocServerMarkerName) as DocServerMarker
+        console.log("re-saving doing replace instead")
+        form_data.append('old',JSON.stringify({
+            type:'vized',
+            id:dm.get_id(),
+        }))
+        form_data.append('replacement',JSON.stringify(data))
+        let url = `http://localhost:8765/api/replace_with_attachment`
+        let res = await fetch(url,{
+            method:'POST',
+            headers:{
+                'db-username': 'josh',
+                'db-password': 'pass',
+            },
+            body:form_data,
+        })
+        let status = await res.json() as Status
+        if(status.success) {
+            console.log('status is', status.data[0].id)
+            let dm = new DockServerMarkerImpl(status.data[0].id);
+            // dm.set_id(status.data[0].id);
+            (node as TreeNodeImpl).add_component(dm);
+            console.log("dm is",dm)
+            return status
+        }
+    } else {
+        form_data.append('data',JSON.stringify(data))
+        let url = `http://localhost:8765/api/create_with_attachment`
+        let res = await fetch(url,{
+            method:'POST',
+            headers:{
+                'db-username': 'josh',
+                'db-password': 'pass',
+            },
+            body:form_data,
+        })
+        let status = await res.json() as Status
+        if(status.success) {
+            console.log('status is', status.data[0].id)
+            let dm = new DockServerMarkerImpl(status.data[0].id);
+            // dm.set_id(status.data[0].id);
+            (node as TreeNodeImpl).add_component(dm)
+            console.log("dm is",dm)
+            return status
+        }
+    }
 }
 
 function ServerDocImport() {
