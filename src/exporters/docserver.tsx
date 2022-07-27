@@ -4,7 +4,8 @@ import {Toolbar} from "../comps";
 import {useContext, useEffect, useState} from "react";
 import {DialogContext} from "../dialog";
 import {test_from_json, test_to_json} from "./json";
-import {DBObj, DBObjAPI, make_logger, RPCClient} from "josh_util";
+import {DBObj, DBObjAPI, make_logger, RPCClient, Status} from "josh_util";
+import {canvasToPNGBlob, export_PNG} from "./png";
 
 const log = make_logger("docserver")
 
@@ -17,6 +18,30 @@ async function make_rpc():Promise<DBObjAPI> {
     })
     log.info('we are connected')
     return api
+}
+
+async function do_atts_save(node:TreeNode, state:GlobalState) {
+    let obj = test_to_json(node as TreeNodeImpl,state)
+    let data = {
+        type:'vized',
+        data:obj,
+    }
+    let can = export_PNG(node,state)
+    console.log("canvas is",can)
+    let blob:Blob = await canvasToPNGBlob(can)
+    let url = `http://localhost:8765/api/create_with_attachment`
+    let form_data = new FormData()
+    form_data.append('data',JSON.stringify(data))
+    form_data.set("thumb",blob)
+    let res = await fetch(url,{
+        method:'POST',
+        headers:{
+            'db-username': 'josh',
+            'db-password': 'pass',
+        },
+        body:form_data,
+    })
+    return await res.json() as Status
 }
 
 function ServerDocImport() {
@@ -50,7 +75,11 @@ function ServerDocImport() {
                 if(dm.length > 0 && dm[0].title) {
                     title = dm[0].title
                 }
-                return <li key={i} onClick={()=>load(d)}>{title}</li>
+                let img_url = `http://localhost:8765/api/get/${d.id}/attachment/thumb`
+                return <li key={i} onClick={()=>load(d)}>
+                    <b>{title}</b>
+                    <img alt={"thumb"} src={img_url} width="64"/>
+                </li>
             })}
         </ul>
         <Toolbar>
@@ -74,14 +103,7 @@ export const export_server_png_action:Action = {
     title:"save to server",
     use_gui:false,
     fun(node: TreeNode, state: GlobalState): any {
-        let obj = test_to_json(node as TreeNodeImpl,state)
-        console.log("saving obj",obj)
-        make_rpc().then(rpc => {
-            return rpc.create({
-                type:'vized',
-                data:obj,
-            })
-        }).then((d)=>{
+        do_atts_save(node, state).then((d)=>{
             console.log("result of it is",d)
         })
     }
